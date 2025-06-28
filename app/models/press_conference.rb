@@ -5,7 +5,7 @@ class PressConference < ApplicationRecord
   has_many :press_conference_questions, dependent: :destroy, -> { order(:order_index) }
   has_many :press_conference_responses, through: :press_conference_questions
 
-  enum status: {
+  enum :status, {
     draft: 0,
     generating: 1,
     ready: 2,

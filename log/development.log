@@ -91,3 +91,62 @@ FOREIGN KEY ("press_conference_question_id")
   [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mCOMMIT /*application='CommishTools'*/[0m
   [1m[35m (0.3ms)[0m  [1m[34mSELECT pg_advisory_unlock(4806403544068218330) /*application='CommishTools'*/[0m
   [1m[36mActiveRecord::SchemaMigration Load (0.1ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='CommishTools'*/[0m
+Started GET "/ws" for ::1 at 2025-06-28 13:54:24 -0600
+  [1m[36mActiveRecord::SchemaMigration Load (1.0ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='CommishTools'*/[0m
+  
+ArgumentError (wrong number of arguments (given 0, expected 1..2)):
+  
+app/models/user.rb:7:in `<class:User>'
+app/models/user.rb:1:in `<main>'
+config/routes.rb:2:in `block in <main>'
+config/routes.rb:1:in `<main>'
+Started GET "/ws" for ::1 at 2025-06-28 13:54:27 -0600
+  
+ActionController::RoutingError (No route matches [GET] "/ws"):
+  
+Started GET "/ws" for ::1 at 2025-06-28 13:54:32 -0600
+  
+ActionController::RoutingError (No route matches [GET] "/ws"):
+  
+Started GET "/ws" for ::1 at 2025-06-28 13:54:41 -0600
+  
+ActionController::RoutingError (No route matches [GET] "/ws"):
+  
+Started GET "/ws" for ::1 at 2025-06-28 13:54:58 -0600
+  
+ActionController::RoutingError (No route matches [GET] "/ws"):
+  
+Started GET "/ws" for ::1 at 2025-06-28 13:55:31 -0600
+  
+ActionController::RoutingError (No route matches [GET] "/ws"):
+  
+Started GET "/ws" for ::1 at 2025-06-28 13:56:36 -0600
+  
+ActionController::RoutingError (No route matches [GET] "/ws"):
+  
+Started GET "/" for ::1 at 2025-06-28 13:57:18 -0600
+  
+ActionController::RoutingError (No route matches [GET] "/"):
+  
+Started GET "/" for ::1 at 2025-06-28 13:57:19 -0600
+  
+ActionController::RoutingError (No route matches [GET] "/"):
+  
+Started GET "/" for ::1 at 2025-06-28 13:58:21 -0600
+  [1m[36mActiveRecord::SchemaMigration Load (1.3ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='CommishTools'*/[0m
+  
+ArgumentError (wrong number of arguments (given 0, expected 1..2)):
+  
+app/models/user.rb:7:in `<class:User>'
+app/models/user.rb:1:in `<main>'
+config/routes.rb:2:in `block in <main>'
+config/routes.rb:1:in `<main>'
+Started GET "/favicon.ico" for ::1 at 2025-06-28 13:58:21 -0600
+  
+ActionController::RoutingError (No route matches [GET] "/favicon.ico"):
+  
+Started GET "/ws" for ::1 at 2025-06-28 13:58:45 -0600
+  
+ActionController::RoutingError (No route matches [GET] "/ws"):
+  
+  [1m[36mActiveRecord::SchemaMigration Load (0.9ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='CommishTools'*/[0m

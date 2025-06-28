@@ -4,7 +4,7 @@ class VoiceClone < ApplicationRecord
   has_one :user, through: :league_membership
   has_one :league, through: :league_membership
 
-  enum status: {
+  enum :status, {
     pending: 0,
     processing: 1,
     ready: 2,

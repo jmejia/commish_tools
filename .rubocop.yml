@@ -1,0 +1,38 @@
+# Airbnb Ruby styling for Rails
+inherit_gem: { rubocop-airbnb: .rubocop.yml }
+
+# Project-specific overrides
+AllCops:
+  NewCops: enable
+  Exclude:
+    - 'db/schema.rb'
+    - 'db/migrate/*'
+    - 'bin/*'
+    - 'config/boot.rb'
+    - 'config/environment.rb'
+    - 'config/initializers/*'
+    - 'vendor/**/*'
+    - 'node_modules/**/*'
+
+# Allow longer line length for Rails
+Layout/LineLength:
+  Max: 120
+  Exclude:
+    - 'config/routes.rb'
+    - 'db/migrate/*'
+
+# Rails-specific configurations
+Rails:
+  Enabled: true
+
+# Allow multiple expectations per example for RSpec
+RSpec/MultipleExpectations:
+  Max: 5
+
+# Allow longer example groups for RSpec
+RSpec/ExampleLength:
+  Max: 25
+
+# Overwrite or add rules to create your own house style
+#
+# # Use `[a, [b, c]]`

@@ -2,3 +2,92 @@
   [1m[35m (199.8ms)[0m  [1m[35mCREATE DATABASE "commish_tools_development" ENCODING = 'unicode' /*application='CommishTools'*/[0m
   [1m[35mSQL (0.1ms)[0m  [1m[35mSET search_path TO public /*application='CommishTools'*/[0m
   [1m[35m (74.9ms)[0m  [1m[35mCREATE DATABASE "commish_tools_test" ENCODING = 'unicode' /*application='CommishTools'*/[0m
+  [1m[35m (14.4ms)[0m  [1m[35mCREATE TABLE "schema_migrations" ("version" character varying NOT NULL PRIMARY KEY) /*application='CommishTools'*/[0m
+  [1m[35m (3.7ms)[0m  [1m[35mCREATE TABLE "ar_internal_metadata" ("key" character varying NOT NULL PRIMARY KEY, "value" character varying, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL) /*application='CommishTools'*/[0m
+  [1m[35m (0.1ms)[0m  [1m[34mSELECT pg_try_advisory_lock(4806403544068218330) /*application='CommishTools'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.5ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='CommishTools'*/[0m
+  [1m[36mActiveRecord::InternalMetadata Load (2.4ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = 'environment' ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1 /*application='CommishTools'*/[0m
+  [1m[36mActiveRecord::InternalMetadata Create (1.3ms)[0m  [1m[32mINSERT INTO "ar_internal_metadata" ("key", "value", "created_at", "updated_at") VALUES ('environment', 'development', '2025-06-28 19:49:52.158989', '2025-06-28 19:49:52.158991') RETURNING "key" /*application='CommishTools'*/[0m
+Migrating to DeviseCreateUsers (20250628193903)
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN /*application='CommishTools'*/[0m
+  [1m[35m (8.6ms)[0m  [1m[35mCREATE TABLE "users" ("id" bigserial primary key, "email" character varying DEFAULT '' NOT NULL, "encrypted_password" character varying DEFAULT '' NOT NULL, "reset_password_token" character varying, "reset_password_sent_at" timestamp(6), "remember_created_at" timestamp(6), "first_name" character varying, "last_name" character varying, "role" integer, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL) /*application='CommishTools'*/[0m
+  [1m[35m (0.9ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_users_on_email" ON "users" ("email") /*application='CommishTools'*/[0m
+  [1m[35m (0.9ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_users_on_reset_password_token" ON "users" ("reset_password_token") /*application='CommishTools'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Create (0.4ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES ('20250628193903') RETURNING "version" /*application='CommishTools'*/[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mCOMMIT /*application='CommishTools'*/[0m
+Migrating to CreateLeagues (20250628194701)
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mBEGIN /*application='CommishTools'*/[0m
+  [1m[35m (5.8ms)[0m  [1m[35mCREATE TABLE "leagues" ("id" bigserial primary key, "sleeper_league_id" character varying, "name" character varying, "season_year" integer, "settings" jsonb, "owner_id" bigint NOT NULL, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, CONSTRAINT "fk_rails_707c202ed0"
+FOREIGN KEY ("owner_id")
+  REFERENCES "owners" ("id")
+) /*application='CommishTools'*/[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK /*application='CommishTools'*/[0m
+  [1m[35m (0.2ms)[0m  [1m[34mSELECT pg_advisory_unlock(4806403544068218330) /*application='CommishTools'*/[0m
+  [1m[35m (0.1ms)[0m  [1m[34mSELECT pg_try_advisory_lock(4806403544068218330) /*application='CommishTools'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.7ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='CommishTools'*/[0m
+  [1m[36mActiveRecord::InternalMetadata Load (1.0ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = 'environment' ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1 /*application='CommishTools'*/[0m
+Migrating to CreateLeagues (20250628194701)
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN /*application='CommishTools'*/[0m
+  [1m[35m (10.9ms)[0m  [1m[35mCREATE TABLE "leagues" ("id" bigserial primary key, "sleeper_league_id" character varying, "name" character varying, "season_year" integer, "settings" jsonb, "owner_id" bigint NOT NULL, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, CONSTRAINT "fk_rails_707c202ed0"
+FOREIGN KEY ("owner_id")
+  REFERENCES "users" ("id")
+) /*application='CommishTools'*/[0m
+  [1m[35m (0.9ms)[0m  [1m[35mCREATE INDEX "index_leagues_on_owner_id" ON "leagues" ("owner_id") /*application='CommishTools'*/[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_leagues_on_sleeper_league_id" ON "leagues" ("sleeper_league_id") /*application='CommishTools'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Create (0.2ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES ('20250628194701') RETURNING "version" /*application='CommishTools'*/[0m
+  [1m[36mTRANSACTION (0.6ms)[0m  [1m[35mCOMMIT /*application='CommishTools'*/[0m
+Migrating to CreateLeagueMemberships (20250628194709)
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mBEGIN /*application='CommishTools'*/[0m
+  [1m[35m (6.0ms)[0m  [1m[35mCREATE TABLE "league_memberships" ("id" bigserial primary key, "league_id" bigint NOT NULL, "user_id" bigint NOT NULL, "sleeper_user_id" character varying, "team_name" character varying, "role" integer, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, CONSTRAINT "fk_rails_9bfeb7530d"
+FOREIGN KEY ("league_id")
+  REFERENCES "leagues" ("id")
+, CONSTRAINT "fk_rails_d016426bb1"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+) /*application='CommishTools'*/[0m
+  [1m[35m (1.0ms)[0m  [1m[35mCREATE INDEX "index_league_memberships_on_league_id" ON "league_memberships" ("league_id") /*application='CommishTools'*/[0m
+  [1m[35m (1.0ms)[0m  [1m[35mCREATE INDEX "index_league_memberships_on_user_id" ON "league_memberships" ("user_id") /*application='CommishTools'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Create (0.1ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES ('20250628194709') RETURNING "version" /*application='CommishTools'*/[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mCOMMIT /*application='CommishTools'*/[0m
+Migrating to CreateVoiceClones (20250628194723)
+  [1m[36mTRANSACTION (0.3ms)[0m  [1m[35mBEGIN /*application='CommishTools'*/[0m
+  [1m[35m (4.8ms)[0m  [1m[35mCREATE TABLE "voice_clones" ("id" bigserial primary key, "league_membership_id" bigint NOT NULL, "playht_voice_id" character varying, "original_audio_url" character varying, "status" integer, "upload_token" character varying, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, CONSTRAINT "fk_rails_d9010cca06"
+FOREIGN KEY ("league_membership_id")
+  REFERENCES "league_memberships" ("id")
+) /*application='CommishTools'*/[0m
+  [1m[35m (1.4ms)[0m  [1m[35mCREATE INDEX "index_voice_clones_on_league_membership_id" ON "voice_clones" ("league_membership_id") /*application='CommishTools'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Create (0.2ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES ('20250628194723') RETURNING "version" /*application='CommishTools'*/[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mCOMMIT /*application='CommishTools'*/[0m
+Migrating to CreatePressConferences (20250628194735)
+  [1m[36mTRANSACTION (0.3ms)[0m  [1m[35mBEGIN /*application='CommishTools'*/[0m
+  [1m[35m (7.3ms)[0m  [1m[35mCREATE TABLE "press_conferences" ("id" bigserial primary key, "league_id" bigint NOT NULL, "target_manager_id" bigint NOT NULL, "week_number" integer, "season_year" integer, "status" integer, "context_data" jsonb, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, CONSTRAINT "fk_rails_a0fde7b32c"
+FOREIGN KEY ("league_id")
+  REFERENCES "leagues" ("id")
+, CONSTRAINT "fk_rails_eb32167f76"
+FOREIGN KEY ("target_manager_id")
+  REFERENCES "league_memberships" ("id")
+) /*application='CommishTools'*/[0m
+  [1m[35m (1.1ms)[0m  [1m[35mCREATE INDEX "index_press_conferences_on_league_id" ON "press_conferences" ("league_id") /*application='CommishTools'*/[0m
+  [1m[35m (0.9ms)[0m  [1m[35mCREATE INDEX "index_press_conferences_on_target_manager_id" ON "press_conferences" ("target_manager_id") /*application='CommishTools'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Create (0.1ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES ('20250628194735') RETURNING "version" /*application='CommishTools'*/[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mCOMMIT /*application='CommishTools'*/[0m
+Migrating to CreatePressConferenceQuestions (20250628194742)
+  [1m[36mTRANSACTION (0.3ms)[0m  [1m[35mBEGIN /*application='CommishTools'*/[0m
+  [1m[35m (4.9ms)[0m  [1m[35mCREATE TABLE "press_conference_questions" ("id" bigserial primary key, "press_conference_id" bigint NOT NULL, "question_text" text, "question_audio_url" character varying, "playht_question_voice_id" character varying, "order_index" integer, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, CONSTRAINT "fk_rails_8024d5fa60"
+FOREIGN KEY ("press_conference_id")
+  REFERENCES "press_conferences" ("id")
+) /*application='CommishTools'*/[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE INDEX "index_press_conference_questions_on_press_conference_id" ON "press_conference_questions" ("press_conference_id") /*application='CommishTools'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Create (0.1ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES ('20250628194742') RETURNING "version" /*application='CommishTools'*/[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mCOMMIT /*application='CommishTools'*/[0m
+Migrating to CreatePressConferenceResponses (20250628194748)
+  [1m[36mTRANSACTION (0.3ms)[0m  [1m[35mBEGIN /*application='CommishTools'*/[0m
+  [1m[35m (4.9ms)[0m  [1m[35mCREATE TABLE "press_conference_responses" ("id" bigserial primary key, "press_conference_question_id" bigint NOT NULL, "response_text" text, "response_audio_url" character varying, "generation_prompt" text, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, CONSTRAINT "fk_rails_07af795eba"
+FOREIGN KEY ("press_conference_question_id")
+  REFERENCES "press_conference_questions" ("id")
+) /*application='CommishTools'*/[0m
+  [1m[35m (0.5ms)[0m  [1m[35mCREATE INDEX "idx_on_press_conference_question_id_326d987559" ON "press_conference_responses" ("press_conference_question_id") /*application='CommishTools'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Create (0.2ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES ('20250628194748') RETURNING "version" /*application='CommishTools'*/[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mCOMMIT /*application='CommishTools'*/[0m
+  [1m[35m (0.3ms)[0m  [1m[34mSELECT pg_advisory_unlock(4806403544068218330) /*application='CommishTools'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.1ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='CommishTools'*/[0m

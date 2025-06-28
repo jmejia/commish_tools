@@ -1,15 +1,38 @@
 Rails.application.routes.draw do
   devise_for :users
-  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
+  root 'home#index'
 
-  # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
-  # Can be used by load balancers and uptime monitors to verify that the app is live.
+  # Health check for load balancers
   get "up" => "rails/health#show", as: :rails_health_check
 
-  # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
-  # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
-  # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
+  # PWA files
+  get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
+  get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
-  # Defines the root path route ("/")
-  # root "posts#index"
+  # Main application routes
+  resources :leagues do
+    member do
+      get :dashboard
+    end
+    
+    resources :league_memberships, only: [:create, :destroy] do
+      resources :voice_clones, except: [:index]
+    end
+    
+    resources :press_conferences do
+      member do
+        post :generate
+        get :audio_player
+      end
+      
+      resources :press_conference_questions, path: :questions
+    end
+  end
+
+  # Voice upload routes (public access via token)
+  get '/voice_uploads/:token', to: 'voice_uploads#show', as: :voice_upload
+  post '/voice_uploads/:token', to: 'voice_uploads#create'
+  
+  # Audio streaming routes
+  get '/audio/:id', to: 'audio#stream', as: :audio_stream
 end

@@ -1,0 +1,151 @@
+<div class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+  <!-- Hero Section -->
+  <div class="relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-r from-cyan-400/10 to-orange-400/10"></div>
+    
+    <!-- Navigation -->
+    <nav class="relative z-10 px-6 py-4">
+      <div class="flex items-center justify-between max-w-6xl mx-auto">
+        <div class="text-2xl font-bold text-white">
+          🏈 CommishTools
+        </div>
+        <div class="space-x-4">
+          <% unless user_signed_in? %>
+            <%= link_to 'Sign In', new_user_session_path, 
+                class: 'px-4 py-2 text-white hover:text-cyan-400 transition-colors' %>
+            <%= link_to 'Sign Up', new_user_registration_path, 
+                class: 'px-6 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition-colors' %>
+          <% else %>
+            <span class="text-white">Welcome, <%= current_user.first_name %>!</span>
+            <%= link_to 'My Leagues', leagues_path, 
+                class: 'px-6 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition-colors' %>
+          <% end %>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero Content -->
+    <div class="relative z-10 px-6 py-20">
+      <div class="max-w-4xl mx-auto text-center">
+        <h1 class="text-5xl md:text-7xl font-bold text-white mb-6">
+          AI-Powered
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-orange-400">
+            Press Conferences
+          </span>
+        </h1>
+        
+        <p class="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto">
+          Transform your Sleeper fantasy league with hilarious AI-generated press conferences. 
+          Clone voices, create drama, and roast the lowest-scoring team each week.
+        </p>
+
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <% unless user_signed_in? %>
+            <%= link_to new_user_registration_path, 
+                class: 'px-8 py-4 bg-gradient-to-r from-cyan-500 to-cyan-600 text-white text-lg font-semibold rounded-xl hover:from-cyan-600 hover:to-cyan-700 transition-all transform hover:scale-105' do %>
+              Get Started Free
+              <span class="ml-2">🚀</span>
+            <% end %>
+            
+            <%= link_to '#features', 
+                class: 'px-8 py-4 border-2 border-gray-600 text-white text-lg font-semibold rounded-xl hover:border-cyan-400 hover:text-cyan-400 transition-all' do %>
+              Learn More
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Features Section -->
+  <div id="features" class="py-20 px-6">
+    <div class="max-w-6xl mx-auto">
+      <h2 class="text-4xl font-bold text-white text-center mb-16">
+        Why Commissioners Love CommishTools
+      </h2>
+      
+      <div class="grid md:grid-cols-3 gap-8">
+        <!-- Feature 1 -->
+        <div class="bg-gray-800/50 p-8 rounded-2xl border border-gray-700">
+          <div class="text-4xl mb-4">🎙️</div>
+          <h3 class="text-2xl font-bold text-white mb-4">Voice Cloning</h3>
+          <p class="text-gray-300">
+            Upload voice samples of your league members and our AI will clone their voices 
+            for authentic-sounding press conferences.
+          </p>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="bg-gray-800/50 p-8 rounded-2xl border border-gray-700">
+          <div class="text-4xl mb-4">🤖</div>
+          <h3 class="text-2xl font-bold text-white mb-4">AI Responses</h3>
+          <p class="text-gray-300">
+            ChatGPT generates hilarious coach-style responses based on real league data, 
+            scores, and matchups from your Sleeper league.
+          </p>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="bg-gray-800/50 p-8 rounded-2xl border border-gray-700">
+          <div class="text-4xl mb-4">📱</div>
+          <h3 class="text-2xl font-bold text-white mb-4">Mobile Ready</h3>
+          <p class="text-gray-300">
+            Record voices directly in your browser, listen to press conferences, 
+            and manage everything from your phone.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- How It Works -->
+  <div class="py-20 px-6 bg-gray-800/30">
+    <div class="max-w-4xl mx-auto text-center">
+      <h2 class="text-4xl font-bold text-white mb-16">How It Works</h2>
+      
+      <div class="space-y-12">
+        <div class="flex flex-col md:flex-row items-center gap-8">
+          <div class="flex-1">
+            <h3 class="text-2xl font-bold text-cyan-400 mb-4">1. Connect Your League</h3>
+            <p class="text-gray-300 text-lg">
+              Link your Sleeper fantasy league to automatically pull in team data, 
+              scores, and player stats each week.
+            </p>
+          </div>
+          <div class="text-6xl">📊</div>
+        </div>
+
+        <div class="flex flex-col md:flex-row-reverse items-center gap-8">
+          <div class="flex-1">
+            <h3 class="text-2xl font-bold text-orange-400 mb-4">2. Upload Voice Samples</h3>
+            <p class="text-gray-300 text-lg">
+              Record or upload short voice samples for each team manager. 
+              Our AI will learn their unique speaking patterns.
+            </p>
+          </div>
+          <div class="text-6xl">🎤</div>
+        </div>
+
+        <div class="flex flex-col md:flex-row items-center gap-8">
+          <div class="flex-1">
+            <h3 class="text-2xl font-bold text-green-400 mb-4">3. Generate & Share</h3>
+            <p class="text-gray-300 text-lg">
+              Each week, create hilarious press conferences for the lowest-scoring team. 
+              Share the audio with your league for maximum entertainment.
+            </p>
+          </div>
+          <div class="text-6xl">🎬</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="py-12 px-6 border-t border-gray-800">
+    <div class="max-w-6xl mx-auto text-center">
+      <p class="text-gray-400">
+        Made with ❤️ for fantasy football commissioners everywhere
+      </p>
+    </div>
+  </footer>
+</div>

@@ -2,11 +2,7 @@ class PressConference < ApplicationRecord
   belongs_to :league
   belongs_to :target_manager, class_name: 'LeagueMembership'
 
-  has_many :press_conference_questions, dependent: :destroy do
-    def ordered
-      order(:order_index)
-    end
-  end
+  has_many :press_conference_questions, dependent: :destroy
   has_many :press_conference_responses, through: :press_conference_questions
 
   enum :status, {
@@ -27,6 +23,10 @@ class PressConference < ApplicationRecord
   scope :current_season, -> { where(season_year: Date.current.year) }
   scope :for_week, ->(week) { where(week_number: week) }
   scope :completed, -> { where(status: [:ready, :archived]) }
+
+  def ordered_questions
+    press_conference_questions.order(:order_index)
+  end
 
   def complete_audio_url
     return nil unless ready?

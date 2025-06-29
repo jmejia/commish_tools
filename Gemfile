@@ -46,6 +46,9 @@ gem "image_processing", "~> 1.2"
 
 # Authentication
 gem "devise"
+gem "omniauth"
+gem "omniauth-google-oauth2"
+# gem "omniauth-rails_csrf_protection"
 
 # Background jobs (alternative to solid_queue for more complex scenarios)
 gem "sidekiq"

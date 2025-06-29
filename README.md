@@ -1,24 +1,38 @@
-# README
+# CommishTools
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+A Rails application for fantasy football league commissioners.
 
-Things you may want to cover:
+## Google OAuth Setup
 
-* Ruby version
+To enable Google OAuth authentication, you need to:
 
-* System dependencies
+1. Go to the [Google Cloud Console](https://console.developers.google.com/)
+2. Create a new project or select an existing one
+3. Enable the Google+ API
+4. Go to "Credentials" and create an OAuth 2.0 Client ID
+5. Set the authorized redirect URIs to include:
+   - `http://localhost:3000/users/auth/google_oauth2/callback` (for development)
+   - `https://yourdomain.com/users/auth/google_oauth2/callback` (for production)
+6. Set these environment variables:
+   ```
+   GOOGLE_CLIENT_ID=your_google_client_id_here
+   GOOGLE_CLIENT_SECRET=your_google_client_secret_here
+   ```
 
-* Configuration
+## Development Setup
 
-* Database creation
+* Ruby version: 3.2.2
 
-* Database initialization
+* System dependencies: PostgreSQL, Redis
 
-* How to run the test suite
+* Configuration: Copy environment variables as shown above
 
-* Services (job queues, cache servers, search engines, etc.)
+* Database creation: `rails db:create`
 
-* Deployment instructions
+* Database initialization: `rails db:migrate`
 
-* ...
+* How to run the test suite: `rspec`
+
+* Services: Redis for background jobs
+
+* Deployment instructions: Use Kamal for deployment

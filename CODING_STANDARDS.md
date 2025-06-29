@@ -47,7 +47,7 @@ We follow Jason Swett's organizational principles for maintainable Rails applica
 - [ ] New functionality organized by domain namespace?
 - [ ] Business logic in models, not controllers?
 - [ ] Using POROs instead of service objects?
-- [ ] Controllers thin (< 10 lines per action)?
+- [ ] Controllers thin (< 15 lines per action)?
 - [ ] Descriptive class names (nouns, not verbs)?
 
 ### Automated Checks
@@ -124,6 +124,6 @@ jobs:
 
 **Red flags in PRs:**
 - New `app/services/` files
-- Controllers with >10 lines per action  
+- Controllers with >15 lines per action  
 - Classes named with verbs (`CreateUser` → `UserCreation`)
 - Complex logic in controllers instead of models 

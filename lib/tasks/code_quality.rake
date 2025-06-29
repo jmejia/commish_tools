@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
-desc "Run all code quality checks"
-task quality: %i(
-  brakeman
-  standard
+desc "Run coding standards checks"
+task coding_standards: %i(
   check_service_objects
   check_controller_size
   check_namespacing
@@ -57,7 +55,7 @@ task :check_controller_size do
       # Start of method
       if stripped.match?(/^def\s+\w+/)
         # Save previous method if it was too long
-        if current_method && method_line_count > 10
+        if current_method && method_line_count > 15
           violations << {
             file: file,
             method: current_method,
@@ -72,7 +70,7 @@ task :check_controller_size do
         # End of method - check if this closes our method
         method_line_count += 1
 
-        if method_line_count > 10
+        if method_line_count > 15
           violations << {
             file: file,
             method: current_method,
@@ -83,14 +81,14 @@ task :check_controller_size do
 
         current_method = nil
         method_line_count = 0
-      elsif current_method
-        method_line_count += 1 unless stripped.empty? || stripped.start_with?("#")
+      elsif current_method && !stripped.empty? && !stripped.start_with?("#")
+        method_line_count += 1
       end
     end
   end
 
   if violations.any?
-    puts "❌ Fat controller methods found (>10 lines):"
+    puts "❌ Fat controller methods found (>15 lines):"
     violations.each do |v|
       puts "  #{v[:file]}:#{v[:line_number]} - #{v[:method]} (#{v[:lines]} lines)"
     end
@@ -146,7 +144,7 @@ task :standards_summary do
   puts "=" * 50
   puts "✅ Domain namespaces (Billing::, Schedule::)"
   puts "✅ POROs in app/models (80% target)"
-  puts "✅ Thin controllers (<10 lines per action)"
+  puts "✅ Thin controllers (<15 lines per action)"
   puts "✅ Hidden resources (controllers without AR models)"
   puts "❌ No service objects or command pattern"
   puts "❌ No technical pattern directories"

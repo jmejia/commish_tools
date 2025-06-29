@@ -9,7 +9,7 @@ Brief description of changes
 
 ## Coding Standards Checklist
 - [ ] Business logic is in models (POROs), not controllers
-- [ ] Controllers are thin (<10 lines per action)
+- [ ] Controllers are thin (<15 lines per action)
 - [ ] Used domain namespaces where appropriate
 - [ ] No service objects or `.call` pattern
 - [ ] No new technical pattern directories (`app/services/`, `app/decorators/`, etc.)

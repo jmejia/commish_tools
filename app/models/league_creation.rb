@@ -1,3 +1,5 @@
+require 'ostruct'
+
 class LeagueCreation
   attr_reader :user, :league_params
 

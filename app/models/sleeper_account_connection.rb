@@ -1,3 +1,5 @@
+require 'ostruct'
+
 class SleeperAccountConnection
   attr_reader :user, :username
 

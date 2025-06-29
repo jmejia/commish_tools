@@ -1,3 +1,5 @@
+require 'ostruct'
+
 class SleeperLeagueImporter
   attr_reader :user, :sleeper_league_id
 

@@ -187,9 +187,9 @@ class LeaguesController < ApplicationController
 
   def ensure_league_admin
     membership = current_user.league_memberships.find_by(league: @league)
-    unless membership&.admin?
-      Rails.logger.warn "User #{current_user.id} attempted admin action on league #{@league.id} without admin rights"
-      redirect_to @league, alert: 'You must be an admin to perform this action.'
+    unless membership&.owner?
+      Rails.logger.warn "User #{current_user.id} attempted admin action on league #{@league.id} without owner rights"
+      redirect_to @league, alert: 'You must be the league owner to perform this action.'
     end
   end
 

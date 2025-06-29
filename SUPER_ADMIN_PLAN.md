@@ -29,8 +29,29 @@ CREATE TABLE super_admins (
 - Foreign key ensures referential integrity
 - Cascade delete removes super admin status if user is deleted
 
+#### New Table: `sleeper_connection_requests` (Phase 2)
+```sql
+CREATE TABLE sleeper_connection_requests (
+  id BIGINT PRIMARY KEY,
+  user_id BIGINT NOT NULL,
+  sleeper_username VARCHAR NOT NULL,
+  sleeper_id VARCHAR NOT NULL,
+  status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
+  requested_at TIMESTAMP NOT NULL,
+  reviewed_at TIMESTAMP,
+  reviewed_by_id BIGINT,
+  rejection_reason TEXT,
+  created_at TIMESTAMP NOT NULL,
+  updated_at TIMESTAMP NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (reviewed_by_id) REFERENCES users(id)
+);
+```
+
 #### Indexes
 - `index_super_admins_on_user_id` (unique)
+- `index_sleeper_connection_requests_on_user_id`
+- `index_sleeper_connection_requests_on_status`
 
 ### 2. Model Design
 
@@ -39,9 +60,19 @@ CREATE TABLE super_admins (
 - Validates uniqueness of user_id
 - Provides helper methods for checking super admin status
 
+#### SleeperConnectionRequest Model (Phase 2)
+- Belongs to User
+- Belongs to reviewed_by (User, optional)
+- Enum for status: pending, approved, rejected
+- Validates presence of sleeper_username and sleeper_id
+- Scopes for different statuses
+
 #### User Model Enhancement
 - Has one SuperAdmin (optional)
+- Has many SleeperConnectionRequests
 - Helper method: `super_admin?`
+- Helper method: `sleeper_connection_pending?`
+- Helper method: `latest_sleeper_request`
 
 ### 3. Authentication & Authorization
 
@@ -76,6 +107,11 @@ CREATE TABLE super_admins (
 - Add new super admins
 - Remove super admins
 
+#### Admin::SleeperConnectionRequestsController (Phase 2)
+- List pending requests
+- Approve/reject requests
+- View request details
+
 ### 5. View Structure
 
 #### Layout
@@ -87,6 +123,7 @@ CREATE TABLE super_admins (
 - `app/views/admin/dashboard/index.html.erb`
 - `app/views/admin/users/index.html.erb`
 - `app/views/admin/super_admins/index.html.erb`
+- `app/views/admin/sleeper_connection_requests/index.html.erb` (Phase 2)
 
 ### 6. Routes
 
@@ -95,23 +132,33 @@ namespace :admin do
   get 'dashboard', to: 'dashboard#index'
   resources :users, only: [:index, :show]
   resources :super_admins, only: [:index, :create, :destroy]
+  resources :sleeper_connection_requests, only: [:index, :show, :update] do
+    member do
+      patch :approve
+      patch :reject
+    end
+  end
 end
 ```
 
 ## Implementation Phases
 
-### Phase 1: Foundation (MVP)
-1. Create SuperAdmin model and migration
-2. Add super admin helper methods to User model
-3. Create Admin::BaseController with authentication
-4. Create basic admin dashboard
-5. Create SuperAdmins controller for management
-6. Add admin layout and styling
+### Phase 1: Foundation (✅ COMPLETED)
+1. ✅ Create SuperAdmin model and migration
+2. ✅ Add super admin helper methods to User model
+3. ✅ Create Admin::BaseController with authentication
+4. ✅ Create basic admin dashboard
+5. ✅ Create SuperAdmins controller for management
+6. ✅ Add admin layout and styling
 
-### Phase 2: User Management (Future)
-1. Create Admin::UsersController
-2. Add user listing and detail views
-3. Implement user approval/blocking functionality
+### Phase 2: Sleeper Connection Approval Workflow (CURRENT)
+1. Create SleeperConnectionRequest model and migration
+2. Modify Sleeper connection flow to create pending requests
+3. Add email notifications to super admins for new requests
+4. Create Admin::SleeperConnectionRequestsController
+5. Add approval/rejection functionality
+6. Update user dashboard to show pending status
+7. Add mailer for notifications
 
 ### Phase 3: Content Management (Future)
 1. Add content moderation features
@@ -139,18 +186,21 @@ end
 
 ### Unit Tests
 - SuperAdmin model validations
+- SleeperConnectionRequest model validations
 - User model super_admin? method
 - Controller authorization logic
 
 ### Integration Tests
 - Admin route protection
 - Super admin creation/removal flows
+- Sleeper connection approval workflow
 - Dashboard access control
 
 ### System Tests
 - Complete admin workflow
 - Security boundary testing
 - User elevation prevention
+- Email notification delivery
 
 ## Migration Strategy
 
@@ -164,6 +214,24 @@ class CreateSuperAdmins < ActiveRecord::Migration[7.0]
     end
     
     add_index :super_admins, :user_id, unique: true
+  end
+end
+
+class CreateSleeperConnectionRequests < ActiveRecord::Migration[7.0]
+  def change
+    create_table :sleeper_connection_requests do |t|
+      t.references :user, null: false, foreign_key: true
+      t.string :sleeper_username, null: false
+      t.string :sleeper_id, null: false
+      t.integer :status, default: 0, null: false # enum: pending: 0, approved: 1, rejected: 2
+      t.timestamp :requested_at, null: false
+      t.timestamp :reviewed_at
+      t.references :reviewed_by, foreign_key: { to_table: :users }
+      t.text :rejection_reason
+      t.timestamps
+    end
+    
+    add_index :sleeper_connection_requests, :status
   end
 end
 ```
@@ -190,10 +258,14 @@ end
 - Alert system for critical admin actions
 
 ## Success Criteria
-- [ ] Super admin can be designated without user table modification
-- [ ] Admin dashboard is accessible and functional
-- [ ] Super admin status is secure and cannot be accidentally granted
-- [ ] Basic user listing is available
-- [ ] Super admin management interface works
-- [ ] All admin routes are properly protected
-- [ ] Tests pass and cover security scenarios 
+- [x] Super admin can be designated without user table modification
+- [x] Admin dashboard is accessible and functional
+- [x] Super admin status is secure and cannot be accidentally granted
+- [x] Basic user listing is available
+- [x] Super admin management interface works
+- [x] All admin routes are properly protected
+- [x] Tests pass and cover security scenarios
+- [ ] Sleeper connection requests require super admin approval
+- [ ] Email notifications sent to super admins for new requests
+- [ ] Users can see pending connection status
+- [ ] Super admins can approve/reject requests from dashboard 

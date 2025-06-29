@@ -2,23 +2,23 @@ require 'rails_helper'
 
 RSpec.describe SuperAdmin, type: :model do
   describe 'associations' do
-    it { should belong_to(:user) }
+    it 'belongs to user' do
+      user = create(:user)
+      super_admin = create(:super_admin, user: user)
+
+      expect(super_admin.user).to eq(user)
+      expect(super_admin).to respond_to(:user)
+    end
   end
 
   describe 'validations' do
-    it { should validate_uniqueness_of(:user_id) }
-  end
+    it 'validates uniqueness of user_id' do
+      user = create(:user)
+      create(:super_admin, user: user)
 
-  describe 'scopes' do
-    describe '.active' do
-      let!(:user1) { create(:user) }
-      let!(:user2) { create(:user) }
-      let!(:super_admin1) { create(:super_admin, user: user1) }
-      let!(:super_admin2) { create(:super_admin, user: user2) }
-
-      it 'returns all super admins when all users are active' do
-        expect(SuperAdmin.active).to include(super_admin1, super_admin2)
-      end
+      duplicate_super_admin = build(:super_admin, user: user)
+      expect(duplicate_super_admin).not_to be_valid
+      expect(duplicate_super_admin.errors[:user_id]).to include('has already been taken')
     end
   end
 

@@ -2,7 +2,16 @@ require 'rails_helper'
 
 RSpec.describe User, type: :model do
   describe 'associations' do
-    it { should have_one(:super_admin).dependent(:destroy) }
+    it 'has one super admin with dependent destroy' do
+      user = create(:user)
+      expect(user).to respond_to(:super_admin)
+
+      super_admin = create(:super_admin, user: user)
+      expect(user.super_admin).to eq(super_admin)
+
+      # Test dependent destroy
+      expect { user.destroy }.to change(SuperAdmin, :count).by(-1)
+    end
   end
 
   describe '#super_admin?' do

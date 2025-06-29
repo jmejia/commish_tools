@@ -5,6 +5,7 @@ task coding_standards: %i(
   check_service_objects
   check_controller_size
   check_namespacing
+  standards_summary
 )
 
 desc "Check for service objects anti-pattern"

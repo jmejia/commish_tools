@@ -9,7 +9,7 @@ namespace :quality do
     # 1. RuboCop - Style Guide
     puts "1️⃣  Running RuboCop (Style Guide)..."
     puts "=" * 50
-    system("bundle exec rubocop")
+    system("RAILS_ENV=development bundle exec rubocop")
     rubocop_success = $?.success?
     all_passed = false unless rubocop_success
     puts rubocop_success ? "✅ RuboCop: PASSED" : "❌ RuboCop: FAILED"
@@ -36,7 +36,7 @@ namespace :quality do
     # 4. RSpec - Tests + Coverage
     puts "4️⃣  Running RSpec (Tests + Coverage)..."
     puts "=" * 50
-    system("bundle exec rspec")
+    system("RAILS_ENV=test bundle exec rspec")
     rspec_success = $?.success?
     all_passed = false unless rspec_success
     puts rspec_success ? "✅ RSpec: PASSED" : "❌ RSpec: FAILED"
@@ -63,7 +63,7 @@ namespace :quality do
   desc "Run RuboCop style checks"
   task :style do
     puts "🎨 Running RuboCop (Style Guide)..."
-    system("bundle exec rubocop") or exit 1
+    system("RAILS_ENV=development bundle exec rubocop") or exit 1
   end
 
   desc "Run Brakeman security scan"
@@ -81,12 +81,12 @@ namespace :quality do
   desc "Run tests with coverage"
   task :test do
     puts "🧪 Running RSpec (Tests + Coverage)..."
-    system("bundle exec rspec") or exit 1
+    system("RAILS_ENV=test bundle exec rspec") or exit 1
   end
 
   desc "Auto-fix RuboCop style issues where possible"
   task :fix do
     puts "🔧 Auto-fixing RuboCop issues..."
-    system("bundle exec rubocop --autocorrect") or exit 1
+    system("RAILS_ENV=development bundle exec rubocop --autocorrect") or exit 1
   end
 end

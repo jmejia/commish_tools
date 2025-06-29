@@ -10,6 +10,9 @@ abort("The Rails environment is running in production mode!") if Rails.env.produ
 require 'rspec/rails'
 # Add additional requires below this line. Rails is not loaded until this point!
 
+# Database Cleaner for consistent test database state
+require 'database_cleaner/active_record'
+
 # Requires supporting ruby files with custom matchers and macros, etc, in
 # spec/support/ and its subdirectories. Files matching `spec/**/*_spec.rb` are
 # run as spec files by default. This means that files in spec/support that end
@@ -40,10 +43,30 @@ RSpec.configure do |config|
     Rails.root.join('spec/fixtures'),
   ]
 
-  # If you're not using ActiveRecord, or you'd prefer not to run each of your
-  # examples within a transaction, remove the following line or assign false
-  # instead of true.
-  config.use_transactional_fixtures = true
+  # Database Cleaner configuration - replaces use_transactional_fixtures
+  # We use Database Cleaner instead of transactional fixtures for better control
+  config.use_transactional_fixtures = false
+
+  # Database Cleaner setup for consistent ID generation
+  config.before(:suite) do
+    DatabaseCleaner.clean_with(:truncation)
+  end
+
+  config.before(:each) do |example|
+    # Use truncation for system tests (they run in separate threads)
+    # Use truncation for all tests to ensure ID consistency
+    if example.metadata[:type] == :system
+      DatabaseCleaner.strategy = :truncation
+    else
+      # Use truncation to reset sequences and ensure ID = 1 for each test
+      DatabaseCleaner.strategy = :truncation
+    end
+    DatabaseCleaner.start
+  end
+
+  config.after(:each) do
+    DatabaseCleaner.clean
+  end
 
   # You can uncomment this line to turn off ActiveRecord support entirely.
   # config.use_active_record = false

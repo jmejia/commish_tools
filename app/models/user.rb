@@ -17,6 +17,8 @@ class User < ApplicationRecord
   validates :first_name, presence: true, length: { maximum: 50 }
   validates :last_name, presence: true, length: { maximum: 50 }
   validates :role, presence: true
+  validates :sleeper_username, uniqueness: true, allow_blank: true
+  validates :sleeper_id, uniqueness: true, allow_blank: true
 
   def full_name
     "#{first_name} #{last_name}"
@@ -24,6 +26,38 @@ class User < ApplicationRecord
 
   def display_name
     full_name.strip.presence || email
+  end
+
+  def sleeper_connected?
+    sleeper_id.present?
+  end
+
+  def connect_sleeper_account(username)
+    client = SleeperFF.new
+    user_data = client.user(username)
+    
+    if user_data
+      update!(
+        sleeper_username: user_data.username,
+        sleeper_id: user_data.user_id
+      )
+      true
+    else
+      false
+    end
+  rescue StandardError => e
+    Rails.logger.error "Failed to connect Sleeper account for user #{id}: #{e.message}"
+    false
+  end
+
+  def fetch_sleeper_leagues(season = Date.current.year)
+    return [] unless sleeper_connected?
+
+    client = SleeperFF.new
+    client.user_leagues(sleeper_id, season)
+  rescue StandardError => e
+    Rails.logger.error "Failed to fetch Sleeper leagues for user #{id}: #{e.message}"
+    []
   end
 
   def self.from_omniauth(auth)

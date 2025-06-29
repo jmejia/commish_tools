@@ -17,24 +17,112 @@ class LeaguesController < ApplicationController
 
   def new
     Rails.logger.info "User #{current_user.id} creating new league"
-    @league = League.new
+    
+    if current_user.sleeper_connected?
+      # If Sleeper is connected, show league selection
+      redirect_to select_sleeper_leagues_path
+    else
+      # If Sleeper is not connected, show connection form
+      redirect_to connect_sleeper_path
+    end
+  end
+
+  def connect_sleeper
+    Rails.logger.info "User #{current_user.id} connecting Sleeper account"
+  end
+
+  def connect_sleeper_account
+    Rails.logger.info "User #{current_user.id} attempting to connect Sleeper account with username: #{params[:sleeper_username]}"
+    
+    if current_user.connect_sleeper_account(params[:sleeper_username])
+      Rails.logger.info "Sleeper account connected successfully for user #{current_user.id}"
+      redirect_to select_sleeper_leagues_path, notice: 'Sleeper account connected successfully!'
+    else
+      Rails.logger.warn "Failed to connect Sleeper account for user #{current_user.id}"
+      flash.now[:alert] = 'Failed to connect Sleeper account. Please check your username and try again.'
+      render :connect_sleeper, status: :unprocessable_entity
+    end
+  end
+
+  def select_sleeper_leagues
+    Rails.logger.info "User #{current_user.id} selecting Sleeper leagues to import"
+    
+    unless current_user.sleeper_connected?
+      redirect_to connect_sleeper_path, alert: 'Please connect your Sleeper account first.'
+      return
+    end
+
+    @leagues = current_user.fetch_sleeper_leagues
+    @existing_league_ids = current_user.leagues.pluck(:sleeper_league_id).compact
+    
+    if @leagues.empty?
+      flash.now[:alert] = 'No leagues found for your Sleeper account.'
+    end
+  end
+
+  def import_sleeper_league
+    Rails.logger.info "User #{current_user.id} importing Sleeper league #{params[:sleeper_league_id]}"
+    
+    unless current_user.sleeper_connected?
+      redirect_to connect_sleeper_path, alert: 'Please connect your Sleeper account first.'
+      return
+    end
+
+    sleeper_league_id = params[:sleeper_league_id]
+    
+    # Check if league already exists
+    if League.exists?(sleeper_league_id: sleeper_league_id)
+      redirect_to select_sleeper_leagues_path, alert: 'This league has already been imported.'
+      return
+    end
+
+    # Fetch league details from Sleeper
+    client = SleeperFF.new
+    league_data = client.league(sleeper_league_id)
+    
+    if league_data
+      ActiveRecord::Base.transaction do
+        @league = League.create!(
+          name: league_data.name,
+          sleeper_league_id: sleeper_league_id,
+          season_year: league_data.season.to_i,
+          owner_id: current_user.id
+        )
+
+        @league.league_memberships.create!(
+          user: current_user,
+          role: :owner
+        )
+
+        Rails.logger.info "Sleeper league #{sleeper_league_id} imported successfully by user #{current_user.id}"
+        redirect_to @league, notice: 'League imported successfully!'
+      end
+    else
+      Rails.logger.warn "Failed to import Sleeper league #{sleeper_league_id} for user #{current_user.id}"
+      redirect_to select_sleeper_leagues_path, alert: 'Failed to import league. Please try again.'
+    end
+  rescue StandardError => e
+    Rails.logger.error "Error importing Sleeper league #{sleeper_league_id}: #{e.message}"
+    redirect_to select_sleeper_leagues_path, alert: 'An error occurred while importing the league.'
   end
 
   def create
     Rails.logger.info "User #{current_user.id} attempting to create league with params: #{league_params}"
-    @league = League.new(league_params)
-    
-    if @league.save
-      # Make the creator an admin
-      @league.league_memberships.create!(
-        user: current_user,
-        role: 'admin'
-      )
-      Rails.logger.info "League #{@league.id} created successfully by user #{current_user.id}"
-      redirect_to @league, notice: 'League was successfully created.'
-    else
-      Rails.logger.warn "League creation failed for user #{current_user.id}: #{@league.errors.full_messages}"
-      render :new, status: :unprocessable_entity
+    @league = League.new(league_params.merge(owner_id: current_user.id))
+
+    ActiveRecord::Base.transaction do
+      if @league.save
+        @league.league_memberships.create!(
+          user: current_user,
+          role: :owner
+        )
+        Rails.logger.info "League #{@league.id} created successfully by user #{current_user.id}"
+        redirect_to @league, notice: 'League was successfully created.'
+      else
+        Rails.logger.warn "League creation failed for user #{current_user.id}: #{@league.errors.full_messages}"
+        render :new, status: :unprocessable_entity
+        raise ActiveRecord::Rollback
+      end
     end
   end
 
@@ -93,6 +181,6 @@ class LeaguesController < ApplicationController
   end
 
   def league_params
-    params.require(:league).permit(:name, :description, :sleeper_league_id, :season_year)
+    params.require(:league).permit(:name, :sleeper_league_id, :season_year)
   end
 end 

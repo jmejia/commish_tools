@@ -1,5 +1,6 @@
 # Airbnb Ruby styling for Rails
-inherit_gem: { rubocop-airbnb: .rubocop.yml }
+inherit_gem:
+  rubocop-airbnb: .rubocop.yml
 
 # Project-specific overrides
 AllCops:

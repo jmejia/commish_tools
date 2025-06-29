@@ -30,7 +30,11 @@
         </div>
         <%= link_to new_league_path, 
             class: 'px-6 py-3 bg-gradient-to-r from-cyan-500 to-cyan-600 text-white font-semibold rounded-lg hover:from-cyan-600 hover:to-cyan-700 transition-all transform hover:scale-105' do %>
-          <span class="mr-2">+</span>Create New League
+          <% if current_user.sleeper_connected? %>
+            <span class="mr-2">📥</span>Import League
+          <% else %>
+            <span class="mr-2">🔗</span>Connect Your Sleeper Account
+          <% end %>
         <% end %>
       </div>
 
@@ -91,7 +95,11 @@
           </p>
           <%= link_to new_league_path, 
               class: 'inline-flex items-center px-8 py-4 bg-gradient-to-r from-cyan-500 to-cyan-600 text-white font-semibold rounded-xl hover:from-cyan-600 hover:to-cyan-700 transition-all transform hover:scale-105' do %>
-            <span class="mr-2">+</span>Create Your First League
+            <% if current_user.sleeper_connected? %>
+              <span class="mr-2">📥</span>Import Your First League
+            <% else %>
+              <span class="mr-2">🔗</span>Connect Your Sleeper Account
+            <% end %>
           <% end %>
         </div>
       <% end %>

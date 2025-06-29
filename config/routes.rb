@@ -11,6 +11,12 @@ Rails.application.routes.draw do
   get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
+  # Sleeper integration routes
+  get '/connect_sleeper', to: 'leagues#connect_sleeper'
+  post '/connect_sleeper', to: 'leagues#connect_sleeper_account'
+  get '/select_sleeper_leagues', to: 'leagues#select_sleeper_leagues'
+  post '/import_sleeper_league', to: 'leagues#import_sleeper_league'
+
   # Main application routes
   resources :leagues do
     member do

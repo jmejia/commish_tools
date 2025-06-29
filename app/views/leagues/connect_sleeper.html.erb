@@ -1,0 +1,84 @@
+<div class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+  <!-- Navigation -->
+  <nav class="px-6 py-4 border-b border-gray-800">
+    <div class="flex items-center justify-between max-w-6xl mx-auto">
+      <div class="flex items-center space-x-4">
+        <%= link_to root_path, class: "text-2xl font-bold text-white hover:text-cyan-400 transition-colors" do %>
+          🏈 CommishTools
+        <% end %>
+        <span class="text-gray-400">|</span>
+        <%= link_to leagues_path, class: "text-gray-400 hover:text-white transition-colors" do %>
+          My Leagues
+        <% end %>
+        <span class="text-gray-400">|</span>
+        <h1 class="text-xl font-semibold text-white">Connect Sleeper</h1>
+      </div>
+      
+      <div class="flex items-center space-x-4">
+        <span class="text-white">Welcome, <%= current_user.first_name %>!</span>
+        <%= button_to 'Sign Out', destroy_user_session_path, method: :delete,
+            class: 'px-4 py-2 text-white hover:text-red-400 transition-colors bg-transparent border-none cursor-pointer' %>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="px-6 py-8">
+    <div class="max-w-2xl mx-auto">
+      
+      <!-- Header -->
+      <div class="text-center mb-8">
+        <div class="text-6xl mb-4">🔗</div>
+        <h2 class="text-3xl font-bold text-white mb-2">Connect Your Sleeper Account</h2>
+        <p class="text-gray-400">Enter your Sleeper username to import your fantasy leagues</p>
+      </div>
+
+      <!-- Form Card -->
+      <div class="bg-gray-800/50 rounded-xl border border-gray-700 p-8">
+        <%= form_with url: connect_sleeper_path, method: :post, local: true, class: "space-y-6" do |form| %>
+          
+          <% if flash[:alert] %>
+            <div class="bg-red-500/20 border border-red-500/50 rounded-lg p-4">
+              <h4 class="text-red-400 font-semibold mb-2">Connection Failed</h4>
+              <p class="text-red-300 text-sm"><%= flash[:alert] %></p>
+            </div>
+          <% end %>
+
+          <!-- Sleeper Username -->
+          <div>
+            <%= form.label :sleeper_username, class: "block text-sm font-medium text-gray-300 mb-2" do %>
+              Sleeper Username <span class="text-red-400">*</span>
+            <% end %>
+            <%= form.text_field :sleeper_username, 
+                class: "w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent",
+                placeholder: "Enter your Sleeper username",
+                required: true %>
+            <p class="text-sm text-gray-400 mt-1">
+              This is the username you use to log into Sleeper (not your display name)
+            </p>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex space-x-4 pt-4">
+            <%= form.submit "Connect Account", 
+                class: "flex-1 px-6 py-3 bg-gradient-to-r from-cyan-500 to-cyan-600 text-white font-semibold rounded-lg hover:from-cyan-600 hover:to-cyan-700 transition-all transform hover:scale-105" %>
+            <%= link_to "Cancel", leagues_path, 
+                class: "px-6 py-3 border border-gray-600 text-gray-300 rounded-lg hover:border-cyan-400 hover:text-cyan-400 transition-colors" %>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Help Text -->
+      <div class="mt-8 bg-gray-800/30 rounded-lg p-6 border border-gray-700">
+        <h3 class="text-white font-semibold mb-3">How to find your Sleeper username:</h3>
+        <ol class="text-gray-400 text-sm space-y-2">
+          <li>1. Open the Sleeper app on your phone or go to sleeper.com</li>
+          <li>2. Go to your profile settings</li>
+          <li>3. Your username is displayed at the top (starts with @)</li>
+          <li>4. Enter the username without the @ symbol</li>
+        </ol>
+      </div>
+      
+    </div>
+  </div>
+</div> 

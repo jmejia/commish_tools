@@ -1,3 +1,5 @@
+# Helper methods for mocking OAuth authentication in tests.
+# Provides utilities for simulating Google OAuth success and failure scenarios.
 module OmniauthHelpers
   def mock_google_oauth_success(user_info = {})
     default_info = {
@@ -16,19 +18,22 @@ module OmniauthHelpers
       },
     })
 
-    OmniAuth.config.test_mode = true
-    OmniAuth.config.mock_auth[:google_oauth2] = auth_hash
+    omniauth_config = OmniAuth.config
+    omniauth_config.test_mode = true
+    omniauth_config.mock_auth[:google_oauth2] = auth_hash
     Rails.application.env_config['omniauth.auth'] = auth_hash
   end
 
   def mock_google_oauth_failure
-    OmniAuth.config.test_mode = true
-    OmniAuth.config.mock_auth[:google_oauth2] = :invalid_credentials
+    omniauth_config = OmniAuth.config
+    omniauth_config.test_mode = true
+    omniauth_config.mock_auth[:google_oauth2] = :invalid_credentials
   end
 
   def reset_omniauth_mocks
-    OmniAuth.config.test_mode = false
-    OmniAuth.config.mock_auth[:google_oauth2] = nil
+    omniauth_config = OmniAuth.config
+    omniauth_config.test_mode = false
+    omniauth_config.mock_auth[:google_oauth2] = nil
     Rails.application.env_config['omniauth.auth'] = nil
   end
 end

@@ -1,3 +1,5 @@
+# Represents an individual question within a press conference.
+# Questions are ordered and can have multiple responses from league members.
 class PressConferenceQuestion < ApplicationRecord
   belongs_to :press_conference
 

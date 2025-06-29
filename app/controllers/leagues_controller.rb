@@ -72,59 +72,17 @@ class LeaguesController < ApplicationController
   def import_sleeper_league
     logger = Rails.logger
     user_id = current_user.id
-    user_sleeper_id = current_user.sleeper_id
     sleeper_league_id = params[:sleeper_league_id]
 
     logger.info "User #{user_id} importing Sleeper league #{sleeper_league_id}"
 
-    unless current_user.sleeper_connected?
-      redirect_to connect_sleeper_path, alert: 'Please connect your Sleeper account first.'
-      return
-    end
+    return unless validate_sleeper_connection_and_league_existence(sleeper_league_id)
 
-    # Check if league already exists
-    if League.exists?(sleeper_league_id: sleeper_league_id)
-      redirect_to select_sleeper_leagues_path, alert: 'This league has already been imported.'
-      return
-    end
-
-    # Fetch league details and user's roster from Sleeper
-    client = SleeperFF.new
-    league_data = client.league(sleeper_league_id)
-
+    league_data = fetch_sleeper_league_data(sleeper_league_id)
     if league_data
-      # Get league rosters to find user's team info
-      rosters = client.league_rosters(sleeper_league_id)
-      rosters&.find { |roster| roster.owner_id == user_sleeper_id }
-
-      # Get league users to find team name
-      league_users = client.league_users(sleeper_league_id)
-      user_in_league = league_users&.find { |league_user| league_user.user_id == user_sleeper_id }
-
-      # Determine team name - use display name or fallback to username
-      team_name = user_in_league&.display_name || current_user.sleeper_username || "#{current_user.first_name}'s Team"
-
-      ActiveRecord::Base.transaction do
-        @league = League.create!(
-          name: league_data.name,
-          sleeper_league_id: sleeper_league_id,
-          season_year: league_data.season.to_i,
-          owner_id: user_id
-        )
-
-        @league.league_memberships.create!(
-          user: current_user,
-          role: :owner,
-          sleeper_user_id: user_sleeper_id,
-          team_name: team_name
-        )
-
-        logger.info "Sleeper league #{sleeper_league_id} imported successfully by user #{user_id}"
-        redirect_to dashboard_league_path(@league), notice: 'League imported successfully!'
-      end
+      create_league_with_membership(league_data, sleeper_league_id)
     else
-      logger.warn "Failed to import Sleeper league #{sleeper_league_id} for user #{user_id}"
-      redirect_to select_sleeper_leagues_path, alert: 'Failed to import league. Please try again.'
+      handle_league_import_failure(sleeper_league_id, 'Failed to import league. Please try again.')
     end
   rescue StandardError => exception
     logger.error "Error importing Sleeper league #{sleeper_league_id}: #{exception.message}"
@@ -219,5 +177,60 @@ class LeaguesController < ApplicationController
 
   def league_params
     params.require(:league).permit(:name, :sleeper_league_id, :season_year)
+  end
+
+  def validate_sleeper_connection_and_league_existence(sleeper_league_id)
+    unless current_user.sleeper_connected?
+      redirect_to connect_sleeper_path, alert: 'Please connect your Sleeper account first.'
+      return false
+    end
+
+    if League.exists?(sleeper_league_id: sleeper_league_id)
+      redirect_to select_sleeper_leagues_path, alert: 'This league has already been imported.'
+      return false
+    end
+
+    true
+  end
+
+  def fetch_sleeper_league_data(sleeper_league_id)
+    client = SleeperFF.new
+    client.league(sleeper_league_id)
+  end
+
+  def determine_team_name(sleeper_league_id)
+    client = SleeperFF.new
+    league_users = client.league_users(sleeper_league_id)
+    user_in_league = league_users&.find { |league_user| league_user.user_id == current_user.sleeper_id }
+
+    user_in_league&.display_name || current_user.sleeper_username || "#{current_user.first_name}'s Team"
+  end
+
+  def create_league_with_membership(league_data, sleeper_league_id)
+    team_name = determine_team_name(sleeper_league_id)
+
+    ActiveRecord::Base.transaction do
+      @league = League.create!(
+        name: league_data.name,
+        sleeper_league_id: sleeper_league_id,
+        season_year: league_data.season.to_i,
+        owner_id: current_user.id
+      )
+
+      @league.league_memberships.create!(
+        user: current_user,
+        role: :owner,
+        sleeper_user_id: current_user.sleeper_id,
+        team_name: team_name
+      )
+
+      Rails.logger.info "Sleeper league #{sleeper_league_id} imported successfully by user #{current_user.id}"
+      redirect_to dashboard_league_path(@league), notice: 'League imported successfully!'
+    end
+  end
+
+  def handle_league_import_failure(sleeper_league_id, message)
+    Rails.logger.warn "Failed to import Sleeper league #{sleeper_league_id} for user #{current_user.id}"
+    redirect_to select_sleeper_leagues_path, alert: message
   end
 end

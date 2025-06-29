@@ -64,28 +64,33 @@ module SleeperHelpers
     users_data = mock_league_users
     rosters_data = mock_rosters
 
-    allow(mock_sleeper_client).to receive(:league).with(league_id).and_return(league_data)
-    allow(mock_sleeper_client).to receive(:league_users).with(league_id).and_return(users_data)
-    allow(mock_sleeper_client).to receive(:league_rosters).with(league_id).and_return(rosters_data)
+    client_stub = allow(mock_sleeper_client)
+    client_stub.to receive(:league).with(league_id).and_return(league_data)
+    client_stub.to receive(:league_users).with(league_id).and_return(users_data)
+    client_stub.to receive(:league_rosters).with(league_id).and_return(rosters_data)
 
     { league: league_data, users: users_data, rosters: rosters_data }
   end
 
   def stub_user_leagues(user_id: nil, leagues: nil)
     leagues ||= [mock_sleeper_league]
+    current_season = Date.current.year
+
     if user_id
-      allow(mock_sleeper_client).to receive(:user_leagues).with(user_id, Date.current.year).and_return(leagues)
+      allow(mock_sleeper_client).to receive(:user_leagues).with(user_id, current_season).and_return(leagues)
     else
-      allow(mock_sleeper_client).to receive(:user_leagues).with(anything, Date.current.year).and_return(leagues)
+      allow(mock_sleeper_client).to receive(:user_leagues).with(anything, current_season).and_return(leagues)
     end
     leagues
   end
 
   def stub_empty_user_leagues(user_id: nil)
+    current_season = Date.current.year
+
     if user_id
-      allow(mock_sleeper_client).to receive(:user_leagues).with(user_id, Date.current.year).and_return([])
+      allow(mock_sleeper_client).to receive(:user_leagues).with(user_id, current_season).and_return([])
     else
-      allow(mock_sleeper_client).to receive(:user_leagues).with(anything, Date.current.year).and_return([])
+      allow(mock_sleeper_client).to receive(:user_leagues).with(anything, current_season).and_return([])
     end
   end
 end

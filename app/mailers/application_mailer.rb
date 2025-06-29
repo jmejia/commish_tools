@@ -1,3 +1,5 @@
+# Base mailer class for all email notifications in the application.
+# Provides common email configuration and layouts.
 class ApplicationMailer < ActionMailer::Base
   default from: "from@example.com"
   layout "mailer"

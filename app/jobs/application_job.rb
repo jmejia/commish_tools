@@ -1,3 +1,5 @@
+# Base class for all background jobs in the application.
+# Provides common configuration and error handling for asynchronous tasks.
 class ApplicationJob < ActiveJob::Base
   # Automatically retry jobs that encountered a deadlock
   # retry_on ActiveRecord::Deadlocked

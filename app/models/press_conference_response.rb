@@ -1,3 +1,5 @@
+# Represents a league member's response to a press conference question.
+# Contains the generated audio response using their AI voice clone.
 class PressConferenceResponse < ApplicationRecord
   belongs_to :press_conference_question
 

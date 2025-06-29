@@ -1,0 +1,101 @@
+<div class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+  <!-- Navigation -->
+  <nav class="px-6 py-4 border-b border-gray-800">
+    <div class="flex items-center justify-between max-w-6xl mx-auto">
+      <div class="flex items-center space-x-4">
+        <%= link_to root_path, class: "text-2xl font-bold text-white hover:text-cyan-400 transition-colors" do %>
+          🏈 CommishTools
+        <% end %>
+        <span class="text-gray-400">|</span>
+        <h1 class="text-xl font-semibold text-white">My Leagues</h1>
+      </div>
+      
+      <div class="flex items-center space-x-4">
+        <span class="text-white">Welcome, <%= current_user.first_name %>!</span>
+        <%= button_to 'Sign Out', destroy_user_session_path, method: :delete,
+            class: 'px-4 py-2 text-white hover:text-red-400 transition-colors bg-transparent border-none cursor-pointer' %>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="px-6 py-8">
+    <div class="max-w-6xl mx-auto">
+      
+      <!-- Header Section -->
+      <div class="flex items-center justify-between mb-8">
+        <div>
+          <h2 class="text-3xl font-bold text-white mb-2">Your Fantasy Leagues</h2>
+          <p class="text-gray-400">Manage your leagues and create AI-powered press conferences</p>
+        </div>
+        <%= link_to new_league_path, 
+            class: 'px-6 py-3 bg-gradient-to-r from-cyan-500 to-cyan-600 text-white font-semibold rounded-lg hover:from-cyan-600 hover:to-cyan-700 transition-all transform hover:scale-105' do %>
+          <span class="mr-2">+</span>Create New League
+        <% end %>
+      </div>
+
+      <% if @leagues.any? %>
+        <!-- Leagues Grid -->
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <% @leagues.each do |league| %>
+            <div class="bg-gray-800/50 rounded-xl border border-gray-700 p-6 hover:border-cyan-400/50 transition-all">
+              <div class="flex items-start justify-between mb-4">
+                <div class="flex-1">
+                  <h3 class="text-xl font-bold text-white mb-2"><%= league.name %></h3>
+                  <% if league.description.present? %>
+                    <p class="text-gray-400 text-sm mb-3"><%= truncate(league.description, length: 100) %></p>
+                  <% end %>
+                </div>
+                <% membership = current_user.league_memberships.find_by(league: league) %>
+                <% if membership&.admin? %>
+                  <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-500/20 text-orange-400">
+                    Admin
+                  </span>
+                <% else %>
+                  <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-500/20 text-green-400">
+                    Member
+                  </span>
+                <% end %>
+              </div>
+              
+              <!-- League Stats -->
+              <div class="flex items-center justify-between text-sm text-gray-400 mb-4">
+                <span><%= pluralize(league.league_memberships.count, 'member') %></span>
+                <% if league.season_year.present? %>
+                  <span><%= league.season_year %> Season</span>
+                <% end %>
+              </div>
+              
+              <!-- Action Buttons -->
+              <div class="flex space-x-2">
+                <%= link_to league_path(league), 
+                    class: 'flex-1 px-4 py-2 bg-cyan-500 text-white text-center rounded-lg hover:bg-cyan-600 transition-colors' do %>
+                  View League
+                <% end %>
+                <%= link_to league_dashboard_path(league), 
+                    class: 'px-4 py-2 border border-gray-600 text-gray-300 rounded-lg hover:border-cyan-400 hover:text-cyan-400 transition-colors' do %>
+                  Dashboard
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <!-- Empty State -->
+        <div class="text-center py-16">
+          <div class="text-6xl mb-4">🏈</div>
+          <h3 class="text-2xl font-bold text-white mb-4">No Leagues Yet</h3>
+          <p class="text-gray-400 mb-8 max-w-md mx-auto">
+            Create your first fantasy league to start generating hilarious AI press conferences 
+            and roasting your friends!
+          </p>
+          <%= link_to new_league_path, 
+              class: 'inline-flex items-center px-8 py-4 bg-gradient-to-r from-cyan-500 to-cyan-600 text-white font-semibold rounded-xl hover:from-cyan-600 hover:to-cyan-700 transition-all transform hover:scale-105' do %>
+            <span class="mr-2">+</span>Create Your First League
+          <% end %>
+        </div>
+      <% end %>
+      
+    </div>
+  </div>
+</div> 

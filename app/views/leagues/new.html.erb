@@ -1,0 +1,117 @@
+<div class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+  <!-- Navigation -->
+  <nav class="px-6 py-4 border-b border-gray-800">
+    <div class="flex items-center justify-between max-w-6xl mx-auto">
+      <div class="flex items-center space-x-4">
+        <%= link_to root_path, class: "text-2xl font-bold text-white hover:text-cyan-400 transition-colors" do %>
+          🏈 CommishTools
+        <% end %>
+        <span class="text-gray-400">|</span>
+        <%= link_to leagues_path, class: "text-gray-400 hover:text-white transition-colors" do %>
+          My Leagues
+        <% end %>
+        <span class="text-gray-400">|</span>
+        <h1 class="text-xl font-semibold text-white">Create League</h1>
+      </div>
+      
+      <div class="flex items-center space-x-4">
+        <span class="text-white">Welcome, <%= current_user.first_name %>!</span>
+        <%= button_to 'Sign Out', destroy_user_session_path, method: :delete,
+            class: 'px-4 py-2 text-white hover:text-red-400 transition-colors bg-transparent border-none cursor-pointer' %>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="px-6 py-8">
+    <div class="max-w-2xl mx-auto">
+      
+      <!-- Header -->
+      <div class="text-center mb-8">
+        <h2 class="text-3xl font-bold text-white mb-2">Create New League</h2>
+        <p class="text-gray-400">Set up your fantasy league for AI-powered press conferences</p>
+      </div>
+
+      <!-- Form Card -->
+      <div class="bg-gray-800/50 rounded-xl border border-gray-700 p-8">
+        <%= form_with model: @league, local: true, class: "space-y-6" do |form| %>
+          
+          <% if @league.errors.any? %>
+            <div class="bg-red-500/20 border border-red-500/50 rounded-lg p-4">
+              <h4 class="text-red-400 font-semibold mb-2">Please fix the following errors:</h4>
+              <ul class="text-red-300 text-sm space-y-1">
+                <% @league.errors.full_messages.each do |message| %>
+                  <li>• <%= message %></li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
+
+          <!-- League Name -->
+          <div>
+            <%= form.label :name, class: "block text-sm font-medium text-gray-300 mb-2" do %>
+              League Name <span class="text-red-400">*</span>
+            <% end %>
+            <%= form.text_field :name, 
+                class: "w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent",
+                placeholder: "e.g., The Championship League" %>
+          </div>
+
+          <!-- Description -->
+          <div>
+            <%= form.label :description, class: "block text-sm font-medium text-gray-300 mb-2" do %>
+              Description
+            <% end %>
+            <%= form.text_area :description, 
+                rows: 3,
+                class: "w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent",
+                placeholder: "Tell us about your league..." %>
+          </div>
+
+          <!-- Season Year -->
+          <div>
+            <%= form.label :season_year, class: "block text-sm font-medium text-gray-300 mb-2" do %>
+              Season Year
+            <% end %>
+            <%= form.number_field :season_year, 
+                value: Date.current.year,
+                min: 2020,
+                max: Date.current.year + 5,
+                class: "w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent" %>
+          </div>
+
+          <!-- Sleeper League ID -->
+          <div>
+            <%= form.label :sleeper_league_id, class: "block text-sm font-medium text-gray-300 mb-2" do %>
+              Sleeper League ID
+            <% end %>
+            <%= form.text_field :sleeper_league_id, 
+                class: "w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent",
+                placeholder: "e.g., 123456789" %>
+            <p class="text-sm text-gray-400 mt-1">
+              Find this in your Sleeper app under League Settings → League ID
+            </p>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex space-x-4 pt-4">
+            <%= form.submit "Create League", 
+                class: "flex-1 px-6 py-3 bg-gradient-to-r from-cyan-500 to-cyan-600 text-white font-semibold rounded-lg hover:from-cyan-600 hover:to-cyan-700 transition-all transform hover:scale-105" %>
+            <%= link_to "Cancel", leagues_path, 
+                class: "px-6 py-3 border border-gray-600 text-gray-300 rounded-lg hover:border-cyan-400 hover:text-cyan-400 transition-colors" %>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Help Text -->
+      <div class="mt-8 text-center">
+        <p class="text-gray-400 text-sm">
+          Need help? Check out our 
+          <%= link_to "setup guide", "#", class: "text-cyan-400 hover:text-cyan-300" %> 
+          for connecting your Sleeper league.
+        </p>
+      </div>
+      
+    </div>
+  </div>
+</div> 

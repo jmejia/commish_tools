@@ -100,19 +100,10 @@ class LeaguesController < ApplicationController
     logger.info "User #{user_id} attempting to create league with params: #{league_params}"
     @league = League.new(league_params.merge(owner_id: user_id))
 
-    ActiveRecord::Base.transaction do
-      if @league.save
-        @league.league_memberships.create!(
-          user: current_user,
-          role: :owner
-        )
-        logger.info "League #{@league.id} created successfully by user #{user_id}"
-        redirect_to dashboard_league_path(@league), notice: 'League was successfully created.'
-      else
-        logger.warn "League creation failed for user #{user_id}: #{@league.errors.full_messages}"
-        render :new, status: :unprocessable_entity
-        raise ActiveRecord::Rollback
-      end
+    if create_league_and_membership(@league, logger, user_id)
+      redirect_to dashboard_league_path(@league), notice: 'League was successfully created.'
+    else
+      render :new, status: :unprocessable_entity
     end
   end
 
@@ -208,23 +199,25 @@ class LeaguesController < ApplicationController
 
   def create_league_with_membership(league_data, sleeper_league_id)
     team_name = determine_team_name(sleeper_league_id)
+    user_id = current_user.id
+    user_sleeper_id = current_user.sleeper_id
 
     ActiveRecord::Base.transaction do
       @league = League.create!(
         name: league_data.name,
         sleeper_league_id: sleeper_league_id,
         season_year: league_data.season.to_i,
-        owner_id: current_user.id
+        owner_id: user_id
       )
 
       @league.league_memberships.create!(
         user: current_user,
         role: :owner,
-        sleeper_user_id: current_user.sleeper_id,
+        sleeper_user_id: user_sleeper_id,
         team_name: team_name
       )
 
-      Rails.logger.info "Sleeper league #{sleeper_league_id} imported successfully by user #{current_user.id}"
+      Rails.logger.info "Sleeper league #{sleeper_league_id} imported successfully by user #{user_id}"
       redirect_to dashboard_league_path(@league), notice: 'League imported successfully!'
     end
   end
@@ -232,5 +225,21 @@ class LeaguesController < ApplicationController
   def handle_league_import_failure(sleeper_league_id, message)
     Rails.logger.warn "Failed to import Sleeper league #{sleeper_league_id} for user #{current_user.id}"
     redirect_to select_sleeper_leagues_path, alert: message
+  end
+
+  def create_league_and_membership(league, logger, user_id)
+    ActiveRecord::Base.transaction do
+      if league.save
+        league.league_memberships.create!(
+          user: current_user,
+          role: :owner
+        )
+        logger.info "League #{league.id} created successfully by user #{user_id}"
+        true
+      else
+        logger.warn "League creation failed for user #{user_id}: #{league.errors.full_messages}"
+        raise ActiveRecord::Rollback
+      end
+    end
   end
 end

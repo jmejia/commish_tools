@@ -43,7 +43,8 @@ class LeaguesController < ApplicationController
     ).connect
 
     if result.success?
-      redirect_to select_sleeper_leagues_path, notice: result.message
+      # For the new approval workflow, redirect back to connect page with success message
+      redirect_to connect_sleeper_path, notice: result.message
     else
       flash.now[:alert] = result.error
       render :connect_sleeper, status: :unprocessable_entity

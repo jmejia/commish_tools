@@ -22,22 +22,29 @@ RSpec.describe 'Sleeper Integration', type: :feature do
         expect(page).to have_field('Sleeper Username')
       end
 
-      it 'successfully connects Sleeper account' do
+      it 'successfully creates Sleeper connection request' do
         login_as user, scope: :user
         stub_successful_sleeper_connection(username: 'testuser123')
-        stub_user_leagues # Need this for the redirect to select_sleeper_leagues
 
         visit connect_sleeper_path
 
         fill_in 'Sleeper Username', with: 'testuser123'
         click_button 'Connect Account'
 
-        expect(page).to have_current_path(select_sleeper_leagues_path)
-        expect(page).to have_content('Sleeper account connected successfully!')
+        expect(page).to have_current_path(connect_sleeper_path)
+        expect(page).to have_content('Sleeper connection request submitted!')
+        expect(page).to have_content("You'll receive an email once an admin approves your request")
 
         user.reload
-        expect(user.sleeper_username).to eq('testuser123')
-        expect(user.sleeper_id).to eq('782008200219205632')
+        expect(user.sleeper_username).to be_nil # Not connected yet - pending approval
+        expect(user.sleeper_id).to be_nil
+        expect(user.sleeper_connection_pending?).to be true
+
+        # Check that a connection request was created
+        request = user.sleeper_connection_requests.last
+        expect(request.sleeper_username).to eq('testuser123')
+        expect(request.sleeper_id).to eq('782008200219205632')
+        expect(request.status).to eq('pending')
       end
 
       it 'handles invalid Sleeper username' do
@@ -68,6 +75,27 @@ RSpec.describe 'Sleeper Integration', type: :feature do
 
         expect(page).to have_current_path(connect_sleeper_path)
         expect(page).to have_content('Failed to connect Sleeper account')
+      end
+
+      it 'prevents duplicate connection requests' do
+        login_as user, scope: :user
+        stub_successful_sleeper_connection(username: 'testuser123')
+
+        # Create an existing pending request
+        user.sleeper_connection_requests.create!(
+          sleeper_username: 'testuser123',
+          sleeper_id: '782008200219205632',
+          requested_at: Time.current
+        )
+
+        visit connect_sleeper_path
+
+        fill_in 'Sleeper Username', with: 'testuser123'
+        click_button 'Connect Account'
+
+        expect(page).to have_current_path(connect_sleeper_path)
+        expect(page).to have_content('You already have a pending Sleeper connection request')
+        expect(page).to have_content('Please wait for admin approval')
       end
     end
 

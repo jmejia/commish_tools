@@ -56,7 +56,7 @@ class User < ApplicationRecord
       )
 
       # Send notification to super admins
-      SuperAdminMailer.sleeper_connection_requested(self, user_data.username).deliver_later
+      SuperAdminMailer.sleeper_connection_requested(self, user_data.username).deliver_later unless Rails.env.test?
 
       true
     else

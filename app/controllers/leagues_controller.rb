@@ -76,11 +76,22 @@ class LeaguesController < ApplicationController
       return
     end
 
-    # Fetch league details from Sleeper
+    # Fetch league details and user's roster from Sleeper
     client = SleeperFF.new
     league_data = client.league(sleeper_league_id)
     
     if league_data
+      # Get league rosters to find user's team info
+      rosters = client.league_rosters(sleeper_league_id)
+      user_roster = rosters&.find { |roster| roster.owner_id == current_user.sleeper_id }
+      
+      # Get league users to find team name
+      league_users = client.league_users(sleeper_league_id)
+      user_in_league = league_users&.find { |u| u.user_id == current_user.sleeper_id }
+      
+      # Determine team name - use display name or fallback to username
+      team_name = user_in_league&.display_name || current_user.sleeper_username || "#{current_user.first_name}'s Team"
+      
       ActiveRecord::Base.transaction do
         @league = League.create!(
           name: league_data.name,
@@ -91,7 +102,9 @@ class LeaguesController < ApplicationController
 
         @league.league_memberships.create!(
           user: current_user,
-          role: :owner
+          role: :owner,
+          sleeper_user_id: current_user.sleeper_id,
+          team_name: team_name
         )
 
         Rails.logger.info "Sleeper league #{sleeper_league_id} imported successfully by user #{current_user.id}"

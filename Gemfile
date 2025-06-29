@@ -52,7 +52,7 @@ gem "omniauth-google-oauth2"
 
 # Background jobs (alternative to solid_queue for more complex scenarios)
 gem "sidekiq"
-gem "redis", "~> 4.0"
+gem "redis", "~> 5.4"
 
 # API integrations
 gem "httparty"

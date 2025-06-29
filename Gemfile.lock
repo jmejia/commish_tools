@@ -374,7 +374,8 @@ GEM
     rdoc (6.14.1)
       erb
       psych (>= 4.0.0)
-    redis (4.8.1)
+    redis (5.4.0)
+      redis-client (>= 0.22.0)
     redis-client (0.25.0)
       connection_pool
     reek (6.5.0)
@@ -568,7 +569,7 @@ DEPENDENCIES
   pry
   puma (>= 5.0)
   rails (~> 8.0.2)
-  redis (~> 4.0)
+  redis (~> 5.4)
   reek
   rspec-rails
   rubocop-airbnb

@@ -15,6 +15,7 @@ class User < ApplicationRecord
   has_many :league_memberships, dependent: :destroy
   has_many :leagues, through: :league_memberships
   has_many :voice_clones, through: :league_memberships
+  has_one :super_admin, dependent: :destroy
 
   validates :first_name, presence: true, length: { maximum: 50 }
   validates :last_name, presence: true, length: { maximum: 50 }
@@ -28,6 +29,10 @@ class User < ApplicationRecord
 
   def display_name
     full_name.strip.presence || email
+  end
+
+  def super_admin?
+    super_admin.present?
   end
 
   def sleeper_connected?

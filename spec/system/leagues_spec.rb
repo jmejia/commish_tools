@@ -1,11 +1,14 @@
 require 'rails_helper'
 
 RSpec.describe 'Leagues', type: :system do
-  let(:user) { create(:user) }
+  let(:user) { create(:user, password: 'password123') }
 
   before do
     driven_by(:rack_test)
-    sign_in user
+    visit new_user_session_path
+    fill_in 'Email', with: user.email
+    fill_in 'Password', with: 'password123'
+    click_button 'Log in'
   end
 
   it 'shows empty state and allows league creation' do
@@ -13,8 +16,8 @@ RSpec.describe 'Leagues', type: :system do
     expect(page).to have_content('No Leagues Yet')
     click_link 'Create New League'
     fill_in 'League Name', with: 'Test League'
-    fill_in 'Description', with: 'A fun league'
     fill_in 'Season Year', with: '2025'
+    fill_in 'Sleeper League ID', with: '123456'
     click_button 'Create League'
     expect(page).to have_content('Test League')
     expect(page).to have_content('Your Fantasy Leagues')

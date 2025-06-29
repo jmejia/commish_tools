@@ -1,7 +1,7 @@
 FactoryBot.define do
   factory :league_membership do
-    league { nil }
-    user { nil }
+    association :league
+    association :user
     sleeper_user_id { "MyString" }
     team_name { "MyString" }
     role { 1 }

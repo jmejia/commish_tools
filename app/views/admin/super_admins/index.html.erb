@@ -1,0 +1,29 @@
+<h1>Super Admin Management</h1>
+
+<h2>Current Super Admins</h2>
+<% if @super_admins.any? %>
+  <ul>
+    <% @super_admins.each do |super_admin| %>
+      <li>
+        <%= super_admin.user.display_name %> (<%= super_admin.user.email %>)
+        <%= link_to 'Remove', admin_super_admin_path(super_admin), 
+            method: :delete, 
+            confirm: "Are you sure you want to remove #{super_admin.user.display_name} as super admin?",
+            style: 'color: red; margin-left: 10px;' %>
+      </li>
+    <% end %>
+  </ul>
+<% else %>
+  <p>No super admins found.</p>
+<% end %>
+
+<h2>Add Super Admin</h2>
+<% if @users.any? %>
+  <%= form_with url: admin_super_admins_path, method: :post, local: true do |form| %>
+    <%= form.select :user_id, options_from_collection_for_select(@users, :id, :display_name), 
+        { prompt: 'Select a user...' }, { required: true } %>
+    <%= form.submit 'Make Super Admin' %>
+  <% end %>
+<% else %>
+  <p>All users are already super admins.</p>
+<% end %> 

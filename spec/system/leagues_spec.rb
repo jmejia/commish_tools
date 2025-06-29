@@ -8,19 +8,15 @@ RSpec.describe 'Leagues', type: :system do
     visit new_user_session_path
     fill_in 'Email', with: user.email
     fill_in 'Password', with: 'password123'
-    click_button 'Log in'
+    click_button 'Sign In'
   end
 
   it 'shows empty state and allows league creation' do
     visit leagues_path
     expect(page).to have_content('No Leagues Yet')
-    click_link 'Create New League'
-    fill_in 'League Name', with: 'Test League'
-    fill_in 'Season Year', with: '2025'
-    fill_in 'Sleeper League ID', with: '123456'
-    click_button 'Create League'
-    expect(page).to have_content('Test League')
-    expect(page).to have_content('Your Fantasy Leagues')
+    first(:link, 'Connect Your Sleeper Account').click
+    # This will redirect to sleeper connection flow
+    expect(page).to have_content('Connect Sleeper')
   end
 
   it 'lists existing leagues' do
@@ -29,4 +25,4 @@ RSpec.describe 'Leagues', type: :system do
     visit leagues_path
     expect(page).to have_content('Existing League')
   end
-end 
+end

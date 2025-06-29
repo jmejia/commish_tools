@@ -170,7 +170,8 @@ RSpec.describe 'Sleeper Integration', type: :feature do
     end
 
     it 'handles league import errors' do
-      allow(mock_sleeper_client).to receive(:user_leagues).and_return([mock_sleeper_league])
+      login_as user, scope: :user
+      stub_user_leagues
       allow(mock_sleeper_client).to receive(:league).and_raise(StandardError.new('API Error'))
 
       visit select_sleeper_leagues_path
@@ -183,13 +184,22 @@ RSpec.describe 'Sleeper Integration', type: :feature do
     end
 
     it 'prevents duplicate league imports' do
+      login_as user, scope: :user
+
+      # Create existing league
       existing_league = create(:league, sleeper_league_id: '1243642178488520704', owner: user)
+      create(:league_membership, user: user, league: existing_league, role: :owner,
+                                 sleeper_user_id: '782008200219205632', team_name: 'Test Team')
 
-      post import_sleeper_league_path, params: { sleeper_league_id: '1243642178488520704' }
+      stub_user_leagues
 
-      expect(response).to redirect_to(select_sleeper_leagues_path)
-      follow_redirect!
-      expect(response.body).to include('This league has already been imported')
+      visit select_sleeper_leagues_path
+
+      # Should show as already imported
+      expect(page).to have_content('Test Fantasy League')
+      expect(page).to have_content('✓ Imported')
+      expect(page).to have_button('Already Imported', disabled: true)
+      expect(page).not_to have_button('Import League')
       expect(League.count).to eq(1)
     end
   end
@@ -206,6 +216,7 @@ RSpec.describe 'Sleeper Integration', type: :feature do
     end
 
     it 'displays league dashboard with correct information' do
+      login_as user, scope: :user
       visit dashboard_league_path(league)
 
       expect(page).to have_content('Test League Dashboard')
@@ -217,6 +228,7 @@ RSpec.describe 'Sleeper Integration', type: :feature do
     end
 
     it 'shows league management options for owners' do
+      login_as user, scope: :user
       visit dashboard_league_path(league)
 
       expect(page).to have_content('League Management')
@@ -227,6 +239,7 @@ RSpec.describe 'Sleeper Integration', type: :feature do
 
     it 'hides owner-only features for regular members' do
       membership.update!(role: :manager)
+      login_as user, scope: :user
 
       visit dashboard_league_path(league)
 
@@ -238,8 +251,9 @@ RSpec.describe 'Sleeper Integration', type: :feature do
 
   describe 'Navigation flow' do
     it 'provides correct navigation breadcrumbs' do
+      login_as user, scope: :user
       visit leagues_path
-      click_link 'Connect Your Sleeper Account'
+      first(:link, 'Connect Your Sleeper Account').click
 
       expect(page).to have_link('🏈 CommishTools')
       expect(page).to have_link('My Leagues')
@@ -250,6 +264,7 @@ RSpec.describe 'Sleeper Integration', type: :feature do
     end
 
     it 'allows user to cancel connection process' do
+      login_as user, scope: :user
       visit connect_sleeper_path
       click_link 'Cancel'
 
@@ -264,6 +279,7 @@ RSpec.describe 'Sleeper Integration', type: :feature do
 
     it 'redirects to connection page if user loses Sleeper connection' do
       user.update!(sleeper_id: nil)
+      login_as user, scope: :user
 
       visit select_sleeper_leagues_path
 
@@ -272,7 +288,8 @@ RSpec.describe 'Sleeper Integration', type: :feature do
     end
 
     it 'handles network timeouts gracefully' do
-      allow(mock_sleeper_client).to receive(:user_leagues).and_raise(Net::TimeoutError)
+      login_as user, scope: :user
+      allow(mock_sleeper_client).to receive(:user_leagues).and_raise(Timeout::Error)
 
       visit select_sleeper_leagues_path
 

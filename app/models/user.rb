@@ -18,8 +18,11 @@ class User < ApplicationRecord
   has_one :super_admin, dependent: :destroy
   has_many :sleeper_connection_requests, dependent: :destroy
 
-  validates :first_name, presence: true, length: { maximum: 50 }
-  validates :last_name, presence: true, length: { maximum: 50 }
+  # Set default role before validation
+  before_validation :set_default_role, on: :create
+
+  validates :first_name, length: { maximum: 50 }, allow_blank: true
+  validates :last_name, length: { maximum: 50 }, allow_blank: true
   validates :role, presence: true
   validates :sleeper_username, uniqueness: true, allow_blank: true
   validates :sleeper_id, uniqueness: true, allow_blank: true
@@ -95,5 +98,11 @@ class User < ApplicationRecord
 
   def latest_sleeper_request
     sleeper_connection_requests.recent.first
+  end
+
+  private
+
+  def set_default_role
+    self.role ||= :team_manager
   end
 end

@@ -84,4 +84,21 @@ RSpec.describe User, type: :model do
       end
     end
   end
+
+  describe 'regular registration (non-OAuth)' do
+    it 'allows user creation with just email and password' do
+      user = User.new(
+        email: 'newuser@example.com',
+        password: 'password123',
+        password_confirmation: 'password123'
+      )
+
+      expect(user).to be_valid
+      expect(user.save).to be true
+
+      # Should have default values
+      expect(user.role).to eq('team_manager')
+      expect(user.display_name).to eq('newuser@example.com') # Falls back to email when names are blank
+    end
+  end
 end

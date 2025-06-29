@@ -165,7 +165,7 @@ class LeaguesController < ApplicationController
   def dashboard
     Rails.logger.info "User #{current_user.id} accessing dashboard for league #{@league.id}"
     @league_membership = current_user.league_memberships.find_by(league: @league)
-    @recent_press_conferences = @league.press_conferences.recent.limit(5)
+    @recent_press_conferences = @league.press_conferences
   end
 
   private

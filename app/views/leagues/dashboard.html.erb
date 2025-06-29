@@ -1,0 +1,162 @@
+<div class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+  <!-- Navigation -->
+  <nav class="px-6 py-4 border-b border-gray-800">
+    <div class="flex items-center justify-between max-w-6xl mx-auto">
+      <div class="flex items-center space-x-4">
+        <%= link_to root_path, class: "text-2xl font-bold text-white hover:text-cyan-400 transition-colors" do %>
+          🏈 CommishTools
+        <% end %>
+        <span class="text-gray-400">|</span>
+        <%= link_to leagues_path, class: "text-gray-400 hover:text-white transition-colors" do %>
+          My Leagues
+        <% end %>
+        <span class="text-gray-400">|</span>
+        <h1 class="text-xl font-semibold text-white"><%= @league.name %></h1>
+      </div>
+      
+      <div class="flex items-center space-x-4">
+        <span class="text-white">Welcome, <%= current_user.first_name %>!</span>
+        <%= button_to 'Sign Out', destroy_user_session_path, method: :delete,
+            class: 'px-4 py-2 text-white hover:text-red-400 transition-colors bg-transparent border-none cursor-pointer' %>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="px-6 py-8">
+    <div class="max-w-6xl mx-auto">
+      
+      <!-- Header -->
+      <div class="flex items-center justify-between mb-8">
+        <div>
+          <h2 class="text-3xl font-bold text-white mb-2"><%= @league.name %> Dashboard</h2>
+          <p class="text-gray-400">Your league control center for AI-powered press conferences</p>
+          <% if @league_membership %>
+            <div class="flex items-center space-x-4 mt-2">
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-cyan-500/20 text-cyan-400">
+                <%= @league_membership.team_name %>
+              </span>
+              <% if @league_membership.owner? %>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-orange-500/20 text-orange-400">
+                  League Owner
+                </span>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- League Stats -->
+      <div class="grid md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-gray-800/50 rounded-xl border border-gray-700 p-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-gray-400 text-sm">Season</p>
+              <p class="text-2xl font-bold text-white"><%= @league.season_year %></p>
+            </div>
+            <div class="text-3xl">📅</div>
+          </div>
+        </div>
+        
+        <div class="bg-gray-800/50 rounded-xl border border-gray-700 p-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-gray-400 text-sm">League Members</p>
+              <p class="text-2xl font-bold text-white"><%= @league.members_count %></p>
+            </div>
+            <div class="text-3xl">👥</div>
+          </div>
+        </div>
+        
+        <div class="bg-gray-800/50 rounded-xl border border-gray-700 p-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-gray-400 text-sm">Press Conferences</p>
+              <p class="text-2xl font-bold text-white"><%= @recent_press_conferences&.count || 0 %></p>
+            </div>
+            <div class="text-3xl">🎙️</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Press Conferences -->
+      <div class="bg-gray-800/50 rounded-xl border border-gray-700 p-6 mb-8">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-xl font-bold text-white">Recent Press Conferences</h3>
+          <button class="px-4 py-2 bg-gradient-to-r from-cyan-500 to-cyan-600 text-white font-semibold rounded-lg hover:from-cyan-600 hover:to-cyan-700 transition-all">
+            Create New
+          </button>
+        </div>
+        
+        <% if @recent_press_conferences&.any? %>
+          <div class="space-y-4">
+            <% @recent_press_conferences.each do |conference| %>
+              <div class="bg-gray-700/50 rounded-lg p-4 border border-gray-600">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <h4 class="text-white font-semibold">Week <%= conference.week_number %> Press Conference</h4>
+                    <p class="text-gray-400 text-sm">Created <%= time_ago_in_words(conference.created_at) %> ago</p>
+                  </div>
+                  <div class="flex items-center space-x-2">
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-500/20 text-green-400">
+                      <%= conference.status&.humanize || 'Draft' %>
+                    </span>
+                    <button class="text-cyan-400 hover:text-cyan-300 transition-colors">
+                      View →
+                    </button>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="text-center py-12">
+            <div class="text-4xl mb-4">🎙️</div>
+            <h4 class="text-xl font-semibold text-white mb-2">No Press Conferences Yet</h4>
+            <p class="text-gray-400 mb-6">Create your first AI-powered press conference to start roasting your league mates!</p>
+            <button class="px-6 py-3 bg-gradient-to-r from-cyan-500 to-cyan-600 text-white font-semibold rounded-lg hover:from-cyan-600 hover:to-cyan-700 transition-all">
+              Create First Press Conference
+            </button>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- League Actions -->
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="bg-gray-800/50 rounded-xl border border-gray-700 p-6">
+          <h3 class="text-lg font-semibold text-white mb-4">League Management</h3>
+          <div class="space-y-3">
+            <% if @league_membership&.owner? %>
+              <%= link_to edit_league_path(@league), 
+                  class: 'block w-full px-4 py-2 text-left text-gray-300 hover:text-white hover:bg-gray-700/50 rounded-lg transition-colors' do %>
+                ⚙️ Edit League Settings
+              <% end %>
+            <% end %>
+            <button class="block w-full px-4 py-2 text-left text-gray-300 hover:text-white hover:bg-gray-700/50 rounded-lg transition-colors">
+              👥 Manage Members
+            </button>
+            <button class="block w-full px-4 py-2 text-left text-gray-300 hover:text-white hover:bg-gray-700/50 rounded-lg transition-colors">
+              🎤 Voice Clone Settings
+            </button>
+          </div>
+        </div>
+        
+        <div class="bg-gray-800/50 rounded-xl border border-gray-700 p-6">
+          <h3 class="text-lg font-semibold text-white mb-4">Quick Actions</h3>
+          <div class="space-y-3">
+            <button class="block w-full px-4 py-2 text-left text-gray-300 hover:text-white hover:bg-gray-700/50 rounded-lg transition-colors">
+              📊 View League Stats
+            </button>
+            <button class="block w-full px-4 py-2 text-left text-gray-300 hover:text-white hover:bg-gray-700/50 rounded-lg transition-colors">
+              🏆 Season Summary
+            </button>
+            <button class="block w-full px-4 py-2 text-left text-gray-300 hover:text-white hover:bg-gray-700/50 rounded-lg transition-colors">
+              📱 Share League
+            </button>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</div> 

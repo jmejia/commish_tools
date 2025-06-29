@@ -68,14 +68,10 @@
               </div>
               
               <!-- Action Buttons -->
-              <div class="flex space-x-2">
-                <%= link_to league_path(league), 
-                    class: 'flex-1 px-4 py-2 bg-cyan-500 text-white text-center rounded-lg hover:bg-cyan-600 transition-colors' do %>
-                  View League
-                <% end %>
+              <div class="flex">
                 <%= link_to dashboard_league_path(league), 
-                    class: 'px-4 py-2 border border-gray-600 text-gray-300 rounded-lg hover:border-cyan-400 hover:text-cyan-400 transition-colors' do %>
-                  Dashboard
+                    class: 'flex-1 px-4 py-2 bg-gradient-to-r from-cyan-500 to-cyan-600 text-white text-center rounded-lg hover:from-cyan-600 hover:to-cyan-700 transition-all transform hover:scale-105' do %>
+                  Open Dashboard
                 <% end %>
               </div>
             </div>

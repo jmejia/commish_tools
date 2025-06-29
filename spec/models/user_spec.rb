@@ -1,6 +1,28 @@
 require 'rails_helper'
 
 RSpec.describe User, type: :model do
+  describe 'associations' do
+    it { should have_one(:super_admin).dependent(:destroy) }
+  end
+
+  describe '#super_admin?' do
+    let(:user) { create(:user) }
+
+    context 'when user is not a super admin' do
+      it 'returns false' do
+        expect(user.super_admin?).to be false
+      end
+    end
+
+    context 'when user is a super admin' do
+      before { create(:super_admin, user: user) }
+
+      it 'returns true' do
+        expect(user.super_admin?).to be true
+      end
+    end
+  end
+
   describe '.from_omniauth' do
     let(:auth_hash) do
       OmniAuth::AuthHash.new({

@@ -1,5 +1,5 @@
 FactoryBot.define do
   factory :super_admin do
-    user { nil }
+    association :user
   end
 end

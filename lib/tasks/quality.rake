@@ -42,6 +42,15 @@ namespace :quality do
     puts rspec_success ? "✅ RSpec: PASSED" : "❌ RSpec: FAILED"
     puts "\n"
 
+    # 5. Coding Standards - Our custom checks
+    puts "5️⃣  Running Coding Standards Checks..."
+    puts "=" * 50
+    system("bundle exec rake coding_standards")
+    coding_standards_success = $?.success?
+    all_passed = false unless coding_standards_success
+    puts coding_standards_success ? "✅ Coding Standards: PASSED" : "❌ Coding Standards: FAILED"
+    puts "\n"
+
     # Summary
     puts "🏁 Quality Check Summary:"
     puts "=" * 50
@@ -49,6 +58,7 @@ namespace :quality do
     puts "Brakeman (Security): #{brakeman_success ? '✅ PASSED' : '❌ FAILED'}"
     puts "Reek (Code Smells):  #{reek_success ? '✅ PASSED' : '❌ FAILED'}"
     puts "RSpec (Tests):       #{rspec_success ? '✅ PASSED' : '❌ FAILED'}"
+    puts "Coding Standards:    #{coding_standards_success ? '✅ PASSED' : '❌ FAILED'}"
     puts "\n"
 
     if all_passed

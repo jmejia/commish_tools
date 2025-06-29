@@ -23,8 +23,9 @@ RSpec.describe 'Sleeper Integration', type: :feature do
       end
 
       it 'successfully connects Sleeper account' do
-        sign_in user
+        login_as user, scope: :user
         stub_successful_sleeper_connection(username: 'testuser123')
+        stub_user_leagues # Need this for the redirect to select_sleeper_leagues
 
         visit connect_sleeper_path
 
@@ -40,7 +41,7 @@ RSpec.describe 'Sleeper Integration', type: :feature do
       end
 
       it 'handles invalid Sleeper username' do
-        sign_in user
+        login_as user, scope: :user
         stub_failed_sleeper_connection(username: 'invaliduser')
 
         visit connect_sleeper_path
@@ -57,7 +58,7 @@ RSpec.describe 'Sleeper Integration', type: :feature do
       end
 
       it 'handles API errors gracefully' do
-        sign_in user
+        login_as user, scope: :user
         stub_sleeper_api_error(username: 'testuser123')
 
         visit connect_sleeper_path
@@ -76,7 +77,7 @@ RSpec.describe 'Sleeper Integration', type: :feature do
       end
 
       it 'shows import button instead of connect button' do
-        sign_in user
+        login_as user, scope: :user
         visit leagues_path
 
         expect(page).to have_content('Import League')
@@ -84,7 +85,7 @@ RSpec.describe 'Sleeper Integration', type: :feature do
       end
 
       it 'redirects directly to league selection when clicking new league' do
-        sign_in user
+        login_as user, scope: :user
         stub_user_leagues
 
         visit leagues_path
@@ -101,7 +102,7 @@ RSpec.describe 'Sleeper Integration', type: :feature do
     end
 
     it 'displays available leagues for import' do
-      sign_in user
+      login_as user, scope: :user
       stub_user_leagues
 
       visit select_sleeper_leagues_path
@@ -114,7 +115,7 @@ RSpec.describe 'Sleeper Integration', type: :feature do
     end
 
     it 'successfully imports a league' do
-      sign_in user
+      login_as user, scope: :user
       stub_user_leagues
       stub_successful_league_import
 
@@ -140,7 +141,7 @@ RSpec.describe 'Sleeper Integration', type: :feature do
     end
 
     it 'shows already imported leagues as disabled' do
-      sign_in user
+      login_as user, scope: :user
       # Create existing league
       existing_league = create(:league, sleeper_league_id: '1243642178488520704', owner: user)
       create(:league_membership, user: user, league: existing_league, role: :owner,
@@ -157,7 +158,7 @@ RSpec.describe 'Sleeper Integration', type: :feature do
     end
 
     it 'handles empty league list' do
-      sign_in user
+      login_as user, scope: :user
       stub_empty_user_leagues
 
       visit select_sleeper_leagues_path

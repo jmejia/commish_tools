@@ -35,7 +35,7 @@ class User < ApplicationRecord
   def connect_sleeper_account(username)
     client = SleeperFF.new
     user_data = client.user(username)
-    
+
     if user_data
       update!(
         sleeper_username: user_data.username,
@@ -48,7 +48,7 @@ class User < ApplicationRecord
   rescue StandardError => e
     Rails.logger.error "Failed to connect Sleeper account for user #{id}: #{e.message}"
     false
-  end
+end
 
   def fetch_sleeper_leagues(season = Date.current.year)
     return [] unless sleeper_connected?

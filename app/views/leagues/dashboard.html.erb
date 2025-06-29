@@ -22,6 +22,20 @@
     </div>
   </nav>
 
+  <!-- Flash Messages -->
+  <% if flash.any? %>
+    <div class="px-6 py-4">
+      <div class="max-w-6xl mx-auto">
+        <% flash.each do |type, message| %>
+          <% flash_class = type == 'notice' ? 'bg-green-500/20 border-green-500/50 text-green-400' : 'bg-red-500/20 border-red-500/50 text-red-400' %>
+          <div class="<%= flash_class %> border rounded-lg p-4 mb-4">
+            <%= message %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
   <!-- Main Content -->
   <div class="px-6 py-8">
     <div class="max-w-6xl mx-auto">

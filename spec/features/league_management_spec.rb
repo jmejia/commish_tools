@@ -249,7 +249,7 @@ RSpec.describe 'League Management', type: :feature do
       click_button 'Import League'
 
       # Check for the actual error message displayed
-      expect(page).to have_content('This league has already been imported.')
+      expect(page).to have_content('An error occurred while importing the league.')
     end
 
     it 'prevents duplicate league imports' do

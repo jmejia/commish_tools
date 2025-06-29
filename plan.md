@@ -441,6 +441,10 @@ gem 'selenium-webdriver'
 - File storage usage tracking
 
 ## Future Enhancements
+- Fantasy Off Season
+- Best Team Name Voting
+- Scheduling feature (drafts)
+- League changes surveys
 
 ### Potential Features
 - Multi-league management

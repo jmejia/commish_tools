@@ -73,14 +73,22 @@ module SleeperHelpers
     { league: league_data, users: users_data, rosters: rosters_data }
   end
 
-  def stub_user_leagues(user_id: '782008200219205632', leagues: nil)
+  def stub_user_leagues(user_id: nil, leagues: nil)
     leagues ||= [mock_sleeper_league]
-    allow(mock_sleeper_client).to receive(:user_leagues).with(user_id, Date.current.year).and_return(leagues)
+    if user_id
+      allow(mock_sleeper_client).to receive(:user_leagues).with(user_id, Date.current.year).and_return(leagues)
+    else
+      allow(mock_sleeper_client).to receive(:user_leagues).with(anything, Date.current.year).and_return(leagues)
+    end
     leagues
   end
 
-  def stub_empty_user_leagues(user_id: '782008200219205632')
-    allow(mock_sleeper_client).to receive(:user_leagues).with(user_id, Date.current.year).and_return([])
+  def stub_empty_user_leagues(user_id: nil)
+    if user_id
+      allow(mock_sleeper_client).to receive(:user_leagues).with(user_id, Date.current.year).and_return([])
+    else
+      allow(mock_sleeper_client).to receive(:user_leagues).with(anything, Date.current.year).and_return([])
+    end
   end
 end
 

@@ -1,3 +1,4 @@
+# Handles the homepage and user redirections based on authentication and league ownership.
 class HomeController < ApplicationController
   def index
     return unless user_signed_in?
@@ -5,8 +6,9 @@ class HomeController < ApplicationController
     # Redirect authenticated users to their leagues or dashboard
     if current_user.league_owner?
       redirect_to leagues_path
-    elsif current_user.leagues.any?
-      redirect_to league_path(current_user.leagues.first)
+    else
+      user_leagues = current_user.leagues
+      redirect_to league_path(user_leagues.first) if user_leagues.any?
     end
   end
 end

@@ -1,3 +1,5 @@
+# Represents a fantasy football league, which can be imported from Sleeper
+# or created manually. Contains members and associated press conferences.
 class League < ApplicationRecord
   belongs_to :owner, class_name: 'User'
 

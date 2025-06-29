@@ -1,3 +1,5 @@
+# Represents an AI voice clone for a league member, used to generate
+# personalized press conference responses with their unique voice.
 class VoiceClone < ApplicationRecord
   belongs_to :league_membership
 

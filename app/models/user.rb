@@ -1,3 +1,5 @@
+# Represents a user in the fantasy football commissioner application.
+# Handles authentication, Sleeper account integration, and league management.
 class User < ApplicationRecord
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
@@ -45,27 +47,29 @@ class User < ApplicationRecord
     else
       false
     end
-  rescue StandardError => e
-    Rails.logger.error "Failed to connect Sleeper account for user #{id}: #{e.message}"
+  rescue StandardError => exception
+    Rails.logger.error "Failed to connect Sleeper account for user #{id}: #{exception.message}"
     false
-end
+  end
 
   def fetch_sleeper_leagues(season = Date.current.year)
     return [] unless sleeper_connected?
 
     client = SleeperFF.new
     client.user_leagues(sleeper_id, season)
-  rescue StandardError => e
-    Rails.logger.error "Failed to fetch Sleeper leagues for user #{id}: #{e.message}"
+  rescue StandardError => exception
+    Rails.logger.error "Failed to fetch Sleeper leagues for user #{id}: #{exception.message}"
     []
   end
 
   def self.from_omniauth(auth)
+    auth_info = auth.info
+
     where(provider: auth.provider, uid: auth.uid).first_or_create do |user|
-      user.email = auth.info.email
+      user.email = auth_info.email
       user.password = Devise.friendly_token[0, 20]
-      user.first_name = auth.info.first_name
-      user.last_name = auth.info.last_name
+      user.first_name = auth_info.first_name
+      user.last_name = auth_info.last_name
       user.role = :team_manager
     end
   end

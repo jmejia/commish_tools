@@ -1,3 +1,5 @@
+# Represents a user's membership in a fantasy football league.
+# Tracks role (owner/member) and associated Sleeper account information.
 class LeagueMembership < ApplicationRecord
   belongs_to :league
   belongs_to :user

@@ -1,3 +1,5 @@
+# Manages fantasy football leagues including creation, importing from Sleeper,
+# and dashboard functionality for league owners and members.
 class LeaguesController < ApplicationController
   before_action :authenticate_user!
   before_action :set_league, only: [:show, :edit, :update, :destroy, :dashboard]
@@ -5,9 +7,12 @@ class LeaguesController < ApplicationController
   before_action :ensure_league_admin, only: [:edit, :update, :destroy]
 
   def index
-    Rails.logger.info "User #{current_user.id} accessing leagues index"
+    logger = Rails.logger
+    user_id = current_user.id
+
+    logger.info "User #{user_id} accessing leagues index"
     @leagues = current_user.leagues.includes(:league_memberships)
-    Rails.logger.info "Found #{@leagues.count} leagues for user"
+    logger.info "Found #{@leagues.count} leagues for user"
   end
 
   def show
@@ -32,13 +37,17 @@ class LeaguesController < ApplicationController
   end
 
   def connect_sleeper_account
-    Rails.logger.info "User #{current_user.id} attempting to connect Sleeper account with username: #{params[:sleeper_username]}"
+    logger = Rails.logger
+    user_id = current_user.id
+    sleeper_username = params[:sleeper_username]
 
-    if current_user.connect_sleeper_account(params[:sleeper_username])
-      Rails.logger.info "Sleeper account connected successfully for user #{current_user.id}"
+    logger.info "User #{user_id} attempting to connect Sleeper account with username: #{sleeper_username}"
+
+    if current_user.connect_sleeper_account(sleeper_username)
+      logger.info "Sleeper account connected successfully for user #{user_id}"
       redirect_to select_sleeper_leagues_path, notice: 'Sleeper account connected successfully!'
     else
-      Rails.logger.warn "Failed to connect Sleeper account for user #{current_user.id}"
+      logger.warn "Failed to connect Sleeper account for user #{user_id}"
       flash.now[:alert] = 'Failed to connect Sleeper account. Please check your username and try again.'
       render :connect_sleeper, status: :unprocessable_entity
     end
@@ -61,14 +70,17 @@ class LeaguesController < ApplicationController
   end
 
   def import_sleeper_league
-    Rails.logger.info "User #{current_user.id} importing Sleeper league #{params[:sleeper_league_id]}"
+    logger = Rails.logger
+    user_id = current_user.id
+    user_sleeper_id = current_user.sleeper_id
+    sleeper_league_id = params[:sleeper_league_id]
+
+    logger.info "User #{user_id} importing Sleeper league #{sleeper_league_id}"
 
     unless current_user.sleeper_connected?
       redirect_to connect_sleeper_path, alert: 'Please connect your Sleeper account first.'
       return
     end
-
-    sleeper_league_id = params[:sleeper_league_id]
 
     # Check if league already exists
     if League.exists?(sleeper_league_id: sleeper_league_id)
@@ -83,11 +95,11 @@ class LeaguesController < ApplicationController
     if league_data
       # Get league rosters to find user's team info
       rosters = client.league_rosters(sleeper_league_id)
-      rosters&.find { |roster| roster.owner_id == current_user.sleeper_id }
+      rosters&.find { |roster| roster.owner_id == user_sleeper_id }
 
       # Get league users to find team name
       league_users = client.league_users(sleeper_league_id)
-      user_in_league = league_users&.find { |u| u.user_id == current_user.sleeper_id }
+      user_in_league = league_users&.find { |league_user| league_user.user_id == user_sleeper_id }
 
       # Determine team name - use display name or fallback to username
       team_name = user_in_league&.display_name || current_user.sleeper_username || "#{current_user.first_name}'s Team"
@@ -97,25 +109,25 @@ class LeaguesController < ApplicationController
           name: league_data.name,
           sleeper_league_id: sleeper_league_id,
           season_year: league_data.season.to_i,
-          owner_id: current_user.id
+          owner_id: user_id
         )
 
         @league.league_memberships.create!(
           user: current_user,
           role: :owner,
-          sleeper_user_id: current_user.sleeper_id,
+          sleeper_user_id: user_sleeper_id,
           team_name: team_name
         )
 
-        Rails.logger.info "Sleeper league #{sleeper_league_id} imported successfully by user #{current_user.id}"
+        logger.info "Sleeper league #{sleeper_league_id} imported successfully by user #{user_id}"
         redirect_to dashboard_league_path(@league), notice: 'League imported successfully!'
       end
     else
-      Rails.logger.warn "Failed to import Sleeper league #{sleeper_league_id} for user #{current_user.id}"
+      logger.warn "Failed to import Sleeper league #{sleeper_league_id} for user #{user_id}"
       redirect_to select_sleeper_leagues_path, alert: 'Failed to import league. Please try again.'
     end
-  rescue StandardError => e
-    Rails.logger.error "Error importing Sleeper league #{sleeper_league_id}: #{e.message}"
+  rescue StandardError => exception
+    logger.error "Error importing Sleeper league #{sleeper_league_id}: #{exception.message}"
     redirect_to select_sleeper_leagues_path, alert: 'An error occurred while importing the league.'
   end
 
@@ -124,8 +136,11 @@ class LeaguesController < ApplicationController
   end
 
   def create
-    Rails.logger.info "User #{current_user.id} attempting to create league with params: #{league_params}"
-    @league = League.new(league_params.merge(owner_id: current_user.id))
+    logger = Rails.logger
+    user_id = current_user.id
+
+    logger.info "User #{user_id} attempting to create league with params: #{league_params}"
+    @league = League.new(league_params.merge(owner_id: user_id))
 
     ActiveRecord::Base.transaction do
       if @league.save
@@ -133,10 +148,10 @@ class LeaguesController < ApplicationController
           user: current_user,
           role: :owner
         )
-        Rails.logger.info "League #{@league.id} created successfully by user #{current_user.id}"
+        logger.info "League #{@league.id} created successfully by user #{user_id}"
         redirect_to dashboard_league_path(@league), notice: 'League was successfully created.'
       else
-        Rails.logger.warn "League creation failed for user #{current_user.id}: #{@league.errors.full_messages}"
+        logger.warn "League creation failed for user #{user_id}: #{@league.errors.full_messages}"
         render :new, status: :unprocessable_entity
         raise ActiveRecord::Rollback
       end
@@ -144,21 +159,27 @@ class LeaguesController < ApplicationController
   end
 
   def update
-    Rails.logger.info "User #{current_user.id} updating league #{@league.id} with params: #{league_params}"
+    logger = Rails.logger
+    league_id = @league.id
+
+    logger.info "User #{current_user.id} updating league #{league_id} with params: #{league_params}"
 
     if @league.update(league_params)
-      Rails.logger.info "League #{@league.id} updated successfully"
+      logger.info "League #{league_id} updated successfully"
       redirect_to dashboard_league_path(@league), notice: 'League was successfully updated.'
     else
-      Rails.logger.warn "League update failed: #{@league.errors.full_messages}"
+      logger.warn "League update failed: #{@league.errors.full_messages}"
       render :edit, status: :unprocessable_entity
     end
   end
 
   def destroy
-    Rails.logger.info "User #{current_user.id} deleting league #{@league.id}"
+    logger = Rails.logger
+    league_id = @league.id
+
+    logger.info "User #{current_user.id} deleting league #{league_id}"
     @league.destroy!
-    Rails.logger.info "League #{@league.id} deleted successfully"
+    logger.info "League #{league_id} deleted successfully"
     redirect_to leagues_url, notice: 'League was successfully deleted.'
   end
 
@@ -171,10 +192,13 @@ class LeaguesController < ApplicationController
   private
 
   def set_league
-    @league = League.find(params[:id])
-    Rails.logger.info "Set league #{@league.id} for action"
+    logger = Rails.logger
+    league_id = params[:id]
+
+    @league = League.find(league_id)
+    logger.info "Set league #{@league.id} for action"
   rescue ActiveRecord::RecordNotFound
-    Rails.logger.warn "League not found with id: #{params[:id]}"
+    logger.warn "League not found with id: #{league_id}"
     redirect_to leagues_path, alert: 'League not found.'
   end
 

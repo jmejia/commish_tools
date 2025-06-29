@@ -1,3 +1,5 @@
+# Represents a weekly press conference for a fantasy football league.
+# Contains questions and responses from league members.
 class PressConference < ApplicationRecord
   belongs_to :league
   belongs_to :target_manager, class_name: 'LeagueMembership'

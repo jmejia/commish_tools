@@ -5,11 +5,11 @@ FactoryBot.define do
     sleeper_user_id { "782008200219205632" }
     team_name { "Test Team" }
     role { :manager }
-    
+
     trait :owner do
       role { :owner }
     end
-    
+
     trait :manager do
       role { :manager }
     end

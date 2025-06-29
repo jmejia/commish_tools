@@ -1,6 +1,6 @@
 Rails.application.routes.draw do
   devise_for :users, controllers: {
-    omniauth_callbacks: 'users/omniauth_callbacks'
+    omniauth_callbacks: 'users/omniauth_callbacks',
   }
   root 'home#index'
 
@@ -22,17 +22,17 @@ Rails.application.routes.draw do
     member do
       get :dashboard
     end
-    
+
     resources :league_memberships, only: [:create, :destroy] do
       resources :voice_clones, except: [:index]
     end
-    
+
     resources :press_conferences do
       member do
         post :generate
         get :audio_player
       end
-      
+
       resources :press_conference_questions, path: :questions
     end
   end
@@ -40,7 +40,7 @@ Rails.application.routes.draw do
   # Voice upload routes (public access via token)
   get '/voice_uploads/:token', to: 'voice_uploads#show', as: :voice_upload
   post '/voice_uploads/:token', to: 'voice_uploads#create'
-  
+
   # Audio streaming routes
   get '/audio/:id', to: 'audio#stream', as: :audio_stream
 end

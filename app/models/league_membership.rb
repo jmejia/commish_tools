@@ -12,8 +12,10 @@ class LeagueMembership < ApplicationRecord
   validates :sleeper_user_id, presence: true
   validates :team_name, presence: true, length: { maximum: 50 }
   validates :role, presence: true
-  validates :user_id, uniqueness: { scope: :league_id, 
-                                   message: 'User already belongs to this league' }
+  validates :user_id, uniqueness: {
+    scope: :league_id,
+    message: 'User already belongs to this league',
+  }
 
   scope :owners, -> { where(role: :owner) }
   scope :managers, -> { where(role: :manager) }

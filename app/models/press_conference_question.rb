@@ -4,8 +4,8 @@ class PressConferenceQuestion < ApplicationRecord
   has_one :press_conference_response, dependent: :destroy
 
   validates :question_text, presence: true, length: { maximum: 500 }
-  validates :order_index, presence: true, 
-            numericality: { greater_than_or_equal_to: 0 }
+  validates :order_index, presence: true,
+                          numericality: { greater_than_or_equal_to: 0 }
   validates :order_index, uniqueness: { scope: :press_conference_id }
 
   scope :ordered, -> { order(:order_index) }

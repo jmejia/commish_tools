@@ -12,13 +12,15 @@ class PressConference < ApplicationRecord
     archived: 3,
   }
 
-  validates :week_number, presence: true, 
-            numericality: { greater_than: 0, less_than_or_equal_to: 18 }
+  validates :week_number, presence: true,
+                          numericality: { greater_than: 0, less_than_or_equal_to: 18 }
   validates :season_year, presence: true,
-            numericality: { greater_than: 2000, less_than_or_equal_to: -> { Date.current.year + 1 } }
+                          numericality: { greater_than: 2000, less_than_or_equal_to: -> { Date.current.year + 1 } }
   validates :status, presence: true
-  validates :week_number, uniqueness: { scope: [:league_id, :season_year], 
-                                       message: 'Press conference already exists for this week' }
+  validates :week_number, uniqueness: {
+    scope: [:league_id, :season_year],
+    message: 'Press conference already exists for this week',
+  }
 
   scope :current_season, -> { where(season_year: Date.current.year) }
   scope :for_week, ->(week) { where(week_number: week) }
@@ -30,13 +32,13 @@ class PressConference < ApplicationRecord
 
   def complete_audio_url
     return nil unless ready?
-    
+
     context_data&.dig('complete_audio_url')
   end
 
   def total_duration
     return 0 unless context_data&.dig('total_duration')
-    
+
     context_data['total_duration']
   end
 

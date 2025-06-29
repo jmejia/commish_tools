@@ -26,7 +26,7 @@ class VoiceClone < ApplicationRecord
 
   def audio_file_name
     return nil unless original_audio_url.present?
-    
+
     File.basename(original_audio_url)
   end
 

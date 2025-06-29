@@ -9,16 +9,16 @@ RSpec.describe User, type: :model do
         info: {
           email: 'test@example.com',
           first_name: 'John',
-          last_name: 'Doe'
-        }
+          last_name: 'Doe',
+        },
       })
     end
 
     context 'when user does not exist' do
       it 'creates a new user with OAuth data' do
-        expect {
+        expect do
           User.from_omniauth(auth_hash)
-        }.to change(User, :count).by(1)
+        end.to change(User, :count).by(1)
 
         user = User.last
         expect(user.provider).to eq('google_oauth2')
@@ -44,9 +44,9 @@ RSpec.describe User, type: :model do
       end
 
       it 'returns the existing user' do
-        expect {
+        expect do
           User.from_omniauth(auth_hash)
-        }.not_to change(User, :count)
+        end.not_to change(User, :count)
 
         user = User.from_omniauth(auth_hash)
         expect(user).to eq(existing_user)

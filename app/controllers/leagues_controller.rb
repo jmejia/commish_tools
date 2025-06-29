@@ -83,7 +83,7 @@ class LeaguesController < ApplicationController
     if league_data
       # Get league rosters to find user's team info
       rosters = client.league_rosters(sleeper_league_id)
-      user_roster = rosters&.find { |roster| roster.owner_id == current_user.sleeper_id }
+      rosters&.find { |roster| roster.owner_id == current_user.sleeper_id }
 
       # Get league users to find team name
       league_users = client.league_users(sleeper_league_id)

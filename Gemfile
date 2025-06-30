@@ -29,7 +29,7 @@ gem "tzinfo-data", platforms: %i(windows jruby)
 
 # Use the database-backed adapters for Rails.cache, Active Job, and Action Cable
 # gem "solid_cache"
-# gem "solid_queue"
+gem "solid_queue"
 # gem "solid_cable"
 
 # Reduces boot times through caching; required in config/boot.rb
@@ -50,9 +50,9 @@ gem "omniauth"
 gem "omniauth-google-oauth2"
 # gem "omniauth-rails_csrf_protection"
 
-# Background jobs (alternative to solid_queue for more complex scenarios)
-gem "sidekiq"
-gem "redis", "~> 4.0"
+# Background jobs using database-backed Solid Queue
+# gem "sidekiq"
+# gem "redis", "~> 4.0"
 
 # API integrations
 gem "httparty"

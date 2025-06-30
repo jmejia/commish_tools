@@ -21,21 +21,64 @@ To enable Google OAuth authentication, you need to:
 
 ## Development Setup
 
+### Prerequisites
 * Ruby version: 3.2.2
+* System dependencies: PostgreSQL
 
-* System dependencies: PostgreSQL, Redis
+### Getting Started
 
-* Configuration: Copy environment variables as shown above
+1. **Clone and setup:**
+   ```bash
+   git clone <repository-url>
+   cd commish_tools
+   bundle install
+   ```
 
-* Database creation: `rails db:create`
+2. **Environment configuration:**
+   Copy the environment variables shown in the Google OAuth section above.
 
-* Database initialization: `rails db:migrate`
+3. **Database setup:**
+   ```bash
+   rails db:create
+   rails db:migrate
+   
+   # Load Solid Queue tables for background jobs
+   bin/rails runner "load Rails.root.join('db/queue_schema.rb')"
+   ```
 
-* How to run the test suite: `rspec`
+4. **Start the application:**
+   ```bash
+   # Recommended: Start all services together
+   bin/dev
+   ```
+   This starts:
+   - Web server on http://localhost:3000
+   - Background job worker (Solid Queue)
+   - CSS compilation (Tailwind)
 
-* Services: Redis for background jobs
+   **Alternative - Start services individually:**
+   ```bash
+   rails server                    # Web server
+   bin/jobs                       # Background job worker
+   bin/rails tailwindcss:watch    # CSS compilation
+   ```
 
-* Deployment instructions: Use Kamal for deployment
+5. **Run tests:**
+   ```bash
+   rspec
+   ```
+
+### Background Jobs
+
+This app uses **Solid Queue** for database-backed background job processing:
+- **Storage:** Jobs stored in PostgreSQL (no Redis required)
+- **Current jobs:** Email delivery for super admin notifications
+- **Future jobs:** League data synchronization, report generation
+- **Monitoring:** Check `solid_queue_*` tables in your database
+
+### Deployment
+
+* Use Kamal for deployment
 
 ## Email Testing with Letter Opener
 
@@ -57,13 +100,14 @@ rake mailer:test_super_admin
 This sends a test super admin notification email and opens it in your browser.
 
 #### Method 2: Trigger Through the Application
-1. Start the Rails server: `rails server`
-2. Create a user account (sign up with email/password or Google OAuth)
-3. Try to connect a Sleeper account:
+1. Start the application: `bin/dev`
+2. Navigate to http://localhost:3000
+3. Create a user account (sign up with email/password or Google OAuth)
+4. Try to connect a Sleeper account:
    - Navigate to "New League" or "Connect Sleeper"
    - Enter any Sleeper username
    - Submit the form
-4. The super admin notification email will automatically open in your browser
+5. The super admin notification email will automatically open in your browser
 
 #### Method 3: Manual Access
 If emails don't open automatically, you can find them at:

@@ -1,0 +1,28 @@
+<h1>User Management</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Email</th>
+      <th>Role</th>
+      <th>Super Admin</th>
+      <th>Joined</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @users.each do |user| %>
+      <tr>
+        <td><%= user.display_name %></td>
+        <td><%= user.email %></td>
+        <td><%= user.role.humanize %></td>
+        <td><%= user.super_admin? ? 'Yes' : 'No' %></td>
+        <td><%= user.created_at.strftime('%B %d, %Y') %></td>
+        <td>
+          <%= link_to 'View', admin_user_path(user) %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table> 

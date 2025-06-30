@@ -11,7 +11,7 @@ We follow Jason Swett's organizational principles for maintainable Rails applica
 - Organize controllers, models, and views within these namespaces
 
 ### 2. Models as Abstractions
-- **80% POROs, 20% ActiveRecord models** in `app/models`
+- **50% POROs, 50% ActiveRecord models** in `app/models`
 - Models should abstract reality to make it easier to work with
 - POROs go in `app/models` alongside ActiveRecord models
 - Models can handle any application logic, not just domain logic

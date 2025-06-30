@@ -1,6 +1,37 @@
 require 'rails_helper'
 
 RSpec.describe User, type: :model do
+  describe 'associations' do
+    it 'has one super admin with dependent destroy' do
+      user = create(:user)
+      expect(user).to respond_to(:super_admin)
+
+      super_admin = create(:super_admin, user: user)
+      expect(user.super_admin).to eq(super_admin)
+
+      # Test dependent destroy
+      expect { user.destroy }.to change(SuperAdmin, :count).by(-1)
+    end
+  end
+
+  describe '#super_admin?' do
+    let(:user) { create(:user) }
+
+    context 'when user is not a super admin' do
+      it 'returns false' do
+        expect(user.super_admin?).to be false
+      end
+    end
+
+    context 'when user is a super admin' do
+      before { create(:super_admin, user: user) }
+
+      it 'returns true' do
+        expect(user.super_admin?).to be true
+      end
+    end
+  end
+
   describe '.from_omniauth' do
     let(:auth_hash) do
       OmniAuth::AuthHash.new({
@@ -51,6 +82,23 @@ RSpec.describe User, type: :model do
         user = User.from_omniauth(auth_hash)
         expect(user).to eq(existing_user)
       end
+    end
+  end
+
+  describe 'regular registration (non-OAuth)' do
+    it 'allows user creation with just email and password' do
+      user = User.new(
+        email: 'newuser@example.com',
+        password: 'password123',
+        password_confirmation: 'password123'
+      )
+
+      expect(user).to be_valid
+      expect(user.save).to be true
+
+      # Should have default values
+      expect(user.role).to eq('team_manager')
+      expect(user.display_name).to eq('newuser@example.com') # Falls back to email when names are blank
     end
   end
 end

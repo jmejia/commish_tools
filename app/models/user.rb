@@ -15,9 +15,14 @@ class User < ApplicationRecord
   has_many :league_memberships, dependent: :destroy
   has_many :leagues, through: :league_memberships
   has_many :voice_clones, through: :league_memberships
+  has_one :super_admin, dependent: :destroy
+  has_many :sleeper_connection_requests, dependent: :destroy
 
-  validates :first_name, presence: true, length: { maximum: 50 }
-  validates :last_name, presence: true, length: { maximum: 50 }
+  # Set default role before validation
+  before_validation :set_default_role, on: :create
+
+  validates :first_name, length: { maximum: 50 }, allow_blank: true
+  validates :last_name, length: { maximum: 50 }, allow_blank: true
   validates :role, presence: true
   validates :sleeper_username, uniqueness: true, allow_blank: true
   validates :sleeper_id, uniqueness: true, allow_blank: true
@@ -30,25 +35,38 @@ class User < ApplicationRecord
     full_name.strip.presence || email
   end
 
+  def super_admin?
+    super_admin.present?
+  end
+
   def sleeper_connected?
     sleeper_id.present?
   end
 
   def connect_sleeper_account(username)
+    # Check if there's already a pending request
+    return false if sleeper_connection_pending?
+
     client = SleeperFF.new
     user_data = client.user(username)
 
     if user_data
-      update!(
+      # Create a pending connection request instead of immediately connecting
+      sleeper_connection_requests.create!(
         sleeper_username: user_data.username,
-        sleeper_id: user_data.user_id
+        sleeper_id: user_data.user_id,
+        requested_at: Time.current
       )
+
+      # Send notification to super admins
+      SuperAdminMailer.sleeper_connection_requested(self, user_data.username).deliver_later unless Rails.env.test?
+
       true
     else
       false
     end
   rescue StandardError => exception
-    Rails.logger.error "Failed to connect Sleeper account for user #{id}: #{exception.message}"
+    Rails.logger.error "Failed to request Sleeper account connection for user #{id}: #{exception.message}"
     false
   end
 
@@ -72,5 +90,19 @@ class User < ApplicationRecord
       user.last_name = auth_info.last_name
       user.role = :team_manager
     end
+  end
+
+  def sleeper_connection_pending?
+    sleeper_connection_requests.pending.exists?
+  end
+
+  def latest_sleeper_request
+    sleeper_connection_requests.recent.first
+  end
+
+  private
+
+  def set_default_role
+    self.role ||= :team_manager
   end
 end

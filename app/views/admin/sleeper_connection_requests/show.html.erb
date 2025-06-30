@@ -1,0 +1,187 @@
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="mb-8">
+    <%= link_to admin_sleeper_connection_requests_path, class: "inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-700" do %>
+      <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+      </svg>
+      Back to Requests
+    <% end %>
+  </div>
+
+  <div class="bg-white shadow rounded-lg">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-bold text-gray-900">Sleeper Connection Request</h1>
+        <div class="flex items-center space-x-2">
+          <% case @sleeper_request.status %>
+          <% when 'pending' %>
+            <span class="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-yellow-100 text-yellow-800">
+              <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
+              </svg>
+              Pending Review
+            </span>
+          <% when 'approved' %>
+            <span class="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-green-100 text-green-800">
+              <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+              </svg>
+              Approved
+            </span>
+          <% when 'rejected' %>
+            <span class="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-red-100 text-red-800">
+              <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+              </svg>
+              Rejected
+            </span>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <div class="px-6 py-6">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- User Information -->
+        <div>
+          <h3 class="text-lg font-medium text-gray-900 mb-4">User Information</h3>
+          <div class="bg-gray-50 rounded-lg p-4 space-y-3">
+            <div class="flex items-center space-x-3">
+              <div class="flex-shrink-0">
+                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                  <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+                  </svg>
+                </div>
+              </div>
+              <div>
+                <h4 class="text-lg font-medium text-gray-900">
+                  <%= @sleeper_request.user.display_name %>
+                </h4>
+                <p class="text-sm text-gray-500">
+                  <%= @sleeper_request.user.email %>
+                </p>
+              </div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4 pt-3 border-t border-gray-200">
+              <div>
+                <dt class="text-sm font-medium text-gray-500">Account Type</dt>
+                <dd class="mt-1 text-sm text-gray-900 capitalize">
+                  <%= @sleeper_request.user.role.humanize %>
+                </dd>
+              </div>
+              <div>
+                <dt class="text-sm font-medium text-gray-500">Member Since</dt>
+                <dd class="mt-1 text-sm text-gray-900">
+                  <%= @sleeper_request.user.created_at.strftime("%B %d, %Y") %>
+                </dd>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sleeper Information -->
+        <div>
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Sleeper Account Details</h3>
+          <div class="bg-gray-50 rounded-lg p-4 space-y-3">
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Username</dt>
+              <dd class="mt-1 text-lg font-medium text-gray-900">
+                <%= @sleeper_request.sleeper_username %>
+              </dd>
+            </div>
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Sleeper ID</dt>
+              <dd class="mt-1 text-sm text-gray-900 font-mono">
+                <%= @sleeper_request.sleeper_id %>
+              </dd>
+            </div>
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Requested</dt>
+              <dd class="mt-1 text-sm text-gray-900">
+                <%= @sleeper_request.requested_at.strftime("%B %d, %Y at %I:%M %p") %>
+                <span class="text-gray-500">
+                  (<%= time_ago_in_words(@sleeper_request.requested_at) %> ago)
+                </span>
+              </dd>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Review Information (if reviewed) -->
+      <% if @sleeper_request.reviewed_at.present? %>
+        <div class="mt-8">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Review Details</h3>
+          <div class="bg-gray-50 rounded-lg p-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <dt class="text-sm font-medium text-gray-500">Reviewed By</dt>
+                <dd class="mt-1 text-sm text-gray-900">
+                  <%= @sleeper_request.reviewed_by&.display_name || 'Unknown' %>
+                </dd>
+              </div>
+              <div>
+                <dt class="text-sm font-medium text-gray-500">Review Date</dt>
+                <dd class="mt-1 text-sm text-gray-900">
+                  <%= @sleeper_request.reviewed_at.strftime("%B %d, %Y at %I:%M %p") %>
+                </dd>
+              </div>
+              <div>
+                <dt class="text-sm font-medium text-gray-500">Decision</dt>
+                <dd class="mt-1">
+                  <% case @sleeper_request.status %>
+                  <% when 'approved' %>
+                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                      Approved
+                    </span>
+                  <% when 'rejected' %>
+                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                      Rejected
+                    </span>
+                  <% end %>
+                </dd>
+              </div>
+            </div>
+            
+            <% if @sleeper_request.rejection_reason.present? %>
+              <div class="mt-4 pt-4 border-t border-gray-200">
+                <dt class="text-sm font-medium text-gray-500">Rejection Reason</dt>
+                <dd class="mt-1 text-sm text-gray-900">
+                  <%= @sleeper_request.rejection_reason %>
+                </dd>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- Action Buttons (only for pending requests) -->
+      <% if @sleeper_request.pending? %>
+        <div class="mt-8 flex justify-end space-x-4">
+          <%= button_to reject_admin_sleeper_connection_request_path(@sleeper_request), 
+                        method: :patch,
+                        params: { rejection_reason: "Rejected by super admin" },
+                        class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500",
+                        data: { confirm: "Are you sure you want to reject this Sleeper connection for #{@sleeper_request.user.display_name}?" } do %>
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+            Reject Request
+          <% end %>
+          
+          <%= button_to approve_admin_sleeper_connection_request_path(@sleeper_request), 
+                        method: :patch,
+                        class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500",
+                        data: { confirm: "Are you sure you want to approve this Sleeper connection for #{@sleeper_request.user.display_name}?" } do %>
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            Approve Request
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div> 

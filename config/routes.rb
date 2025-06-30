@@ -43,4 +43,16 @@ Rails.application.routes.draw do
 
   # Audio streaming routes
   get '/audio/:id', to: 'audio#stream', as: :audio_stream
+
+  namespace :admin do
+    get 'dashboard', to: 'dashboard#index'
+    resources :super_admins, only: [:index, :create, :destroy]
+    resources :users, only: [:index, :show]
+    resources :sleeper_connection_requests, only: [:index, :show] do
+      member do
+        patch :approve
+        patch :reject
+      end
+    end
+  end
 end

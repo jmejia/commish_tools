@@ -37,6 +37,13 @@
       <div class="bg-gray-800/50 rounded-xl border border-gray-700 p-8">
         <%= form_with url: connect_sleeper_path, method: :post, local: true, class: "space-y-6" do |form| %>
           
+          <% if flash[:notice] %>
+            <div class="bg-green-500/20 border border-green-500/50 rounded-lg p-4">
+              <h4 class="text-green-400 font-semibold mb-2">Request Submitted</h4>
+              <p class="text-green-300 text-sm"><%= flash[:notice] %></p>
+            </div>
+          <% end %>
+          
           <% if flash[:alert] %>
             <div class="bg-red-500/20 border border-red-500/50 rounded-lg p-4">
               <h4 class="text-red-400 font-semibold mb-2">Connection Failed</h4>

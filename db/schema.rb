@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_06_29_040355) do
+ActiveRecord::Schema[8.0].define(version: 2025_06_29_200207) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -72,6 +72,29 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_29_040355) do
     t.index ["target_manager_id"], name: "index_press_conferences_on_target_manager_id"
   end
 
+  create_table "sleeper_connection_requests", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "sleeper_username", null: false
+    t.string "sleeper_id", null: false
+    t.integer "status", default: 0, null: false
+    t.datetime "requested_at", precision: nil, null: false
+    t.datetime "reviewed_at", precision: nil
+    t.bigint "reviewed_by_id"
+    t.text "rejection_reason"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["reviewed_by_id"], name: "index_sleeper_connection_requests_on_reviewed_by_id"
+    t.index ["status"], name: "index_sleeper_connection_requests_on_status"
+    t.index ["user_id"], name: "index_sleeper_connection_requests_on_user_id"
+  end
+
+  create_table "super_admins", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_super_admins_on_user_id", unique: true
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -109,5 +132,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_29_040355) do
   add_foreign_key "press_conference_responses", "press_conference_questions"
   add_foreign_key "press_conferences", "league_memberships", column: "target_manager_id"
   add_foreign_key "press_conferences", "leagues"
+  add_foreign_key "sleeper_connection_requests", "users"
+  add_foreign_key "sleeper_connection_requests", "users", column: "reviewed_by_id"
+  add_foreign_key "super_admins", "users"
   add_foreign_key "voice_clones", "league_memberships"
 end

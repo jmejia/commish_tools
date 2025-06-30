@@ -1,0 +1,17 @@
+SuperAdmin#sleeper_connection_requested
+
+New Sleeper Connection Request
+
+Hello Super Admin,
+
+A user has requested to connect their Sleeper account and needs your approval.
+
+User Details:
+- Name: <%= @user.display_name %>
+- Email: <%= @user.email %>
+- Sleeper Username: <%= @sleeper_username %>
+
+Please review this request in the admin dashboard:
+<%= admin_sleeper_connection_requests_url %>
+
+Thank you!

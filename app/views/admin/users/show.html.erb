@@ -1,0 +1,18 @@
+<h1>User Details</h1>
+
+<p><strong>Name:</strong> <%= @user.display_name %></p>
+<p><strong>Email:</strong> <%= @user.email %></p>
+<p><strong>Role:</strong> <%= @user.role.humanize %></p>
+<p><strong>Super Admin:</strong> <%= @user.super_admin? ? 'Yes' : 'No' %></p>
+<p><strong>Joined:</strong> <%= @user.created_at.strftime('%B %d, %Y at %I:%M %p') %></p>
+
+<% if @user.sleeper_connected? %>
+  <p><strong>Sleeper Username:</strong> <%= @user.sleeper_username %></p>
+  <p><strong>Sleeper ID:</strong> <%= @user.sleeper_id %></p>
+<% else %>
+  <p><strong>Sleeper:</strong> Not connected</p>
+<% end %>
+
+<p>
+  <%= link_to 'Back to Users', admin_users_path %>
+</p> 

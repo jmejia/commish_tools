@@ -1,0 +1,36 @@
+<h1>Super Admin Dashboard</h1>
+<p>Welcome, <%= current_user.display_name %>!</p>
+
+<div class="stats">
+  <h2>System Overview</h2>
+  <ul>
+    <li><strong>Total Users:</strong> <%= @user_count %></li>
+    <li><strong>Super Admins:</strong> <%= @super_admin_count %></li>
+    <li><strong>Total Leagues:</strong> <%= @league_count %></li>
+  </ul>
+</div>
+
+<div class="recent-users">
+  <h2>Recent Users</h2>
+  <% if @recent_users.any? %>
+    <ul>
+      <% @recent_users.each do |user| %>
+        <li>
+          <%= link_to user.display_name, admin_user_path(user) %>
+          (<%= user.email %>) - 
+          joined <%= time_ago_in_words(user.created_at) %> ago
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p>No users found.</p>
+  <% end %>
+</div>
+
+<div class="quick-actions">
+  <h2>Quick Actions</h2>
+  <ul>
+    <li><%= link_to 'Manage Users', admin_users_path %></li>
+    <li><%= link_to 'Manage Super Admins', admin_super_admins_path %></li>
+  </ul>
+</div> 

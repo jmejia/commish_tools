@@ -1,0 +1,17 @@
+<h1>New Sleeper Connection Request</h1>
+
+<p>Hello Super Admin,</p>
+
+<p>A user has requested to connect their Sleeper account and needs your approval.</p>
+
+<h2>User Details:</h2>
+<ul>
+  <li><strong>Name:</strong> <%= @user.display_name %></li>
+  <li><strong>Email:</strong> <%= @user.email %></li>
+  <li><strong>Sleeper Username:</strong> <%= @sleeper_username %></li>
+</ul>
+
+<p>Please review this request in the admin dashboard:</p>
+<p><%= link_to "Review Request", admin_sleeper_connection_requests_url, style: "background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;" %></p>
+
+<p>Thank you!</p>

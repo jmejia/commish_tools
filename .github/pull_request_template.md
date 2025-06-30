@@ -20,7 +20,7 @@ Brief description of changes
 - [ ] Does this introduce a new domain concept that needs namespacing?
 - [ ] Could any controllers be "hidden resources" without AR models?
 - [ ] Are we viewing existing resources through new "lenses"?
-- [ ] Have we kept the 80% PORO / 20% ActiveRecord target in mind?
+- [ ] Have we kept the 50% PORO / 50% ActiveRecord target in mind?
 
 ## Testing
 - [ ] Tests pass locally

@@ -32,8 +32,10 @@ RSpec.describe 'Sleeper Integration', type: :feature do
         click_button 'Connect Account'
 
         expect(page).to have_current_path(connect_sleeper_path)
-        expect(page).to have_content('Sleeper connection request submitted!')
-        expect(page).to have_content("You'll receive an email once an admin approves your request")
+        expect(page).to have_content('Connection Request Pending')
+        expect(page).to have_content('Your Sleeper account connection is awaiting admin approval')
+        expect(page).to have_content('testuser123')
+        expect(page).to have_content('Form Temporarily Disabled')
 
         user.reload
         expect(user.sleeper_username).to be_nil # Not connected yet - pending approval
@@ -90,12 +92,10 @@ RSpec.describe 'Sleeper Integration', type: :feature do
 
         visit connect_sleeper_path
 
-        fill_in 'Sleeper Username', with: 'testuser123'
-        click_button 'Connect Account'
-
-        expect(page).to have_current_path(connect_sleeper_path)
-        expect(page).to have_content('You already have a pending Sleeper connection request')
-        expect(page).to have_content('Please wait for admin approval')
+        expect(page).to have_content('Connection Request Pending')
+        expect(page).to have_content('Your Sleeper account connection is awaiting admin approval')
+        expect(page).to have_content('Form Temporarily Disabled')
+        expect(page).not_to have_button('Connect Account')
       end
     end
 

@@ -8,7 +8,7 @@ class HomeController < ApplicationController
       redirect_to leagues_path
     else
       user_leagues = current_user.leagues
-      redirect_to league_path(user_leagues.first) if user_leagues.any?
+      redirect_to leagues_path if user_leagues.any?
     end
   end
 end

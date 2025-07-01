@@ -5,6 +5,7 @@ class VoiceClone < ApplicationRecord
 
   has_one :user, through: :league_membership
   has_one :league, through: :league_membership
+  has_one_attached :audio_file
 
   enum :status, {
     pending: 0,
@@ -16,6 +17,8 @@ class VoiceClone < ApplicationRecord
   validates :status, presence: true
   validates :upload_token, presence: true, uniqueness: true
   validates :league_membership_id, uniqueness: true
+  validates :audio_file, attached: true, content_type: ['audio/mpeg', 'audio/wav', 'audio/mp4', 'audio/webm', 'audio/m4a']
+  validates :audio_file, size: { between: 1.megabyte..50.megabytes }
 
   scope :ready_for_use, -> { where(status: :ready) }
   scope :for_league, ->(league) { joins(:league_membership).where(league_memberships: { league: league }) }

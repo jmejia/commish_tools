@@ -15,9 +15,14 @@ class VoiceClonesController < ApplicationController
     @voice_clone = @league_membership.build_voice_clone(voice_clone_params)
     
     if @voice_clone.save
-      VoiceProcessingJob.perform_later(@voice_clone.id) if @voice_clone.audio_file.attached?
-      redirect_to league_league_membership_voice_clone_path(@league_membership.league, @league_membership, @voice_clone), 
-                  notice: 'Voice sample uploaded successfully and is being processed.'
+      if @voice_clone.audio_file.attached?
+        VoiceProcessingJob.perform_later(@voice_clone.id)
+        redirect_to league_league_membership_voice_clone_path(@league_membership.league, @league_membership, @voice_clone), 
+                    notice: 'Voice sample uploaded successfully and is being processed.'
+      else
+        redirect_to league_league_membership_voice_clone_path(@league_membership.league, @league_membership, @voice_clone), 
+                    notice: 'Voice clone created. Please upload an audio file to begin processing.'
+      end
     else
       render :new, status: :unprocessable_entity
     end
@@ -28,9 +33,14 @@ class VoiceClonesController < ApplicationController
 
   def update
     if @voice_clone.update(voice_clone_params)
-      VoiceProcessingJob.perform_later(@voice_clone.id) if @voice_clone.audio_file.attached? && @voice_clone.audio_file.attached_changes.present?
-      redirect_to league_league_membership_voice_clone_path(@league_membership.league, @league_membership, @voice_clone), 
-                  notice: 'Voice sample updated successfully.'
+      if @voice_clone.audio_file.attached? && voice_clone_params[:audio_file].present?
+        VoiceProcessingJob.perform_later(@voice_clone.id)
+        redirect_to league_league_membership_voice_clone_path(@league_membership.league, @league_membership, @voice_clone), 
+                    notice: 'Voice sample updated successfully and is being processed.'
+      else
+        redirect_to league_league_membership_voice_clone_path(@league_membership.league, @league_membership, @voice_clone), 
+                    notice: 'Voice clone updated successfully.'
+      end
     else
       render :edit, status: :unprocessable_entity
     end

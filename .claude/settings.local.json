@@ -7,7 +7,9 @@
       "Bash(git commit:*)",
       "Bash(grep:*)",
       "Bash(find:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(rspec:*)",
+      "Bash(bin/rails:*)"
     ],
     "deny": []
   }

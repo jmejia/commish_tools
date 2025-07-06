@@ -1,6 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe 'Google OAuth Integration', type: :feature do
+  include Rails.application.routes.url_helpers
+
   describe 'OAuth UI elements' do
     it 'shows Google OAuth button on sign in page' do
       visit root_path

@@ -5,6 +5,7 @@ class VoiceClone < ApplicationRecord
 
   has_one :user, through: :league_membership
   has_one :league, through: :league_membership
+  has_many :voice_upload_links, dependent: :destroy
   has_one_attached :audio_file
 
   enum :status, {
@@ -17,11 +18,18 @@ class VoiceClone < ApplicationRecord
   validates :status, presence: true
   validates :upload_token, presence: true, uniqueness: true
   validates :league_membership_id, uniqueness: true
-  
+
   validate :audio_file_content_type, if: -> { audio_file.attached? }
   validate :audio_file_size, if: -> { audio_file.attached? }
 
+  before_create :set_defaults
+
   private
+
+  def set_defaults
+    self.status ||= :pending
+    self.upload_token ||= SecureRandom.urlsafe_base64(32)
+  end
 
   def audio_file_content_type
     allowed_types = ['audio/mpeg', 'audio/wav', 'audio/mp4', 'audio/webm', 'audio/m4a']
@@ -38,16 +46,10 @@ class VoiceClone < ApplicationRecord
     end
   end
 
-  def generate_upload_token
-    self.upload_token = SecureRandom.urlsafe_base64(32) if upload_token.blank?
-  end
-
   public
 
   scope :ready_for_use, -> { where(status: :ready) }
   scope :for_league, ->(league) { joins(:league_membership).where(league_memberships: { league: league }) }
-
-  before_create :generate_upload_token
 
   def ready_for_playht?
     ready? && playht_voice_id.present?

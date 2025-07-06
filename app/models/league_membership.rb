@@ -4,7 +4,7 @@ class LeagueMembership < ApplicationRecord
   belongs_to :league
   belongs_to :user
 
-  has_many :voice_clones, dependent: :destroy
+  has_one :voice_clone, dependent: :destroy
 
   enum :role, {
     manager: 0,

@@ -11,16 +11,19 @@ class VoiceClonesController < ApplicationController
     @voice_clone = @league_membership.build_voice_clone
   end
 
+  def edit
+  end
+
   def create
     @voice_clone = @league_membership.build_voice_clone(voice_clone_params)
-    
+
     if @voice_clone.save
       if @voice_clone.audio_file.attached?
         VoiceProcessingJob.perform_later(@voice_clone.id)
-        redirect_to league_league_membership_voice_clone_path(@league_membership.league, @league_membership, @voice_clone), 
+        redirect_to league_league_membership_voice_clone_path(@league_membership.league, @league_membership, @voice_clone),
                     notice: 'Voice sample uploaded successfully and is being processed.'
       else
-        redirect_to league_league_membership_voice_clone_path(@league_membership.league, @league_membership, @voice_clone), 
+        redirect_to league_league_membership_voice_clone_path(@league_membership.league, @league_membership, @voice_clone),
                     notice: 'Voice clone created. Please upload an audio file to begin processing.'
       end
     else
@@ -28,17 +31,14 @@ class VoiceClonesController < ApplicationController
     end
   end
 
-  def edit
-  end
-
   def update
     if @voice_clone.update(voice_clone_params)
       if @voice_clone.audio_file.attached? && voice_clone_params[:audio_file].present?
         VoiceProcessingJob.perform_later(@voice_clone.id)
-        redirect_to league_league_membership_voice_clone_path(@league_membership.league, @league_membership, @voice_clone), 
+        redirect_to league_league_membership_voice_clone_path(@league_membership.league, @league_membership, @voice_clone),
                     notice: 'Voice sample updated successfully and is being processed.'
       else
-        redirect_to league_league_membership_voice_clone_path(@league_membership.league, @league_membership, @voice_clone), 
+        redirect_to league_league_membership_voice_clone_path(@league_membership.league, @league_membership, @voice_clone),
                     notice: 'Voice clone updated successfully.'
       end
     else

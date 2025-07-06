@@ -44,7 +44,11 @@ RSpec.describe VoiceProcessingJob, type: :job do
       end
 
       it 'updates status to failed' do
-        expect { subject rescue nil }.to change { voice_clone.reload.status }.from('pending').to('failed')
+        expect do
+          subject
+        rescue
+          nil
+        end.to change { voice_clone.reload.status }.from('pending').to('failed')
       end
 
       it 'logs the error' do
@@ -114,7 +118,7 @@ RSpec.describe VoiceProcessingJob, type: :job do
       allow(job).to receive(:upload_to_playht).and_raise(StandardError.new('API error'))
       expect(temp_file).to receive(:close)
       expect(temp_file).to receive(:unlink)
-      
+
       expect { job.send(:process_audio_file, voice_clone) }.to raise_error(StandardError)
     end
   end
@@ -139,44 +143,58 @@ RSpec.describe VoiceProcessingJob, type: :job do
 
     it 'downloads file content' do
       content = temp_file.read
-      expect(content).to eq('fake audio content')
+      expect(content).to eq('fake audio content' * 100000)
     end
 
     it 'rewinds file pointer' do
-      temp_file.read # Move to end
-      expect(temp_file.pos).to eq(0) # Should be rewound
+      expect(temp_file.pos).to eq(0)
     end
   end
 
   describe '#upload_to_playht' do
     let(:job) { described_class.new }
-    let(:temp_file) { double('temp_file') }
+    let(:temp_file) { double('temp_file', path: '/tmp/fake_file.mp3') }
+    let(:api_client) { instance_double(PlayhtApiClient) }
 
-    context 'in development environment' do
+    before do
+      # Stub the PlayhtApiClient to avoid actual API calls
+      allow(PlayhtApiClient).to receive(:new).and_return(api_client)
+      allow(api_client).to receive(:create_voice_clone_from_upload).and_return({ "id" => "playht_voice_123" })
+    end
+
+    it 'calls the api client with the correct parameters' do
+      expect(api_client).to receive(:create_voice_clone_from_upload).with(
+        hash_including(file_path: '/tmp/fake_file.mp3')
+      )
+      job.send(:upload_to_playht, temp_file, voice_clone)
+    end
+
+    it 'returns the voice id' do
+      voice_id = job.send(:upload_to_playht, temp_file, voice_clone)
+      expect(voice_id).to eq('playht_voice_123')
+    end
+
+    context 'when api returns an error' do
       before do
-        allow(Rails.env).to receive(:development?).and_return(true)
-        allow(job).to receive(:sleep)
+        allow(api_client).to receive(:create_voice_clone_from_upload).and_raise(PlayhtApiClient::Error.new("some error"))
       end
 
-      it 'simulates delay' do
-        expect(job).to receive(:sleep).with(2)
-        job.send(:upload_to_playht, temp_file, voice_clone)
-      end
-
-      it 'returns mock voice ID' do
-        voice_id = job.send(:upload_to_playht, temp_file, voice_clone)
-        expect(voice_id).to match(/playht_voice_#{voice_clone.id}_[a-f0-9]{16}/)
+      it 'raises a runtime error with a specific message' do
+        expect do
+          job.send(:upload_to_playht, temp_file, voice_clone)
+        end.to raise_error(RuntimeError, "PlayHT API error: some error")
       end
     end
 
-    context 'in production environment' do
+    context 'when the response does not contain an id' do
       before do
-        allow(Rails.env).to receive(:development?).and_return(false)
+        allow(api_client).to receive(:create_voice_clone_from_upload).and_return({ "error" => "something bad" })
       end
 
-      it 'does not simulate delay' do
-        expect(job).not_to receive(:sleep)
-        job.send(:upload_to_playht, temp_file, voice_clone)
+      it 'raises a runtime error' do
+        expect do
+          job.send(:upload_to_playht, temp_file, voice_clone)
+        end.to raise_error(RuntimeError, "Failed to create PlayHT voice clone.")
       end
     end
   end
@@ -196,8 +214,8 @@ RSpec.describe VoiceProcessingJob, type: :job do
     end
 
     it 'passes attachment and host to url helper' do
-      expect(Rails.application.routes.url_helpers).to receive(:rails_blob_url)
-        .with(attachment, host: 'example.com')
+      expect(Rails.application.routes.url_helpers).to receive(:rails_blob_url).
+        with(attachment, host: 'example.com')
       job.send(:rails_blob_url, attachment)
     end
   end

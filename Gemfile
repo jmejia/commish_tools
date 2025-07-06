@@ -56,6 +56,9 @@ gem "omniauth-google-oauth2"
 
 # API integrations
 gem "httparty"
+gem "faraday"
+gem "faraday-multipart"
+gem "faraday-retry"
 gem "aws-sdk-s3"
 gem 'sleeper_ff'
 
@@ -85,6 +88,7 @@ end
 group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
+  gem 'htmlbeautifier'
 
   # Preview emails in the browser during development
   gem "letter_opener"

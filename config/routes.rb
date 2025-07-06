@@ -24,7 +24,9 @@ Rails.application.routes.draw do
     end
 
     resources :league_memberships, only: [:create, :destroy] do
-      resources :voice_clones, except: [:index]
+      resources :voice_clones, except: [:index] do
+        resources :voice_upload_links, only: [:index, :new, :create, :destroy], path: 'upload_links'
+      end
     end
 
     resources :press_conferences do

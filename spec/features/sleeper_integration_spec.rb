@@ -1,6 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe 'Sleeper Integration', type: :feature do
+  include Rails.application.routes.url_helpers
+
   let(:user) { create(:user) }
 
   before do

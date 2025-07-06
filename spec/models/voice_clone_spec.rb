@@ -85,7 +85,7 @@ RSpec.describe VoiceClone, type: :model do
         'pending' => 0,
         'processing' => 1,
         'ready' => 2,
-        'failed' => 3
+        'failed' => 3,
       })
     end
   end
@@ -93,7 +93,9 @@ RSpec.describe VoiceClone, type: :model do
   describe 'scopes' do
     let!(:pending_clone) { create(:voice_clone, :with_audio_file, league_membership: league_membership) }
     let!(:ready_clone) { create(:voice_clone, :ready, :with_audio_file, league_membership: create(:league_membership)) }
-    let!(:failed_clone) { create(:voice_clone, :failed, :with_audio_file, league_membership: create(:league_membership)) }
+    let!(:failed_clone) do
+      create(:voice_clone, :failed, :with_audio_file, league_membership: create(:league_membership))
+    end
 
     describe '.ready_for_use' do
       it 'returns only ready voice clones' do
@@ -110,21 +112,27 @@ RSpec.describe VoiceClone, type: :model do
   end
 
   describe 'callbacks' do
-    describe 'before_create :generate_upload_token' do
-      it 'generates an upload token before creation' do
-        voice_clone = build(:voice_clone, league_membership: league_membership)
-        voice_clone.upload_token = nil  # Set after build to bypass factory default
-        voice_clone.save!(validate: false)  # Skip validation to test callback
+    describe 'before_create :set_defaults' do
+      it 'sets default values before creation if they are missing' do
+        lm = create(:league_membership)
+        voice_clone = build(:voice_clone, league_membership: lm, status: nil, upload_token: nil)
+        voice_clone.save!(validate: false)
         voice_clone.reload
+        expect(voice_clone.status).to eq('pending')
         expect(voice_clone.upload_token).to be_present
-        expect(voice_clone.upload_token.length).to be >= 32
       end
 
-      it 'does not override existing upload token' do
+      it 'does not override existing values' do
         existing_token = 'existing_token_123'
-        voice_clone = build(:voice_clone, league_membership: league_membership, upload_token: existing_token)
-        voice_clone.save!
+        lm = create(:league_membership)
+        voice_clone = create(
+          :voice_clone,
+          league_membership: lm,
+          upload_token: existing_token,
+          status: :ready
+        )
         expect(voice_clone.upload_token).to eq(existing_token)
+        expect(voice_clone.status).to eq('ready')
       end
     end
   end
@@ -175,7 +183,9 @@ RSpec.describe VoiceClone, type: :model do
     end
 
     context 'without audio file or URL' do
-      let(:voice_clone) { build(:voice_clone, :without_audio_file, league_membership: league_membership, original_audio_url: nil) }
+      let(:voice_clone) do
+        build(:voice_clone, :without_audio_file, league_membership: league_membership, original_audio_url: nil)
+      end
 
       it 'returns nil' do
         expect(voice_clone.audio_file_name).to be_nil

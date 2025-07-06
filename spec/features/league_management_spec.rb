@@ -1,6 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe 'League Management', type: :feature do
+  include Rails.application.routes.url_helpers
+
   let(:user) { create(:user, first_name: 'John', last_name: 'Doe') }
   let(:other_user) { create(:user, first_name: 'Jane', last_name: 'Smith') }
 

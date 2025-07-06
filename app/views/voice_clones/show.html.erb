@@ -7,7 +7,7 @@
           CommishTools
         <% end %>
         <span class="text-gray-400">|</span>
-        <%= link_to league_dashboard_path(@league_membership.league), class: "text-gray-400 hover:text-white transition-colors" do %>
+        <%= link_to dashboard_league_path(@league_membership.league), class: "text-gray-400 hover:text-white transition-colors" do %>
           <%= @league_membership.league.name %>
         <% end %>
         <span class="text-gray-400">|</span>
@@ -102,7 +102,7 @@
                          <% when 'failed' %>
                            bg-red-500/20 text-red-400
                          <% end %>">
-              <%= @voice_clone.status.titleize %>
+              <%= @voice_clone.status&.titleize %>
             </span>
           </div>
         </div>
@@ -123,11 +123,15 @@
                     </p>
                   </div>
                 </div>
-                
+
                 <!-- Audio Player -->
                 <div class="flex items-center space-x-2">
                   <audio controls class="h-8">
-                    <source src="<%= rails_blob_path(@voice_clone.audio_file) %>" type="<%= @voice_clone.audio_file.content_type %>">
+                    <% begin %>
+                      <source src="<%= polymorphic_url(@voice_clone.audio_file) %>" type="<%= @voice_clone.audio_file.content_type %>">
+                    <% rescue NoMethodError %>
+                      <source src="<%= url_for(@voice_clone.audio_file) %>" type="<%= @voice_clone.audio_file.content_type %>">
+                    <% end %>
                     Your browser does not support the audio element.
                   </audio>
                 </div>
@@ -167,7 +171,7 @@
 
       <!-- Actions -->
       <div class="flex justify-between items-center">
-        <%= link_to 'Back to Dashboard', league_dashboard_path(@league_membership.league), 
+        <%= link_to 'Back to Dashboard', dashboard_league_path(@league_membership.league), 
                     class: 'px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors' %>
         
         <div class="flex space-x-4">

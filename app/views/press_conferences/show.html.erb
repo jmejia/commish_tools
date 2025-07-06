@@ -1,0 +1,169 @@
+<div class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+  <!-- Navigation -->
+  <nav class="px-6 py-4 border-b border-gray-800">
+    <div class="flex items-center justify-between max-w-6xl mx-auto">
+      <div class="flex items-center space-x-4">
+        <%= link_to root_path, class: "text-2xl font-bold text-white hover:text-cyan-400 transition-colors" do %>
+          CommishTools
+        <% end %>
+        <span class="text-gray-400">|</span>
+        <%= link_to leagues_path, class: "text-gray-400 hover:text-white transition-colors" do %>
+          My Leagues
+        <% end %>
+        <span class="text-gray-400">|</span>
+        <%= link_to dashboard_league_path(@league), class: "text-gray-400 hover:text-white transition-colors" do %>
+          <%= @league.name %>
+        <% end %>
+        <span class="text-gray-400">|</span>
+        <h1 class="text-xl font-semibold text-white">Press Conference</h1>
+      </div>
+      
+      <div class="flex items-center space-x-4">
+        <%= link_to profile_path, class: "text-gray-400 hover:text-white transition-colors" do %>
+          👤 My Profile
+        <% end %>
+        <span class="text-white">Welcome, <%= current_user.first_name %>!</span>
+        <%= button_to 'Sign Out', destroy_user_session_path, method: :delete,
+            class: 'px-4 py-2 text-white hover:text-red-400 transition-colors bg-transparent border-none cursor-pointer' %>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Flash Messages -->
+  <% if flash.any? %>
+    <div class="px-6 py-4">
+      <div class="max-w-6xl mx-auto">
+        <% flash.each do |type, message| %>
+          <% flash_class = type == 'notice' ? 'bg-green-500/20 border-green-500/50 text-green-400' : 'bg-red-500/20 border-red-500/50 text-red-400' %>
+          <div class="<%= flash_class %> border rounded-lg p-4 mb-4">
+            <%= message %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Main Content -->
+  <div class="px-6 py-8">
+    <div class="max-w-6xl mx-auto">
+      
+      <!-- Header -->
+      <div class="mb-8">
+        <h2 class="text-3xl font-bold text-white mb-2">Press Conference</h2>
+        <p class="text-gray-400">AI-powered press conference for <%= @press_conference.target_manager.team_name %></p>
+      </div>
+
+      <!-- Press Conference Details -->
+      <div class="bg-gray-800/50 rounded-xl border border-gray-700 p-8 mb-8">
+        <div class="flex items-start justify-between mb-6">
+          <div>
+            <h3 class="text-2xl font-bold text-white mb-2">
+              <%= @press_conference.target_manager.team_name %> 
+              (<%= @press_conference.target_manager.user.first_name %> <%= @press_conference.target_manager.user.last_name %>)
+            </h3>
+            <p class="text-gray-400">Week <%= @press_conference.week_number %> • <%= @press_conference.season_year %> Season</p>
+          </div>
+          
+          <div class="flex items-center space-x-2">
+            <% case @press_conference.status %>
+            <% when 'draft' %>
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-500/20 text-yellow-400">
+                Processing...
+              </span>
+            <% when 'generating' %>
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-500/20 text-blue-400">
+                Generating Audio...
+              </span>
+            <% when 'ready' %>
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-500/20 text-green-400">
+                Ready
+              </span>
+            <% when 'archived' %>
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-500/20 text-gray-400">
+                Archived
+              </span>
+            <% end %>
+          </div>
+        </div>
+
+        <!-- Questions -->
+        <div class="space-y-4">
+          <h4 class="text-lg font-semibold text-white">Questions</h4>
+          <% @press_conference.press_conference_questions.order(:order_index).each_with_index do |question, index| %>
+            <div class="bg-gray-700/50 rounded-lg p-4">
+              <div class="flex items-start space-x-3">
+                <span class="inline-flex items-center justify-center w-6 h-6 bg-cyan-500/20 text-cyan-400 rounded-full text-sm font-medium">
+                  <%= index + 1 %>
+                </span>
+                <p class="text-gray-300 flex-1"><%= question.question_text %></p>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Status Section -->
+      <% if @press_conference.status == 'draft' %>
+        <!-- Processing Status -->
+        <div class="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-6 mb-8">
+          <div class="flex items-center space-x-3">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-400"></div>
+            <div>
+              <h4 class="text-yellow-400 font-semibold">Processing Your Press Conference</h4>
+              <p class="text-gray-300 text-sm">
+                We're generating AI responses and creating audio for your press conference. This usually takes 5-10 minutes.
+              </p>
+            </div>
+          </div>
+        </div>
+      <% elsif @press_conference.status == 'ready' %>
+        <!-- Ready Status with Audio Player -->
+        <div class="bg-green-500/10 border border-green-500/30 rounded-lg p-6 mb-8">
+          <div class="flex items-center space-x-3 mb-4">
+            <div class="text-2xl">🎉</div>
+            <div>
+              <h4 class="text-green-400 font-semibold">Press Conference Ready!</h4>
+              <p class="text-gray-300 text-sm">
+                Your AI-generated press conference is ready to listen to.
+              </p>
+            </div>
+          </div>
+          
+          <!-- Audio Player (placeholder for now) -->
+          <div class="bg-gray-700/50 rounded-lg p-4">
+            <div class="flex items-center space-x-4">
+              <button class="p-3 bg-cyan-500 hover:bg-cyan-600 rounded-full text-white transition-colors">
+                ▶️
+              </button>
+              <div class="flex-1">
+                <div class="bg-gray-600 rounded-full h-2">
+                  <div class="bg-cyan-500 h-2 rounded-full" style="width: 0%"></div>
+                </div>
+              </div>
+              <span class="text-gray-400 text-sm">00:00 / 03:45</span>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- Actions -->
+      <div class="flex items-center justify-between">
+        <%= link_to dashboard_league_path(@league), 
+            class: "px-6 py-3 text-gray-400 hover:text-white transition-colors" do %>
+          ← Back to Dashboard
+        <% end %>
+        
+        <div class="flex items-center space-x-4">
+          <% if @press_conference.status == 'ready' %>
+            <button class="px-6 py-3 bg-gradient-to-r from-cyan-500 to-cyan-600 text-white font-semibold rounded-lg hover:from-cyan-600 hover:to-cyan-700 transition-all">
+              Download Audio
+            </button>
+            <button class="px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white font-semibold rounded-lg hover:from-purple-600 hover:to-purple-700 transition-all">
+              Share
+            </button>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

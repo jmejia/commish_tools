@@ -100,9 +100,12 @@
       <div class="bg-gray-800/50 rounded-xl border border-gray-700 p-6 mb-8">
         <div class="flex items-center justify-between mb-6">
           <h3 class="text-xl font-bold text-white">Recent Press Conferences</h3>
-          <button class="px-4 py-2 bg-gradient-to-r from-cyan-500 to-cyan-600 text-white font-semibold rounded-lg hover:from-cyan-600 hover:to-cyan-700 transition-all">
-            Create New
-          </button>
+          <% if @league_membership&.owner? %>
+            <%= link_to new_league_press_conference_path(@league), 
+                class: 'px-4 py-2 bg-gradient-to-r from-cyan-500 to-cyan-600 text-white font-semibold rounded-lg hover:from-cyan-600 hover:to-cyan-700 transition-all' do %>
+              Create New Press Conference
+            <% end %>
+          <% end %>
         </div>
         
         <% if @recent_press_conferences&.any? %>
@@ -131,9 +134,12 @@
             <div class="text-4xl mb-4">🎙️</div>
             <h4 class="text-xl font-semibold text-white mb-2">No Press Conferences Yet</h4>
             <p class="text-gray-400 mb-6">Create your first AI-powered press conference to start roasting your league mates!</p>
-            <button class="px-6 py-3 bg-gradient-to-r from-cyan-500 to-cyan-600 text-white font-semibold rounded-lg hover:from-cyan-600 hover:to-cyan-700 transition-all">
-              Create First Press Conference
-            </button>
+            <% if @league_membership&.owner? %>
+              <%= link_to new_league_press_conference_path(@league), 
+                  class: 'px-6 py-3 bg-gradient-to-r from-cyan-500 to-cyan-600 text-white font-semibold rounded-lg hover:from-cyan-600 hover:to-cyan-700 transition-all' do %>
+                Create New Press Conference
+              <% end %>
+            <% end %>
           </div>
         <% end %>
       </div>

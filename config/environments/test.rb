@@ -34,13 +34,25 @@ Rails.application.configure do
   # Tell Action Mailer not to deliver emails to the real world.
   # The :test delivery method accumulates sent emails in the
   # ActionMailer::Base.deliveries array.
+  # Don't care if the mailer can't send.
+  config.action_mailer.raise_delivery_errors = false
   config.action_mailer.delivery_method = :test
 
   # Set host to be used by links generated in mailer templates.
-  config.action_mailer.default_url_options = { host: "example.com" }
+  config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }
+  # routes.default_url_options[:host] = 'localhost:3000'
 
   # Print deprecation notices to the stderr.
   config.active_support.deprecation = :stderr
+
+  # Raise exceptions for disallowed deprecations.
+  config.active_support.disallowed_deprecation = :raise
+
+  # Tell Active Support which deprecation messages to disallow.
+  config.active_support.disallowed_deprecation_warnings = []
+
+  # Set the queue adapter to test for ActiveJob
+  config.active_job.queue_adapter = :test
 
   # Raises error for missing translations.
   # config.i18n.raise_on_missing_translations = true

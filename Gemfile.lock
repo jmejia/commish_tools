@@ -186,8 +186,12 @@ GEM
       faraday-net_http (>= 2.0, < 3.5)
       json
       logger
+    faraday-multipart (1.1.1)
+      multipart-post (~> 2.0)
     faraday-net_http (3.4.1)
       net-http (>= 0.5.0)
+    faraday-retry (2.3.2)
+      faraday (~> 2.0)
     ffi (1.17.2-aarch64-linux-gnu)
     ffi (1.17.2-aarch64-linux-musl)
     ffi (1.17.2-arm-linux-gnu)
@@ -202,6 +206,7 @@ GEM
     globalid (1.2.1)
       activesupport (>= 6.1)
     hashie (5.0.0)
+    htmlbeautifier (1.4.3)
     httparty (0.23.1)
       csv
       mini_mime (>= 1.0.0)
@@ -266,6 +271,7 @@ GEM
     msgpack (1.8.0)
     multi_xml (0.7.2)
       bigdecimal (~> 3.1)
+    multipart-post (2.4.1)
     net-http (0.6.0)
       uri
     net-imap (0.5.9)
@@ -573,6 +579,10 @@ DEPENDENCIES
   devise
   dotenv-rails
   factory_bot_rails
+  faraday
+  faraday-multipart
+  faraday-retry
+  htmlbeautifier
   httparty
   image_processing (~> 1.2)
   importmap-rails

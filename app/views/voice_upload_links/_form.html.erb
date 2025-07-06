@@ -1,0 +1,41 @@
+<%= form_with(model: [@voice_clone, @voice_upload_link], url: league_league_membership_voice_clone_voice_upload_links_path(@voice_clone.league, @voice_clone.league_membership, @voice_clone)) do |form| %>
+  <% if @voice_upload_link.errors.any? %>
+    <div id="error_explanation" class="bg-red-500 text-white p-3 mb-3">
+      <h2><%= pluralize(@voice_upload_link.errors.count, "error") %> prohibited this link from being saved:</h2>
+      <ul>
+        <% @voice_upload_link.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="mb-4">
+    <%= form.label :title, class: "block text-white font-bold mb-2" %>
+    <%= form.text_field :title, class: "w-full p-2 border rounded" %>
+  </div>
+
+  <div class="mb-4">
+    <%= form.label :instructions, class: "block text-white font-bold mb-2" %>
+    <%= form.text_area :instructions, rows: 4, class: "w-full p-2 border rounded" %>
+  </div>
+
+  <div class="mb-4">
+    <%= form.label :expires_at, class: "block text-white font-bold mb-2" %>
+    <%= form.datetime_select :expires_at, {}, class: "w-full p-2 border rounded" %>
+  </div>
+
+  <div class="mb-4">
+    <%= form.label :max_uploads, class: "block text-white font-bold mb-2" %>
+    <%= form.number_field :max_uploads, class: "w-full p-2 border rounded" %>
+  </div>
+
+  <div class="mb-4">
+    <%= form.check_box :active %>
+    <%= form.label :active, "Active", class: "ml-2 text-white font-bold" %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit "Create Link", class: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" %>
+  </div>
+<% end %> 

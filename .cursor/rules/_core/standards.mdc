@@ -18,6 +18,6 @@ alwaysApply: true
 # Testing Standards
 
 - **Execution:** Always run tests in single-run mode (no watch mode).
-- **Failure:** Prefer to fail-fast (e.g., "bail=1" or equivalent).
+- **Failure:** Prefer to fail-fast (e.g., "--fail-fast" or equivalent).
 
 **REMEMBER: Run tests in single-run mode and configure them to fail fast on first error.**---

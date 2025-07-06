@@ -1,12 +1,13 @@
 # This file is copied to spec/ when you run 'rails generate rspec:install'
 require 'spec_helper'
 ENV['RAILS_ENV'] ||= 'test'
+require 'devise'
 require_relative '../config/environment'
+# require_relative '../config/routes' # Force route loading
 # Prevent database truncation if the environment is production
 abort("The Rails environment is running in production mode!") if Rails.env.production?
 # Uncomment the line below in case you have `--require rails_helper` in the `.rspec` file
 # that will avoid rails generators crashing because migrations haven't been run yet
-# return unless Rails.env.test?
 require 'rspec/rails'
 # Add additional requires below this line. Rails is not loaded until this point!
 
@@ -37,6 +38,7 @@ begin
 rescue ActiveRecord::PendingMigrationError => e
   abort e.to_s.strip
 end
+
 RSpec.configure do |config|
   # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
   config.fixture_paths = [
@@ -51,7 +53,6 @@ RSpec.configure do |config|
   config.before(:suite) do
     DatabaseCleaner.clean_with(:truncation)
   end
-
   config.before(:each) do |example|
     # Use truncation for system tests (they run in separate threads)
     # Use truncation for all tests to ensure ID consistency
@@ -91,7 +92,7 @@ RSpec.configure do |config|
   # Filter lines from Rails gems in backtraces.
   config.filter_rails_from_backtrace!
   # arbitrary gems may also be filtered via:
-  # config.filter_gems_from_backtrace("gem name")
+  config.filter_gems_from_backtrace("gem name")
 
   # FactoryBot configuration
   config.include FactoryBot::Syntax::Methods
@@ -99,4 +100,10 @@ RSpec.configure do |config|
   # Devise test helpers for different spec types
   config.include Devise::Test::ControllerHelpers, type: :controller
   config.include Devise::Test::IntegrationHelpers, type: :request
+  config.include Devise::Test::ControllerHelpers, type: :view
+  config.include Rails.application.routes.url_helpers
+
+  # Ensure routes are loaded before tests
+  # Include the devise support file
+  require_relative 'support/devise_helpers'
 end

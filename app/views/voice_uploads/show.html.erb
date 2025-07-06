@@ -1,0 +1,22 @@
+<div class="container mx-auto mt-10">
+  <h1 class="text-3xl font-bold mb-4">Upload Voice Sample</h1>
+  <p class="mb-4">You are uploading a voice sample for: <%= @voice_upload_link.voice_clone.user_display_name %></p>
+  
+  <% if @voice_upload_link.instructions.present? %>
+    <div class="prose bg-gray-800 p-4 rounded-lg mb-6">
+      <h3 class="text-xl">Instructions:</h3>
+      <%= @voice_upload_link.instructions %>
+    </div>
+  <% end %>
+
+  <%= form_with(model: @voice_upload_link, url: voice_upload_path(token: @voice_upload_link.public_token), method: :post, local: true) do |form| %>
+    <div class="mb-4">
+      <%= form.label :audio_file, "Audio File", class: "block text-white font-bold mb-2" %>
+      <%= form.file_field :audio_file, class: "w-full p-2 border rounded" %>
+    </div>
+
+    <div class="mt-6">
+      <%= form.submit "Upload Sample", class: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" %>
+    </div>
+  <% end %>
+</div> 

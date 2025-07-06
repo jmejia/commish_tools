@@ -22,7 +22,25 @@ class VoiceClone < ApplicationRecord
   validate :audio_file_content_type, if: -> { audio_file.attached? }
   validate :audio_file_size, if: -> { audio_file.attached? }
 
-  before_create :set_defaults
+  before_validation :set_defaults, on: :create
+
+  def ready_for_playht?
+    ready? && playht_voice_id.present?
+  end
+
+  def audio_file_name
+    if audio_file.attached?
+      audio_file.filename.to_s
+    elsif original_audio_url.present?
+      File.basename(original_audio_url)
+    else
+      nil
+    end
+  end
+
+  def user_display_name
+    league_membership.display_name
+  end
 
   private
 
@@ -50,22 +68,4 @@ class VoiceClone < ApplicationRecord
 
   scope :ready_for_use, -> { where(status: :ready) }
   scope :for_league, ->(league) { joins(:league_membership).where(league_memberships: { league: league }) }
-
-  def ready_for_playht?
-    ready? && playht_voice_id.present?
-  end
-
-  def audio_file_name
-    if audio_file.attached?
-      audio_file.filename.to_s
-    elsif original_audio_url.present?
-      File.basename(original_audio_url)
-    else
-      nil
-    end
-  end
-
-  def user_display_name
-    league_membership.display_name
-  end
 end

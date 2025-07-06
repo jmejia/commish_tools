@@ -25,14 +25,14 @@ RSpec.describe VoiceClone, type: :model do
   describe 'validations' do
     it 'requires status' do
       voice_clone.status = nil
-      expect(voice_clone).not_to be_valid
-      expect(voice_clone.errors[:status]).to include("can't be blank")
+      voice_clone.valid?
+      expect(voice_clone.status).to be_present
     end
 
     it 'requires upload_token' do
       voice_clone.upload_token = nil
-      expect(voice_clone).not_to be_valid
-      expect(voice_clone.errors[:upload_token]).to include("can't be blank")
+      voice_clone.valid?
+      expect(voice_clone.upload_token).to be_present
     end
 
     it 'requires unique upload_token' do
@@ -112,12 +112,11 @@ RSpec.describe VoiceClone, type: :model do
   end
 
   describe 'callbacks' do
-    describe 'before_create :set_defaults' do
+    describe 'before_validation :set_defaults' do
       it 'sets default values before creation if they are missing' do
         lm = create(:league_membership)
         voice_clone = build(:voice_clone, league_membership: lm, status: nil, upload_token: nil)
-        voice_clone.save!(validate: false)
-        voice_clone.reload
+        voice_clone.valid?
         expect(voice_clone.status).to eq('pending')
         expect(voice_clone.upload_token).to be_present
       end

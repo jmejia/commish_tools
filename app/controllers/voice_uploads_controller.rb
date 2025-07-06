@@ -8,7 +8,7 @@ class VoiceUploadsController < ApplicationController
 
   # Process the upload
   def create
-    audio_file = params.dig(:voice_clone, :original_audio)
+    audio_file = params.dig(:voice_clone, :audio_file)
 
     if audio_file.blank?
       flash.now[:alert] = "Please select a file to upload."
@@ -18,9 +18,9 @@ class VoiceUploadsController < ApplicationController
     # Use the existing voice_clone from the link
     @voice_clone = @voice_upload_link.voice_clone
 
-    if @voice_clone.update(original_audio: audio_file)
+    if @voice_clone.update(audio_file: audio_file)
       @voice_upload_link.increment!(:upload_count)
-      
+
       redirect_to root_path, notice: "Voice sample uploaded successfully. Thank you!"
     else
       render :show, status: :unprocessable_entity
@@ -30,8 +30,8 @@ class VoiceUploadsController < ApplicationController
   private
 
   def set_voice_upload_link
-    @voice_upload_link = VoiceUploadLink.find_by!(public_token: params[:public_token])
+    @voice_upload_link = VoiceUploadLink.find_by!(public_token: params[:token])
   rescue ActiveRecord::RecordNotFound
     redirect_to root_path, alert: "Invalid upload link."
   end
-end 
+end

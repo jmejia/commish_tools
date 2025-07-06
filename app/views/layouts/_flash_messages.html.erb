@@ -1,0 +1,17 @@
+<% if flash.any? %>
+  <div class="fixed top-5 right-5 z-50">
+    <% flash.each do |type, message| %>
+      <% flash_class = case type
+        when 'notice' then 'bg-green-500/80 border-green-500/90 text-white'
+        when 'alert'  then 'bg-red-500/80 border-red-500/90 text-white'
+        else 'bg-gray-500/80 border-gray-500/90 text-white'
+      end %>
+      <div class="<%= flash_class %> border rounded-lg p-4 mb-4 shadow-lg animate-fade-in-down">
+        <button type="button" class="absolute top-2 right-2 text-white" onclick="this.parentElement.remove()">
+          &times;
+        </button>
+        <%= message %>
+      </div>
+    <% end %>
+  </div>
+<% end %> 

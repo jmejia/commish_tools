@@ -15,6 +15,9 @@
       </div>
       
       <div class="flex items-center space-x-4">
+        <%= link_to profile_path, class: "text-gray-400 hover:text-white transition-colors" do %>
+          👤 My Profile
+        <% end %>
         <span class="text-white">Welcome, <%= current_user.first_name %>!</span>
         <%= button_to 'Sign Out', destroy_user_session_path, method: :delete,
             class: 'px-4 py-2 text-white hover:text-red-400 transition-colors bg-transparent border-none cursor-pointer' %>
@@ -149,10 +152,6 @@
             <button class="block w-full px-4 py-2 text-left text-gray-300 hover:text-white hover:bg-gray-700/50 rounded-lg transition-colors">
               👥 Manage Members
             </button>
-            <%= link_to new_league_league_membership_voice_clone_path(@league, @league_membership),
-                class: 'block w-full px-4 py-2 text-left text-gray-300 hover:text-white hover:bg-gray-700/50 rounded-lg transition-colors' do %>
-              🎤 Voice Clone Settings
-            <% end %>
           </div>
         </div>
         

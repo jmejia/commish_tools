@@ -1,0 +1,206 @@
+<div class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+  <!-- Navigation -->
+  <nav class="px-6 py-4 border-b border-gray-800">
+    <div class="flex items-center justify-between max-w-6xl mx-auto">
+      <div class="flex items-center space-x-4">
+        <%= link_to root_path, class: "text-2xl font-bold text-white hover:text-cyan-400 transition-colors" do %>
+          CommishTools
+        <% end %>
+        <span class="text-gray-400">|</span>
+        <%= link_to leagues_path, class: "text-gray-400 hover:text-white transition-colors" do %>
+          My Leagues
+        <% end %>
+        <span class="text-gray-400">|</span>
+        <h1 class="text-xl font-semibold text-white">My Profile</h1>
+      </div>
+      
+      <div class="flex items-center space-x-4">
+        <span class="text-white">Welcome, <%= current_user.first_name %>!</span>
+        <%= button_to 'Sign Out', destroy_user_session_path, method: :delete,
+            class: 'px-4 py-2 text-white hover:text-red-400 transition-colors bg-transparent border-none cursor-pointer' %>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Flash Messages -->
+  <% if flash.any? %>
+    <div class="px-6 py-4">
+      <div class="max-w-6xl mx-auto">
+        <% flash.each do |type, message| %>
+          <% flash_class = type == 'notice' ? 'bg-green-500/20 border-green-500/50 text-green-400' : 'bg-red-500/20 border-red-500/50 text-red-400' %>
+          <div class="<%= flash_class %> border rounded-lg p-4 mb-4">
+            <%= message %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Main Content -->
+  <div class="px-6 py-8">
+    <div class="max-w-6xl mx-auto">
+      
+      <!-- Header -->
+      <div class="flex items-center justify-between mb-8">
+        <div>
+          <h2 class="text-3xl font-bold text-white mb-2">My Profile</h2>
+          <p class="text-gray-400">Manage your account settings and voice clones</p>
+        </div>
+        <%= link_to 'Edit Profile', edit_profile_path, 
+            class: 'px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors' %>
+      </div>
+
+      <!-- Profile Information -->
+      <div class="bg-gray-800/50 rounded-xl border border-gray-700 p-6 mb-8">
+        <h3 class="text-xl font-bold text-white mb-4">Account Information</h3>
+        <div class="grid md:grid-cols-2 gap-6">
+          <div>
+            <p class="text-gray-400 text-sm">Name</p>
+            <p class="text-white font-semibold"><%= @user.display_name %></p>
+          </div>
+          <div>
+            <p class="text-gray-400 text-sm">Email</p>
+            <p class="text-white font-semibold"><%= @user.email %></p>
+          </div>
+          <div>
+            <p class="text-gray-400 text-sm">Sleeper Connected</p>
+            <p class="text-white font-semibold">
+              <% if @user.sleeper_id.present? %>
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-500/20 text-green-400">
+                  ✓ Connected
+                </span>
+              <% else %>
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-500/20 text-red-400">
+                  ✗ Not Connected
+                </span>
+              <% end %>
+            </p>
+          </div>
+          <div>
+            <p class="text-gray-400 text-sm">Leagues</p>
+            <p class="text-white font-semibold"><%= @league_memberships.count %></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Voice Clones Section -->
+      <div class="bg-gray-800/50 rounded-xl border border-gray-700 p-6 mb-8">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-xl font-bold text-white">My Voice Clones</h3>
+          <div class="text-sm text-gray-400">
+            Voice clones enable AI-powered press conferences that sound like you
+          </div>
+        </div>
+        
+        <% if @league_memberships.any? %>
+          <div class="space-y-4">
+            <% @league_memberships.each do |membership| %>
+              <div class="bg-gray-700/50 rounded-lg p-4 border border-gray-600">
+                <div class="flex items-center justify-between">
+                  <div class="flex-1">
+                    <h4 class="text-white font-semibold"><%= membership.league.name %></h4>
+                    <div class="flex items-center space-x-4 mt-1">
+                      <span class="text-gray-400 text-sm">Team: <%= membership.team_name %></span>
+                      <% if membership.owner? %>
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-500/20 text-orange-400">
+                          Owner
+                        </span>
+                      <% end %>
+                    </div>
+                  </div>
+                  
+                  <div class="flex items-center space-x-4">
+                    <div class="text-right">
+                      <% if membership.voice_clone.present? %>
+                        <% voice_clone = membership.voice_clone %>
+                        <% case voice_clone.status %>
+                        <% when 'pending' %>
+                          <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-500/20 text-yellow-400">
+                            ⏳ Pending
+                          </span>
+                        <% when 'processing' %>
+                          <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-500/20 text-blue-400">
+                            ⚙️ Processing
+                          </span>
+                        <% when 'ready' %>
+                          <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-500/20 text-green-400">
+                            ✅ Ready
+                          </span>
+                        <% when 'failed' %>
+                          <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-500/20 text-red-400">
+                            ❌ Failed
+                          </span>
+                        <% end %>
+                        <p class="text-gray-400 text-xs mt-1">
+                          <%= time_ago_in_words(voice_clone.created_at) %> ago
+                        </p>
+                      <% else %>
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-500/20 text-gray-400">
+                          No Voice Clone
+                        </span>
+                      <% end %>
+                    </div>
+                    
+                    <div class="flex space-x-2">
+                      <% if membership.voice_clone.present? %>
+                        <%= link_to 'View', 
+                            league_league_membership_voice_clone_path(membership.league, membership, membership.voice_clone),
+                            class: 'px-3 py-1 bg-cyan-600 hover:bg-cyan-700 text-white text-sm rounded transition-colors' %>
+                        <%= link_to 'Edit', 
+                            edit_league_league_membership_voice_clone_path(membership.league, membership, membership.voice_clone),
+                            class: 'px-3 py-1 bg-gray-600 hover:bg-gray-700 text-white text-sm rounded transition-colors' %>
+                      <% else %>
+                        <%= link_to 'Create Voice Clone', 
+                            new_league_league_membership_voice_clone_path(membership.league, membership),
+                            class: 'px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-sm rounded transition-colors' %>
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="text-center py-8">
+            <div class="text-4xl mb-4">🎙️</div>
+            <h4 class="text-lg font-semibold text-white mb-2">No League Memberships</h4>
+            <p class="text-gray-400 mb-4">Join a league to start creating voice clones for AI-powered press conferences</p>
+            <%= link_to 'Browse Leagues', leagues_path, 
+                class: 'px-6 py-3 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg transition-colors' %>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="bg-gray-800/50 rounded-xl border border-gray-700 p-6">
+        <h3 class="text-lg font-semibold text-white mb-4">Quick Actions</h3>
+        <div class="grid md:grid-cols-2 gap-4">
+          <%= link_to leagues_path, 
+              class: 'block p-4 bg-gray-700/50 hover:bg-gray-600/50 rounded-lg transition-colors' do %>
+            <div class="flex items-center space-x-3">
+              <div class="text-2xl">🏈</div>
+              <div>
+                <h4 class="text-white font-semibold">My Leagues</h4>
+                <p class="text-gray-400 text-sm">View and manage your fantasy leagues</p>
+              </div>
+            </div>
+          <% end %>
+          
+          <% if @user.sleeper_id.blank? %>
+            <%= link_to connect_sleeper_path, 
+                class: 'block p-4 bg-gray-700/50 hover:bg-gray-600/50 rounded-lg transition-colors' do %>
+              <div class="flex items-center space-x-3">
+                <div class="text-2xl">🔗</div>
+                <div>
+                  <h4 class="text-white font-semibold">Connect Sleeper</h4>
+                  <p class="text-gray-400 text-sm">Link your Sleeper account to import leagues</p>
+                </div>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</div> 

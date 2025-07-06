@@ -17,6 +17,11 @@ Rails.application.routes.draw do
   get '/select_sleeper_leagues', to: 'leagues#select_sleeper_leagues'
   post '/import_sleeper_league', to: 'leagues#import_sleeper_league'
 
+  # Profile routes
+  get '/profile', to: 'profile#show', as: :profile
+  get '/profile/edit', to: 'profile#edit', as: :edit_profile
+  patch '/profile', to: 'profile#update'
+
   # Main application routes
   resources :leagues do
     member do

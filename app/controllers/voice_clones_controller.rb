@@ -2,7 +2,7 @@ class VoiceClonesController < ApplicationController
   before_action :authenticate_user!
   before_action :set_league_membership
   before_action :set_voice_clone, only: [:show, :edit, :update, :destroy]
-  before_action :ensure_league_owner, only: [:new, :create, :edit, :update, :destroy]
+  before_action :ensure_own_membership, only: [:new, :create, :edit, :update, :destroy]
 
   def show
   end
@@ -48,7 +48,7 @@ class VoiceClonesController < ApplicationController
 
   def destroy
     @voice_clone.destroy
-    redirect_to league_path(@league_membership.league), notice: 'Voice clone deleted successfully.'
+    redirect_to profile_path, notice: 'Voice clone deleted successfully.'
   end
 
   private
@@ -61,9 +61,9 @@ class VoiceClonesController < ApplicationController
     @voice_clone = @league_membership.voice_clone || @league_membership.build_voice_clone
   end
 
-  def ensure_league_owner
-    unless @league_membership.league.owner == current_user
-      redirect_to league_path(@league_membership.league), alert: 'Only the league owner can manage voice clones.'
+  def ensure_own_membership
+    unless @league_membership.user == current_user
+      redirect_to league_path(@league_membership.league), alert: 'You can only manage your own voice clone.'
     end
   end
 

@@ -61,6 +61,7 @@ gem "faraday-multipart"
 gem "faraday-retry"
 gem "aws-sdk-s3"
 gem 'sleeper_ff'
+gem "ruby-openai"
 
 # Environment variables
 gem "dotenv-rails"

@@ -2,7 +2,6 @@
 class PressConferencesController < ApplicationController
   before_action :authenticate_user!
   before_action :set_league
-  before_action :ensure_league_member
   before_action :ensure_league_owner, only: [:new, :create, :edit, :update, :destroy]
   before_action :set_press_conference, only: [:show, :edit, :update, :destroy]
 
@@ -22,9 +21,13 @@ class PressConferencesController < ApplicationController
     @league_members = @league.league_memberships.includes(:user)
   end
 
+  def edit
+    Rails.logger.info "User #{current_user.id} editing press conference #{@press_conference.id}"
+  end
+
   def create
     Rails.logger.info "User #{current_user.id} submitting press conference for league #{@league.id}"
-    
+
     # Validate league member selection first
     if params[:league_member_id].blank?
       flash.now[:alert] = 'League Member must be selected'
@@ -33,14 +36,14 @@ class PressConferencesController < ApplicationController
       render :new, status: :unprocessable_entity
       return
     end
-    
+
     # Extract the three questions from params
     questions = [
       params[:question_1]&.strip,
       params[:question_2]&.strip,
-      params[:question_3]&.strip
+      params[:question_3]&.strip,
     ]
-    
+
     # Validate questions
     if questions.any?(&:blank?)
       flash.now[:alert] = 'All three questions are required'
@@ -49,9 +52,9 @@ class PressConferencesController < ApplicationController
       render :new, status: :unprocessable_entity
       return
     end
-    
+
     target_member = @league.league_memberships.find(params[:league_member_id])
-    
+
     # Create press conference
     @press_conference = @league.press_conferences.build(
       target_manager: target_member,
@@ -59,7 +62,7 @@ class PressConferencesController < ApplicationController
       season_year: @league.season_year,
       status: :draft
     )
-    
+
     if @press_conference.save
       # Create the three questions
       questions.each_with_index do |question, index|
@@ -68,7 +71,10 @@ class PressConferencesController < ApplicationController
           order_index: index + 1
         )
       end
-      
+
+      # Start ChatGPT response generation in background
+      ChatgptResponseGenerationJob.perform_later(@press_conference.id)
+
       Rails.logger.info "Press conference #{@press_conference.id} created successfully"
       redirect_to league_press_conference_path(@league, @press_conference), notice: 'Press Conference Created'
     else
@@ -78,13 +84,9 @@ class PressConferencesController < ApplicationController
     end
   end
 
-  def edit
-    Rails.logger.info "User #{current_user.id} editing press conference #{@press_conference.id}"
-  end
-
   def update
     Rails.logger.info "User #{current_user.id} updating press conference #{@press_conference.id}"
-    
+
     if @press_conference.update(press_conference_params)
       redirect_to press_conference_path(@press_conference), notice: 'Press conference updated successfully'
     else
@@ -101,7 +103,7 @@ class PressConferencesController < ApplicationController
   private
 
   def set_league
-    @league = League.find(params[:league_id])
+    @league = current_user.leagues.find(params[:league_id])
     Rails.logger.info "Set league #{@league.id} for press conference action"
   rescue ActiveRecord::RecordNotFound
     Rails.logger.warn "League not found with id: #{params[:league_id]}"
@@ -109,29 +111,25 @@ class PressConferencesController < ApplicationController
   end
 
   def set_press_conference
-    @press_conference = @league.press_conferences.find(params[:id])
+    @press_conference = @league.press_conferences.
+      includes(press_conference_questions: :press_conference_response,
+               target_manager: :user).
+      find(params[:id])
     Rails.logger.info "Set press conference #{@press_conference.id}"
   rescue ActiveRecord::RecordNotFound
     Rails.logger.warn "Press conference not found with id: #{params[:id]}"
     redirect_to dashboard_league_path(@league), alert: 'Press conference not found.'
   end
 
-  def ensure_league_member
-    unless current_user.leagues.include?(@league)
-      Rails.logger.warn "User #{current_user.id} attempted to access league #{@league.id} without membership"
-      redirect_to leagues_path, alert: 'You are not a member of this league.'
-    end
-  end
-
   def ensure_league_owner
     membership = current_user.league_memberships.find_by(league: @league)
-    unless membership&.owner?
-      Rails.logger.warn "User #{current_user.id} attempted press conference action on league #{@league.id} without owner rights"
-      redirect_to dashboard_league_path(@league), alert: 'Only league owners can create press conferences.'
-    end
+    return if membership&.owner?
+
+    Rails.logger.warn "User #{current_user.id} attempted press conference action on league #{@league.id} without owner rights"
+    redirect_to dashboard_league_path(@league), alert: 'Only league owners can create press conferences.'
   end
 
   def press_conference_params
-    params.require(:press_conference).permit(:week_number, :season_year, :status)
+    params.expect(press_conference: [:week_number, :season_year, :status])
   end
-end 
+end

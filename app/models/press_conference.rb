@@ -6,6 +6,7 @@ class PressConference < ApplicationRecord
 
   has_many :press_conference_questions, dependent: :destroy
   has_many :press_conference_responses, through: :press_conference_questions
+  has_one_attached :final_audio
 
   enum :status, {
     draft: 0,

@@ -43,6 +43,72 @@ class PlayhtApiClient
     response.body
   end
 
+  # Generate speech from text using PlayHT's TTS API
+  # @param text [String] The text to convert to speech
+  # @param voice [String] The voice ID or voice clone ID to use
+  # @param options [Hash] Additional options (voice_engine, output_format, speed, etc.)
+  # @return [String] Binary audio data
+  def generate_speech(text:, voice:, **options)
+    default_options = {
+      voice_engine: "Play3.0-mini",
+      output_format: "mp3",
+      speed: 1.0,
+      sample_rate: 24000
+    }
+    
+    body = default_options.merge(options).merge(
+      text: text,
+      voice: voice
+    )
+    
+    response = @connection.post('tts/stream') do |req|
+      req.headers['Accept'] = 'audio/mpeg'
+      req.body = body
+    end
+    
+    # Return the binary audio data
+    response.body
+  end
+
+  # Generate speech using streaming API for lower latency
+  # @param text [String] The text to convert to speech
+  # @param voice [String] The voice ID or voice clone ID to use
+  # @param options [Hash] Additional options
+  # @return [String] Binary audio data
+  def generate_speech_stream(text:, voice:, **options)
+    default_options = {
+      voice_engine: "Play3.0-mini",
+      output_format: "mp3",
+      speed: 1.0,
+      sample_rate: 24000
+    }
+    
+    body = default_options.merge(options).merge(
+      text: text,
+      voice: voice
+    )
+    
+    response = @connection.post('tts/stream') do |req|
+      req.headers['Accept'] = 'audio/mpeg'
+      req.body = body
+    end
+    
+    # Return the binary audio data
+    response.body
+  end
+
+  # Get list of available stock voices
+  def list_voices
+    response = @connection.get('voices')
+    response.body
+  end
+
+  # Get user's cloned voices
+  def list_cloned_voices
+    response = @connection.get('cloned-voices')
+    response.body
+  end
+
   private
 
   def build_connection
@@ -98,8 +164,8 @@ class PlayhtApiClient
 
   def default_headers
     {
-      'Authorization' => "Bearer #{@api_key}",
-      'X-User-ID' => @user_id,
+      'AUTHORIZATION' => @api_key,
+      'X-USER-ID' => @user_id,
       'Accept' => 'application/json',
       'User-Agent' => USER_AGENT,
     }

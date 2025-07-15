@@ -4,6 +4,7 @@ class PressConferenceQuestion < ApplicationRecord
   belongs_to :press_conference
 
   has_one :press_conference_response, dependent: :destroy
+  has_one_attached :question_audio
 
   validates :question_text, presence: true, length: { maximum: 500 }
   validates :order_index, presence: true,

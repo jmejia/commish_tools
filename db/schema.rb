@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_04_173536) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_13_231242) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -96,6 +96,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_04_173536) do
     t.jsonb "context_data"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "final_audio_url"
     t.index ["league_id"], name: "index_press_conferences_on_league_id"
     t.index ["target_manager_id"], name: "index_press_conferences_on_target_manager_id"
   end

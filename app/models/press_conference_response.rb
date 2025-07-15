@@ -4,6 +4,7 @@ class PressConferenceResponse < ApplicationRecord
   belongs_to :press_conference_question
 
   has_one :press_conference, through: :press_conference_question
+  has_one_attached :response_audio
 
   validates :response_text, presence: true, length: { maximum: 2000 }
   validates :generation_prompt, presence: true

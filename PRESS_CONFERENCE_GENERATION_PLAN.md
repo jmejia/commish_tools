@@ -1,7 +1,58 @@
 # Press Conference Generation Plan
 
+## 🚀 **CURRENT STATUS: ~75% COMPLETE**
+
+✅ **WORKING:** Text generation, individual audio generation, UI, background jobs  
+❌ **MISSING:** Final audio assembly, download functionality, audio player  
+
 ## Overview
 This feature allows league owners to create AI-generated press conferences for league members. The system will generate text responses using ChatGPT, convert them to audio using PlayHT, and stitch everything together into a complete press conference audio file.
+
+## 📊 Implementation Progress
+
+### ✅ **COMPLETED COMPONENTS**
+
+**Database & Models:**
+- ✅ PressConference model with status enum (`draft`, `generating`, `ready`)  
+- ✅ PressConferenceQuestion with Active Storage `question_audio` attachment
+- ✅ PressConferenceResponse with Active Storage `response_audio` attachment
+- ✅ Migration for `final_audio_url` field
+
+**Background Jobs:**
+- ✅ ChatgptResponseGenerationJob - Text generation with league context
+- ✅ QuestionAudioGenerationJob - Announcer voice audio for questions  
+- ✅ ResponseAudioGenerationJob - Cloned voice audio for responses
+- ✅ Job integration - Text job triggers audio jobs automatically
+
+**API Integrations:**
+- ✅ ChatgptClient - OpenAI API integration working
+- ✅ PlayhtApiClient - Enhanced with TTS methods, authentication fixed
+- ✅ Voice selection - Using real PlayHT voice IDs (Charles, Delilah, Benton, Samuel)
+
+**User Interface:**
+- ✅ Press conference creation form
+- ✅ Press conference show page with questions/responses
+- ✅ Status indicators and processing states
+- ✅ League dashboard integration
+
+### ❌ **MISSING COMPONENTS**
+
+**Critical Missing:**
+- ❌ AudioStitchingJob - No final audio assembly
+- ❌ FFmpeg integration - No audio concatenation  
+- ❌ Audio player functionality - UI exists but not wired up
+- ❌ Download functionality - Button exists but not functional
+
+**Technical Gaps:**
+- ❌ Final audio file creation (Q1→R1→Q2→R2→Q3→R3)
+- ❌ File cleanup and management
+- ❌ Production S3 URL generation
+
+### 🔧 **KNOWN ISSUES RESOLVED**
+- ✅ PlayHT API authentication (fixed header format)
+- ✅ Voice ID validation (updated to real voices)  
+- ✅ Model relationships (fixed voice_clone access)
+- ✅ Active Storage URL generation in development
 
 ## User Flow
 
@@ -26,118 +77,162 @@ This feature allows league owners to create AI-generated press conferences for l
 
 ## Technical Architecture
 
-### Database Schema Changes
+### Database Schema Implementation
 
-#### New Fields for PressConference
+#### ✅ PressConference (IMPLEMENTED)
 ```ruby
-# Migration needed for press_conferences table
-add_column :press_conferences, :league_member_id, :integer # who the conference is about
-add_column :press_conferences, :league_context, :text # hardcoded context for now
-add_column :press_conferences, :status, :string, default: 'draft' # draft, processing, completed, failed
-add_column :press_conferences, :final_audio_url, :string # S3 URL for final stitched audio
-add_column :press_conferences, :processing_started_at, :datetime
-add_column :press_conferences, :processing_completed_at, :datetime
-add_column :press_conferences, :error_message, :text
+# Current schema - press_conferences table
+target_manager_id :bigint           # League member (target of press conference)
+status :integer                     # enum: draft(0), generating(1), ready(2), archived(3)  
+final_audio_url :string            # S3 URL for final stitched audio (ADDED)
+week_number :integer               # Fantasy week
+season_year :integer               # Fantasy season
+league_id :bigint                  # Associated league
+
+# Active Storage attachments:
+has_one_attached :final_audio      # Complete press conference audio file
 ```
 
-#### New Fields for PressConferenceQuestion
+#### ✅ PressConferenceQuestion (IMPLEMENTED)  
 ```ruby
-# Migration needed for press_conference_questions table
-add_column :press_conference_questions, :question_audio_url, :string # PlayHT generated audio
-add_column :press_conference_questions, :question_voice_id, :string # which voice was used
-add_column :press_conference_questions, :processing_status, :string, default: 'pending'
+# Current schema - press_conference_questions table
+question_text :text                 # The question text
+question_audio_url :string         # S3 URL (for legacy/quick access)
+playht_question_voice_id :string   # Which voice was used
+order_index :integer               # Question order (0, 1, 2)
+
+# Active Storage attachments:
+has_one_attached :question_audio   # Individual question audio file
 ```
 
-#### New Fields for PressConferenceResponse
+#### ✅ PressConferenceResponse (IMPLEMENTED)
 ```ruby
-# Migration needed for press_conference_responses table
-add_column :press_conference_responses, :response_audio_url, :string # PlayHT generated audio
-add_column :press_conference_responses, :processing_status, :string, default: 'pending'
+# Current schema - press_conference_responses table  
+response_text :text                 # ChatGPT generated response
+response_audio_url :string         # S3 URL (for legacy/quick access)
+generation_prompt :text            # Prompt used for ChatGPT
+
+# Active Storage attachments:
+has_one_attached :response_audio   # Individual response audio file
 ```
 
-### Background Job Workflow
+### Background Job Workflow (CURRENT IMPLEMENTATION)
 
-#### 1. PressConferenceGenerationJob (Orchestrator)
-- **Purpose**: Coordinates the entire workflow
-- **Responsibilities**:
-  - Update press conference status to 'processing'
-  - Generate responses using ChatGPT
-  - Generate question audio using PlayHT
-  - Generate response audio using PlayHT
-  - Stitch final audio using FFmpeg
-  - Update final status
-
-#### 2. ChatGptResponseGenerationJob
-- **Purpose**: Generate text responses for questions
-- **Input**: press_conference_id, question_ids
+#### 1. ✅ ChatgptResponseGenerationJob (IMPLEMENTED)
+- **Purpose**: Generate text responses for questions and trigger audio generation
+- **Input**: `press_conference_id`
 - **Process**:
-  - Retrieve hardcoded league context
-  - For each question, call ChatGPT API
-  - Store response text in press_conference_responses table
-  - Mark question as 'text_complete'
+  - Update status to `generating`
+  - Retrieve hardcoded league context (fantasy football personalities)
+  - For each question, call ChatGPT API to generate response text
+  - Store response text in `press_conference_responses` table
+  - **NEW:** Automatically enqueue audio generation jobs
+  - **NEW:** `QuestionAudioGenerationJob.perform_later(question.id)`
+  - **NEW:** `ResponseAudioGenerationJob.perform_later(response.id)`
 
-#### 3. QuestionAudioGenerationJob
-- **Purpose**: Generate audio for each question
-- **Input**: press_conference_question_ids
+#### 2. ✅ QuestionAudioGenerationJob (IMPLEMENTED)
+- **Purpose**: Generate announcer voice audio for each question
+- **Input**: `press_conference_question_id`
 - **Process**:
-  - Randomly select from pre-built voices (different per question)
-  - Call PlayHT API for each question
-  - Store audio URL in press_conference_questions table
-  - Mark question as 'audio_complete'
+  - Select from professional announcer voices (Charles, Delilah, Benton, Samuel)
+  - Call PlayHT API with correct authentication (`AUTHORIZATION` header)
+  - Generate audio using `Play3.0-mini` or `PlayDialog` engine
+  - Store audio using Active Storage (`has_one_attached :question_audio`)
+  - Store URL for quick access (development skips URL generation)
 
-#### 4. ResponseAudioGenerationJob
-- **Purpose**: Generate audio for each response
-- **Input**: press_conference_response_ids, cloned_voice_id
+#### 3. ✅ ResponseAudioGenerationJob (IMPLEMENTED)  
+- **Purpose**: Generate cloned voice audio for each response
+- **Input**: `press_conference_response_id`
 - **Process**:
-  - Use the league member's cloned voice
-  - Call PlayHT API for each response
-  - Store audio URL in press_conference_responses table
-  - Mark response as 'audio_complete'
+  - Get target manager's voice clone (`target_manager.voice_clone.playht_voice_id`)
+  - Call PlayHT API using the cloned voice ID
+  - Generate audio using `Play3.0-mini` engine for balance of quality/speed
+  - Store audio using Active Storage (`has_one_attached :response_audio`)
+  - Check if all audio complete and update press conference status to `ready`
 
-#### 5. AudioStitchingJob
+#### 4. ❌ AudioStitchingJob (NOT IMPLEMENTED)
 - **Purpose**: Combine all audio files into final press conference
-- **Input**: press_conference_id
-- **Process**:
-  - Download all question and response audio files
-  - Use FFmpeg to concatenate: Q1 -> R1 -> Q2 -> R2 -> Q3 -> R3
-  - Upload final file to S3
-  - Update press conference with final_audio_url
-  - Mark press conference as 'completed'
+- **Input**: `press_conference_id`
+- **Process** (PLANNED):
+  - Download all question and response audio files from Active Storage
+  - Use FFmpeg to concatenate: Q1 → R1 → Q2 → R2 → Q3 → R3
+  - Upload final file to S3 using Active Storage
+  - Update press conference with final audio attachment
+  - Mark press conference as fully `ready` with downloadable audio
 
-### API Integrations
+**Current Job Flow:**
+```
+User creates press conference 
+    ↓
+ChatgptResponseGenerationJob (text generation)
+    ↓ (triggers automatically)
+QuestionAudioGenerationJob + ResponseAudioGenerationJob (parallel)
+    ↓ (missing)
+AudioStitchingJob (not implemented yet)
+```
 
-#### ChatGPT Integration
+### API Integrations (CURRENT IMPLEMENTATION)
+
+#### ✅ ChatGPT Integration (IMPLEMENTED)
 ```ruby
-# New class: app/models/chatgpt_client.rb
-class ChatGptClient
+# app/models/chatgpt_client.rb - WORKING
+class ChatgptClient
   def generate_response(question, league_context)
-    # Call OpenAI API with question and context
-    # Return response text
+    # Uses OpenAI::Client with gpt-4 model
+    # Includes fantasy football personality context
+    # Returns realistic trash talk and confidence
   end
 end
+
+# Hardcoded League Context (ChatgptResponseGenerationJob::LEAGUE_CONTEXT):
+{
+  nature: "Fantasy football league with 12 competitive friends",
+  tone: "Humorous but competitive, with light trash talk", 
+  rivalries: "Focus on season-long rivalries and recent matchups",
+  history: "League has been running for 5+ years with established personalities",
+  response_style: "Confident, slightly cocky, but good-natured"
+}
 ```
 
-#### PlayHT Integration (Enhanced)
+#### ✅ PlayHT Integration (IMPLEMENTED & ENHANCED)
 ```ruby
-# Enhance existing: app/models/playht_api_client.rb
+# app/models/playht_api_client.rb - WORKING
 class PlayhtApiClient
-  def generate_question_audio(text, voice_id)
-    # Generate audio for question using pre-built voice
+  # FIXED: Authentication headers (AUTHORIZATION vs Authorization)
+  # FIXED: Using real voice IDs from PlayHT API
+  
+  def generate_speech(text:, voice:, **options)
+    # Uses /api/v2/tts/stream endpoint
+    # Supports Play3.0-mini, PlayDialog engines
+    # Returns binary audio data (MP3)
   end
   
-  def generate_response_audio(text, cloned_voice_id)
-    # Generate audio for response using cloned voice
+  def list_voices
+    # Gets available voices from PlayHT
+  end
+  
+  def list_cloned_voices  
+    # Gets user's cloned voices
   end
 end
+
+# Real Voice IDs Being Used:
+ANNOUNCER_VOICES = {
+  professional_male: "s3://voice-cloning-zero-shot/9f1ee23a-9108-4538-90be-8e62efc195b6/charlessaad/manifest.json", # Charles
+  professional_female: "s3://voice-cloning-zero-shot/1afba232-fae0-4b69-9675-7f1aac69349f/delilahsaad/manifest.json", # Delilah  
+  energetic_male: "s3://voice-cloning-zero-shot/b41d1a8c-2c99-4403-8262-5808bc67c3e0/bentonsaad/manifest.json", # Benton
+  news_anchor: "s3://voice-cloning-zero-shot/36e9c53d-ca4e-4815-b5ed-9732be3839b4/samuelsaad/manifest.json" # Samuel
+}
 ```
 
-#### FFmpeg Integration
+#### ❌ FFmpeg Integration (NOT IMPLEMENTED)  
 ```ruby
-# New class: app/models/audio_processor.rb
+# app/models/audio_processor.rb - PLANNED
 class AudioProcessor
   def stitch_press_conference(audio_files_in_order)
-    # Use FFmpeg to concatenate audio files
-    # Return path to final file
+    # TODO: Use FFmpeg to concatenate audio files
+    # TODO: Add silence padding between Q&A pairs
+    # TODO: Return path to final file for Active Storage
   end
 end
 ```
@@ -320,21 +415,61 @@ end
 - User satisfaction with generated content
 - Feature adoption rate
 
-## Implementation Phases
+## 🎯 Next Priorities (Updated Implementation Plan)
 
-### Phase 1: Core Functionality
-- Basic press conference creation
-- Text generation with ChatGPT
-- Audio generation with PlayHT
-- Simple audio stitching
+### Immediate (Complete MVP)
+1. **AudioStitchingJob** - Implement final audio assembly
+   - Download individual audio files from Active Storage  
+   - Use FFmpeg to concatenate Q1→R1→Q2→R2→Q3→R3
+   - Upload final file using Active Storage
+   - Update press conference status and trigger UI updates
 
-### Phase 2: Polish & UX
-- Status page improvements
-- Error handling
-- User notifications
+2. **Audio Player Functionality** - Wire up existing UI
+   - Connect audio player to actual audio files
+   - Add play/pause controls
+   - Display duration and progress
+
+3. **Download Functionality** - Enable file downloads
+   - Wire up "Download Audio" button to final audio file
+   - Add individual Q&A audio downloads if needed
+
+### Short Term (Polish)
+4. **Error Handling & Recovery**
+   - Better job failure recovery
+   - User-friendly error messages
+   - Retry mechanisms for API failures
+
+5. **Production Testing**
+   - Test S3 configuration in production
+   - Verify audio generation at scale
+   - Performance optimization
+
+### Future Enhancements (Post-MVP)
+6. **Advanced Audio Features**
+   - Background music
+   - Intro/outro segments  
+   - Multiple voice options per question
+
+7. **League Context Customization**
+   - Custom league personalities
+   - Configurable trash talk levels
+   - League-specific inside jokes
+
+## Implementation Phases (Updated)
+
+### ✅ Phase 1: Core Functionality (75% COMPLETE)
+- ✅ Basic press conference creation
+- ✅ Text generation with ChatGPT  
+- ✅ Individual audio generation with PlayHT
+- ❌ Final audio stitching (IN PROGRESS)
+
+### Phase 2: Polish & UX (NEXT)
+- Audio player and download functionality
+- Error handling and recovery
+- Status page improvements  
 - Performance optimization
 
-### Phase 3: Advanced Features
+### Phase 3: Advanced Features (FUTURE)
 - Custom league context
-- Voice selection
+- Voice selection options
 - Enhanced audio features 

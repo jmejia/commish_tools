@@ -63,6 +63,9 @@ gem "aws-sdk-s3"
 gem 'sleeper_ff'
 gem "ruby-openai"
 
+# Audio processing
+gem "streamio-ffmpeg"
+
 # Environment variables
 gem "dotenv-rails"
 

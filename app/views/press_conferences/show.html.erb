@@ -76,7 +76,15 @@
               </span>
             <% when 'ready' %>
               <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-500/20 text-green-400">
-                Ready
+                Text Ready
+              </span>
+            <% when 'audio_complete' %>
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-emerald-500/20 text-emerald-400">
+                Audio Complete
+              </span>
+            <% when 'audio_failed' %>
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-500/20 text-red-400">
+                Audio Failed
               </span>
             <% when 'archived' %>
               <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-500/20 text-gray-400">
@@ -113,15 +121,25 @@
       </div>
 
       <!-- Status Section -->
-      <% if @press_conference.status == 'draft' %>
+      <% if @press_conference.status == 'draft' || @press_conference.status == 'generating' %>
         <!-- Processing Status -->
         <div class="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-6 mb-8">
           <div class="flex items-center space-x-3">
             <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-400"></div>
             <div>
-              <h4 class="text-yellow-400 font-semibold">Processing Your Press Conference</h4>
+              <h4 class="text-yellow-400 font-semibold">
+                <% if @press_conference.status == 'draft' %>
+                  Processing Your Press Conference
+                <% else %>
+                  Generating Audio Files
+                <% end %>
+              </h4>
               <p class="text-gray-300 text-sm">
-                We're generating AI responses for your press conference. This page will automatically refresh.
+                <% if @press_conference.status == 'draft' %>
+                  We're generating AI responses for your press conference. This will take a few minutes.
+                <% else %>
+                  Converting text responses to speech using AI voice cloning. Almost done!
+                <% end %>
               </p>
             </div>
           </div>
@@ -134,30 +152,58 @@
           }, 5000); // Refresh every 5 seconds
         </script>
       <% elsif @press_conference.status == 'ready' %>
-        <!-- Ready Status with Audio Player -->
+        <!-- Text Ready Status -->
         <div class="bg-green-500/10 border border-green-500/30 rounded-lg p-6 mb-8">
+          <div class="flex items-center space-x-3">
+            <div class="text-2xl">📝</div>
+            <div>
+              <h4 class="text-green-400 font-semibold">Text Responses Ready!</h4>
+              <p class="text-gray-300 text-sm">
+                AI responses have been generated. Audio files are being created now.
+              </p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Auto-refresh to check for audio completion -->
+        <script>
+          setTimeout(function() {
+            location.reload();
+          }, 10000); // Refresh every 10 seconds
+        </script>
+      <% elsif @press_conference.status == 'audio_complete' %>
+        <!-- Audio Complete Status with Player -->
+        <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-6 mb-8">
           <div class="flex items-center space-x-3 mb-4">
             <div class="text-2xl">🎉</div>
             <div>
-              <h4 class="text-green-400 font-semibold">Press Conference Ready!</h4>
+              <h4 class="text-emerald-400 font-semibold">Press Conference Complete!</h4>
               <p class="text-gray-300 text-sm">
-                Your AI-generated press conference is ready to listen to.
+                Your AI-generated press conference is ready with full audio.
               </p>
             </div>
           </div>
           
-          <!-- Audio Player (placeholder for now) -->
-          <div class="bg-gray-700/50 rounded-lg p-4">
-            <div class="flex items-center space-x-4">
-              <button class="p-3 bg-cyan-500 hover:bg-cyan-600 rounded-full text-white transition-colors">
-                ▶️
-              </button>
-              <div class="flex-1">
-                <div class="bg-gray-600 rounded-full h-2">
-                  <div class="bg-cyan-500 h-2 rounded-full" style="width: 0%"></div>
-                </div>
-              </div>
-              <span class="text-gray-400 text-sm">00:00 / 03:45</span>
+          <% if @press_conference.final_audio.attached? %>
+            <!-- Audio Player -->
+            <div class="bg-gray-700/50 rounded-lg p-4">
+              <audio controls class="w-full">
+                <source src="<%= rails_blob_path(@press_conference.final_audio) %>" type="audio/mpeg">
+                Your browser does not support the audio element.
+              </audio>
+            </div>
+          <% end %>
+        </div>
+      <% elsif @press_conference.status == 'audio_failed' %>
+        <!-- Audio Failed Status -->
+        <div class="bg-red-500/10 border border-red-500/30 rounded-lg p-6 mb-8">
+          <div class="flex items-center space-x-3">
+            <div class="text-2xl">❌</div>
+            <div>
+              <h4 class="text-red-400 font-semibold">Audio Generation Failed</h4>
+              <p class="text-gray-300 text-sm">
+                There was an issue generating the audio files. Please try creating a new press conference.
+              </p>
             </div>
           </div>
         </div>
@@ -171,10 +217,11 @@
         <% end %>
         
         <div class="flex items-center space-x-4">
-          <% if @press_conference.status == 'ready' %>
-            <button class="px-6 py-3 bg-gradient-to-r from-cyan-500 to-cyan-600 text-white font-semibold rounded-lg hover:from-cyan-600 hover:to-cyan-700 transition-all">
-              Download Audio
-            </button>
+          <% if @press_conference.audio_complete? && @press_conference.final_audio.attached? %>
+            <%= link_to rails_blob_path(@press_conference.final_audio, disposition: "attachment"), 
+                class: "px-6 py-3 bg-gradient-to-r from-cyan-500 to-cyan-600 text-white font-semibold rounded-lg hover:from-cyan-600 hover:to-cyan-700 transition-all" do %>
+              🎵 Download Audio
+            <% end %>
             <button class="px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white font-semibold rounded-lg hover:from-purple-600 hover:to-purple-700 transition-all">
               Share
             </button>

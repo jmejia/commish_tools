@@ -13,6 +13,8 @@ class PressConference < ApplicationRecord
     generating: 1,
     ready: 2,
     archived: 3,
+    audio_complete: 4,
+    audio_failed: 5,
   }
 
   validates :week_number, presence: true,

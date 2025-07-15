@@ -270,6 +270,7 @@ GEM
     mini_mime (1.1.5)
     minitest (5.25.5)
     msgpack (1.8.0)
+    multi_json (1.16.0)
     multi_xml (0.7.2)
       bigdecimal (~> 3.1)
     multipart-post (2.4.1)
@@ -517,6 +518,8 @@ GEM
       ostruct
     stimulus-rails (1.3.4)
       railties (>= 6.0.0)
+    streamio-ffmpeg (3.0.2)
+      multi_json (~> 1.8)
     stringio (3.1.7)
     tailwindcss-rails (4.2.3)
       railties (>= 7.0.0)
@@ -610,6 +613,7 @@ DEPENDENCIES
   sleeper_ff
   solid_queue
   stimulus-rails
+  streamio-ffmpeg
   tailwindcss-rails
   thruster
   turbo-rails

@@ -9,7 +9,11 @@
       "Bash(find:*)",
       "Bash(mkdir:*)",
       "Bash(rspec:*)",
-      "Bash(bin/rails:*)"
+      "Bash(bin/rails:*)",
+      "Bash(ls:*)",
+      "Bash(bundle exec rspec:*)",
+      "Bash(bundle install:*)",
+      "Bash(ffmpeg:*)"
     ],
     "deny": []
   }

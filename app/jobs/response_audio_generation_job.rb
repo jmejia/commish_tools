@@ -86,11 +86,7 @@ class ResponseAudioGenerationJob < ApplicationJob
     
     if all_questions_have_audio && all_responses_have_audio
       Rails.logger.info "All audio generated for press conference #{press_conference.id}, triggering final assembly"
-      # TODO: Trigger AudioStitchingJob when implemented
-      # AudioStitchingJob.perform_later(press_conference.id)
-      
-      # For now, just mark as ready
-      press_conference.update!(status: 'ready')
+      AudioStitchingJob.perform_later(press_conference.id)
     end
   end
 end

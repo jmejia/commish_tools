@@ -44,6 +44,9 @@ class ChatgptResponseGenerationJob < ApplicationJob
         ResponseAudioGenerationJob.perform_later(response.id)
       end
 
+      # Update status to ready after all responses are generated
+      press_conference.update!(status: :ready)
+
       Rails.logger.info "Completed ChatGPT response generation for press conference #{press_conference_id}"
     rescue StandardError => e
       # Revert status on failure

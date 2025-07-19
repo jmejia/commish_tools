@@ -19,9 +19,10 @@ class AudioProcessor
   def stitch_audio_files
     validate_inputs
     download_audio_files
-    create_final_audio
-  ensure
+    final_path = create_final_audio
+    # Don't clean up the final file - it needs to be saved
     cleanup_temp_files
+    final_path
   end
   
   private
@@ -86,19 +87,20 @@ class AudioProcessor
   end
   
   def create_final_audio
-    final_temp_file = Tempfile.new(['final_press_conference', '.mp3'])
-    final_temp_file.close # Close so FFmpeg can write to it
+    # Use a regular temp path instead of Tempfile to avoid premature cleanup
+    timestamp = Time.now.strftime('%Y%m%d%H%M%S')
+    final_path = Rails.root.join('tmp', "press_conference_#{@press_conference.id}_#{timestamp}.mp3").to_s
     
     if @temp_files.length == 2
       # Simple case: just one question and response
-      concatenate_two_files(final_temp_file.path)
+      concatenate_two_files(final_path)
     else
       # Complex case: multiple Q&A pairs with silence
-      concatenate_with_silence(final_temp_file.path)
+      concatenate_with_silence(final_path)
     end
     
-    Rails.logger.info "Created final audio file: #{final_temp_file.path} (#{File.size(final_temp_file.path)} bytes)"
-    final_temp_file.path
+    Rails.logger.info "Created final audio file: #{final_path} (#{File.size(final_path)} bytes)"
+    final_path
   end
   
   def concatenate_two_files(output_path)

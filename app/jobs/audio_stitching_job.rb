@@ -14,9 +14,16 @@ class AudioStitchingJob < ApplicationJob
       return
     end
     
-    # Skip if final audio already exists
-    if press_conference.final_audio.attached?
+    # Skip if final audio already exists and status is complete
+    if press_conference.final_audio.attached? && press_conference.audio_complete?
       Rails.logger.info "Final audio already exists for press conference #{press_conference.id}"
+      return
+    end
+    
+    # If final audio exists but status isn't complete, update the status
+    if press_conference.final_audio.attached? && !press_conference.audio_complete?
+      Rails.logger.info "Final audio exists but status was #{press_conference.status}, updating to audio_complete"
+      press_conference.update!(status: 'audio_complete')
       return
     end
     

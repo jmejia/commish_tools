@@ -32,19 +32,24 @@ class ChatgptResponseGenerationJob < ApplicationJob
         response_text = chatgpt_client.generate_response(question.question_text, LEAGUE_CONTEXT)
 
         # Create the response record
-        question.create_press_conference_response!(
+        response = question.create_press_conference_response!(
           response_text: response_text,
           generation_prompt: build_generation_prompt(question.question_text, LEAGUE_CONTEXT)
         )
 
         Rails.logger.info "Generated response for question #{question.id}"
+
+        # Enqueue audio generation jobs
+        QuestionAudioGenerationJob.perform_later(question.id)
+        ResponseAudioGenerationJob.perform_later(response.id)
       end
 
       Rails.logger.info "Completed ChatGPT response generation for press conference #{press_conference_id}"
     rescue StandardError => e
       # Revert status on failure
       press_conference.update!(status: original_status)
-      Rails.logger.error "Failed to generate ChatGPT responses for press conference #{press_conference_id}: #{e.message}"
+      msg = "Failed to generate ChatGPT responses for press conference #{press_conference_id}: #{e.message}"
+      Rails.logger.error msg
       # Re-raise the error to let the job queue handle retries
       raise e
     end

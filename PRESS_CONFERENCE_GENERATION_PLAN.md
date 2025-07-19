@@ -1,8 +1,8 @@
 # Press Conference Generation Plan
 
-## 🚀 **CURRENT STATUS: ~75% COMPLETE**
+## 🚀 **CURRENT STATUS: ~80% COMPLETE**
 
-✅ **WORKING:** Text generation, individual audio generation, UI, background jobs  
+✅ **WORKING:** Text generation, individual audio generation, UI, background jobs, status transitions  
 ❌ **MISSING:** Final audio assembly, download functionality, audio player  
 
 ## Overview
@@ -17,12 +17,14 @@ This feature allows league owners to create AI-generated press conferences for l
 - ✅ PressConferenceQuestion with Active Storage `question_audio` attachment
 - ✅ PressConferenceResponse with Active Storage `response_audio` attachment
 - ✅ Migration for `final_audio_url` field
+- ✅ Status transitions working correctly (draft → generating → ready)
 
 **Background Jobs:**
 - ✅ ChatgptResponseGenerationJob - Text generation with league context
 - ✅ QuestionAudioGenerationJob - Announcer voice audio for questions  
 - ✅ ResponseAudioGenerationJob - Cloned voice audio for responses
 - ✅ Job integration - Text job triggers audio jobs automatically
+- ✅ Status updates - Jobs properly update press conference status on completion
 
 **API Integrations:**
 - ✅ ChatgptClient - OpenAI API integration working
@@ -53,6 +55,8 @@ This feature allows league owners to create AI-generated press conferences for l
 - ✅ Voice ID validation (updated to real voices)  
 - ✅ Model relationships (fixed voice_clone access)
 - ✅ Active Storage URL generation in development
+- ✅ Status transition bug (fixed job not updating to 'ready')
+- ✅ Test suite failures (fixed routing and job status issues)
 
 ## User Flow
 
@@ -129,6 +133,7 @@ has_one_attached :response_audio   # Individual response audio file
   - **NEW:** Automatically enqueue audio generation jobs
   - **NEW:** `QuestionAudioGenerationJob.perform_later(question.id)`
   - **NEW:** `ResponseAudioGenerationJob.perform_later(response.id)`
+  - **FIXED:** Update status to `ready` after all responses generated
 
 #### 2. ✅ QuestionAudioGenerationJob (IMPLEMENTED)
 - **Purpose**: Generate announcer voice audio for each question
@@ -415,7 +420,12 @@ end
 - User satisfaction with generated content
 - Feature adoption rate
 
-## 🎯 Next Priorities (Updated Implementation Plan)
+## 🎯 Next Priorities (Updated Implementation Plan - January 2025)
+
+### ✅ Recent Fixes
+- Fixed ChatGPT response generation job to properly update status to 'ready'
+- Fixed test suite routing issues for press conference deletion
+- Resolved Turbo/Devise compatibility issues in test environment
 
 ### Immediate (Complete MVP)
 1. **AudioStitchingJob** - Implement final audio assembly
@@ -457,11 +467,12 @@ end
 
 ## Implementation Phases (Updated)
 
-### ✅ Phase 1: Core Functionality (75% COMPLETE)
+### ✅ Phase 1: Core Functionality (80% COMPLETE)
 - ✅ Basic press conference creation
 - ✅ Text generation with ChatGPT  
 - ✅ Individual audio generation with PlayHT
-- ❌ Final audio stitching (IN PROGRESS)
+- ✅ Status management and transitions
+- ❌ Final audio stitching (NEXT PRIORITY)
 
 ### Phase 2: Polish & UX (NEXT)
 - Audio player and download functionality

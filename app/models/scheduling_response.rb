@@ -28,7 +28,7 @@ class SchedulingResponse < ApplicationRecord
         slot_availability = slot_availabilities.find_or_initialize_by(
           event_time_slot_id: slot_id
         )
-        slot_availability.availability = availability_value
+        slot_availability.availability = availability_value.to_i
         slot_availability.save!
       end
     end

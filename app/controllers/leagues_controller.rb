@@ -134,7 +134,7 @@ class LeaguesController < ApplicationController
   end
 
   def ensure_league_member
-    unless current_user.leagues.include?(@league)
+    unless current_user.leagues.include?(@league) || @league.owner == current_user
       Rails.logger.warn "User #{current_user.id} attempted to access league #{@league.id} without membership"
       redirect_to leagues_path, alert: 'You are not a member of this league.'
     end

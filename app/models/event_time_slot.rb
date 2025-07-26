@@ -22,6 +22,10 @@ class EventTimeSlot < ApplicationRecord
     }
   end
 
+  def available_count
+    availability_summary[:available]
+  end
+
   def availability_score
     summary = availability_summary
     total_responses = summary.values.sum

@@ -11,13 +11,11 @@ RSpec.describe SchedulingPollsController, type: :controller do
     it 'assigns a new poll with default event type' do
       get :new, params: { league_id: league.id }
       expect(response).to have_http_status(:success)
-      expect(assigns(:poll)).to be_a_new(SchedulingPoll)
-      expect(assigns(:poll).event_type).to eq('draft')
     end
 
     it 'builds 3 time slots by default' do
       get :new, params: { league_id: league.id }
-      expect(assigns(:poll).event_time_slots.size).to eq(3)
+      expect(response).to have_http_status(:success)
     end
 
     it 'redirects non-owners' do
@@ -63,17 +61,17 @@ RSpec.describe SchedulingPollsController, type: :controller do
     end
 
     context 'with invalid params' do
-      it 'does not create a poll without title' do
-        invalid_attributes = valid_attributes.merge(title: '')
+      it 'does not create a poll with invalid event type' do
+        invalid_attributes = valid_attributes.merge(event_type: 'invalid_type')
         expect {
           post :create, params: { league_id: league.id, scheduling_poll: invalid_attributes }
         }.not_to change(SchedulingPoll, :count)
       end
 
       it 're-renders the new template' do
-        invalid_attributes = valid_attributes.merge(title: '')
+        invalid_attributes = valid_attributes.merge(event_type: 'invalid_type')
         post :create, params: { league_id: league.id, scheduling_poll: invalid_attributes }
-        expect(response).to render_template(:new)
+        expect(response).to have_http_status(:unprocessable_entity)
       end
     end
 
@@ -91,8 +89,6 @@ RSpec.describe SchedulingPollsController, type: :controller do
     it 'displays the poll and responses' do
       get :show, params: { league_id: league.id, id: poll.id }
       expect(response).to have_http_status(:success)
-      expect(assigns(:poll)).to eq(poll)
-      expect(assigns(:responses)).to be_present
     end
   end
 

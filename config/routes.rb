@@ -44,11 +44,23 @@ Rails.application.routes.draw do
 
       resources :press_conference_questions, path: :questions
     end
+
+    resources :scheduling_polls do
+      member do
+        patch :close
+        patch :reopen
+      end
+    end
   end
 
   # Voice upload routes (public access via token)
   get '/voice_uploads/:token', to: 'voice_uploads#show', as: :voice_upload
   post '/voice_uploads/:token', to: 'voice_uploads#create'
+
+  # Public scheduling routes (no authentication required)
+  get '/schedule/:token', to: 'public_scheduling#show', as: :public_scheduling
+  post '/schedule/:token', to: 'public_scheduling#create'
+  patch '/schedule/:token', to: 'public_scheduling#update'
 
   # Audio streaming routes
   get '/audio/:id', to: 'audio#stream', as: :audio_stream

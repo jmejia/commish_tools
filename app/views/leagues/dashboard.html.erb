@@ -233,6 +233,10 @@
                   class: 'block w-full px-4 py-2 text-left text-gray-300 hover:text-white hover:bg-gray-700/50 rounded-lg transition-colors' do %>
                 ⚙️ Edit League Settings
               <% end %>
+              <%= link_to new_league_scheduling_poll_path(@league, event_type: 'draft'), 
+                  class: 'block w-full px-4 py-2 text-left text-gray-300 hover:text-white hover:bg-gray-700/50 rounded-lg transition-colors' do %>
+                📅 Schedule Draft
+              <% end %>
             <% end %>
             <button class="block w-full px-4 py-2 text-left text-gray-300 hover:text-white hover:bg-gray-700/50 rounded-lg transition-colors">
               👥 Manage Members

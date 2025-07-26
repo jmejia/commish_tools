@@ -33,8 +33,16 @@
       "Bash(sudo:*)",
       "Bash(pg_ctl:*)",
       "Bash(psql:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "WebFetch(domain:linear.app)",
+      "mcp__linear__list_projects",
+      "mcp__linear__list_teams",
+      "mcp__linear__create_issue"
     ],
     "deny": []
-  }
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "linear"
+  ]
 }

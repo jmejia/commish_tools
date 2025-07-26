@@ -27,8 +27,13 @@
       "dockerDashComposeVersion": "v2"
     },
     "ghcr.io/devcontainers/features/ruby:1": {
-      "version": "3.3.0",
+      "version": "3.2.2",
       "installRubyGems": true
+    },
+    "ghcr.io/itsmechlark/features/postgresql:1": {
+      "version": "latest",
+      "postgresPassword": "postgres",
+      "initDbArgs": "--encoding=UTF8 --locale=C"
     }
   },
   "forwardPorts": [
@@ -36,7 +41,7 @@
     5432,
     6379
   ],
-  "postCreateCommand": "npm install -g @anthropic-ai/claude-code && gem install bundler && bundle install && yarn install && rails db:create db:migrate && sudo bash .devcontainer/init-firewall.sh",
+  "postCreateCommand": "npm install -g @anthropic-ai/claude-code && gem install bundler && cd /workspaces/commish_tools && bundle install --binstubs && yarn install && PGUSER=postgres PGPASSWORD=postgres bundle exec rails db:create db:migrate && sudo bash .devcontainer/init-firewall.sh",
   "postStartCommand": "git config --global --add safe.directory ${containerWorkspaceFolder}",
   "customizations": {
     "vscode": {
@@ -81,6 +86,7 @@
     "--cap-add=SYS_PTRACE",
     "--security-opt",
     "seccomp=unconfined",
-    "--init"
+    "--init",
+    "--memory=8g"
   ]
 }

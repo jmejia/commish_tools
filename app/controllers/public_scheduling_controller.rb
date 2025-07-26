@@ -1,13 +1,19 @@
 # Handles public responses to scheduling polls without authentication
 # League members can submit their availability via a unique link
 class PublicSchedulingController < ApplicationController
+  include RateLimitable
+  include SpamProtectable
+
   before_action :set_poll_by_token
   before_action :check_poll_active
+  before_action :apply_security_checks, only: [:create, :update]
   before_action :set_response_identifier
 
   def show
-    @response = find_existing_response
-    @time_slots = @poll.event_time_slots.order(:order_index, :starts_at)
+    @time_slots = @poll.event_time_slots.order(:starts_at)
+    @existing_response = find_existing_response
+    @response = @existing_response || SchedulingResponse.new
+    @form_start_time = Time.current.iso8601
   end
 
   def create
@@ -21,8 +27,11 @@ class PublicSchedulingController < ApplicationController
   private
 
   def set_poll_by_token
+    Rails.logger.debug { "Looking for poll with token: #{params[:token]}" }
     @poll = SchedulingPoll.find_by!(public_token: params[:token])
+    Rails.logger.debug { "Found poll: #{@poll&.id}" }
   rescue ActiveRecord::RecordNotFound
+    Rails.logger.debug { "Poll not found for token: #{params[:token]}" }
     render plain: 'Poll not found', status: :not_found
   end
 
@@ -47,23 +56,38 @@ class PublicSchedulingController < ApplicationController
   end
 
   def response_params
-    params.permit(:respondent_name, availabilities: {})
+    params.permit(:respondent_name, :form_start_time, :email_confirm, availabilities: {})
+  end
+
+  def apply_security_checks
+    # Each security check method renders an error response and returns false if it fails
+    # For before_action callbacks, we need to stop execution if any check fails
+    check_rate_limit(:public_response, request.remote_ip) &&
+      check_honeypot(:email_confirm) &&
+      check_spam_patterns([:respondent_name]) &&
+      check_submission_timing(:form_start_time)
   end
 
   def handle_response_submission(notice_message:)
-    result = PublicResponseHandler.new(
+    result = SchedulingResponse.record_public_response(
       poll: @poll,
       params: response_params,
-      request: request
-    ).handle(notice_message: notice_message)
+      request: request,
+      notice_message: notice_message
+    )
 
-    if result.success?
-      redirect_to result.redirect_path, notice: result.notice
-    else
-      @response = result.response
-      @time_slots = result.time_slots
-      flash.now[:alert] = result.error
-      render :show, status: :unprocessable_entity
-    end
+    result.success? ? handle_success(result) : handle_failure(result)
+  end
+
+  def handle_success(result)
+    redirect_to result.redirect_path, notice: result.notice
+  end
+
+  def handle_failure(result)
+    @response = result.response
+    @time_slots = result.time_slots
+    @form_start_time = Time.current.iso8601
+    flash.now[:alert] = result.error
+    render :show, status: :unprocessable_entity
   end
 end

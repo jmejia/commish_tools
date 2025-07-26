@@ -7,6 +7,7 @@ RSpec.describe 'PublicScheduling', type: :request do
   describe 'GET /schedule/:token' do
     it 'displays the public scheduling form' do
       get public_scheduling_path(poll.public_token)
+
       expect(response).to have_http_status(:success)
       expect(response.body).to include(poll.title)
       expect(response.body).to include('Submit Your Availability')
@@ -28,17 +29,19 @@ RSpec.describe 'PublicScheduling', type: :request do
     let(:response_params) do
       {
         respondent_name: 'John Doe',
+        form_start_time: 5.seconds.ago.iso8601, # Spam protection timing
+        email_confirm: '', # Honeypot field (should be empty)
         availabilities: {
           poll.event_time_slots.first.id.to_s => '2',
-          poll.event_time_slots.last.id.to_s => '0'
-        }
+          poll.event_time_slots.last.id.to_s => '0',
+        },
       }
     end
 
     it 'creates a new response' do
-      expect {
+      expect do
         post public_scheduling_path(poll.public_token), params: response_params
-      }.to change(SchedulingResponse, :count).by(1)
+      end.to change(SchedulingResponse, :count).by(1)
     end
 
     it 'creates slot availabilities' do
@@ -57,7 +60,7 @@ RSpec.describe 'PublicScheduling', type: :request do
 
   describe 'PATCH /schedule/:token' do
     let!(:existing_response) do
-      create(:scheduling_response, 
+      create(:scheduling_response,
              scheduling_poll: poll,
              respondent_name: 'John Doe',
              respondent_identifier: Digest::SHA256.hexdigest("john doe-#{poll.id}"))
@@ -66,10 +69,12 @@ RSpec.describe 'PublicScheduling', type: :request do
     let(:update_params) do
       {
         respondent_name: 'John Doe',
+        form_start_time: 5.seconds.ago.iso8601, # Spam protection timing
+        email_confirm: '', # Honeypot field (should be empty)
         availabilities: {
           poll.event_time_slots.first.id.to_s => '1',
-          poll.event_time_slots.last.id.to_s => '2'
-        }
+          poll.event_time_slots.last.id.to_s => '2',
+        },
       }
     end
 

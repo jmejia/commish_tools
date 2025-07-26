@@ -38,7 +38,15 @@
       "mcp__linear__list_projects",
       "mcp__linear__list_teams",
       "mcp__linear__create_issue",
-      "Bash(touch:*)"
+      "Bash(touch:*)",
+      "Bash(git remote get-url:*)",
+      "Bash(git push:*)",
+      "Bash(gh pr create:*)",
+      "Bash(chmod:*)",
+      "Bash(gh auth:*)",
+      "Bash(rails console:*)",
+      "Bash(ruby:*)",
+      "Bash(bundle exec rake:*)"
     ],
     "deny": []
   },

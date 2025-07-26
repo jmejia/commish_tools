@@ -22,8 +22,8 @@ Rails.application.configure do
   config.consider_all_requests_local = true
   config.cache_store = :null_store
 
-  # Render exception templates for rescuable exceptions and raise for other exceptions.
-  config.action_dispatch.show_exceptions = :rescuable
+  # Show full error details in test environment to debug issues
+  config.action_dispatch.show_exceptions = :none
 
   # Disable request forgery protection in test environment.
   config.action_controller.allow_forgery_protection = false
@@ -70,5 +70,5 @@ Rails.application.configure do
   config.hosts << "www.example.com"
 
   # Disable browser restrictions in test environment
-  config.browser = false
+  config.allow_browser = false
 end

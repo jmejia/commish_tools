@@ -43,12 +43,16 @@
       <!-- Response Form -->
       <div class="bg-gray-800/50 rounded-xl border border-gray-700 p-6">
         <h3 class="text-xl font-bold text-white mb-6">
-          <%= @response ? "Update Your Availability" : "Submit Your Availability" %>
+          <%= @existing_response ? "Update Your Availability" : "Submit Your Availability" %>
         </h3>
         
-        <%= form_with url: @response ? public_scheduling_path(@poll.public_token) : public_scheduling_path(@poll.public_token),
-                      method: @response ? :patch : :post,
+        <%= form_with url: @existing_response ? public_scheduling_path(@poll.public_token) : public_scheduling_path(@poll.public_token),
+                      method: @existing_response ? :patch : :post,
                       local: true do |form| %>
+          
+          <!-- Security Fields (Hidden) -->
+          <%= form.hidden_field :form_start_time, value: @form_start_time %>
+          <%= form.text_field :email_confirm, style: "display: none;", tabindex: "-1", autocomplete: "off" %>
           
           <!-- Name Field -->
           <div class="mb-6">
@@ -117,7 +121,7 @@
           
           <!-- Submit Button -->
           <div class="flex justify-end">
-            <%= form.submit @response ? "Update Response" : "Submit Response", 
+            <%= form.submit @existing_response ? "Update Response" : "Submit Response", 
                 class: "px-8 py-3 bg-gradient-to-r from-cyan-500 to-cyan-600 text-white font-semibold rounded-lg hover:from-cyan-600 hover:to-cyan-700 transition-all cursor-pointer" %>
           </div>
         <% end %>
@@ -126,7 +130,7 @@
       <!-- Footer Note -->
       <div class="mt-6 text-center text-sm text-gray-400">
         <p>Your response will be shared with your league commissioner to help schedule the <%= @poll.event_type %>.</p>
-        <% if @response %>
+        <% if @existing_response %>
           <p class="mt-2">You can update your response at any time by returning to this page.</p>
         <% end %>
       </div>

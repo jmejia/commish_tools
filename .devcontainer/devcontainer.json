@@ -41,7 +41,7 @@
     5432,
     6379
   ],
-  "postCreateCommand": "npm install -g @anthropic-ai/claude-code && gem install bundler && cd /workspaces/commish_tools && bundle install --binstubs && yarn install && PGUSER=postgres PGPASSWORD=postgres bundle exec rails db:create db:migrate && sudo bash .devcontainer/init-firewall.sh",
+  "postCreateCommand": "npm install -g @anthropic-ai/claude-code && gem install bundler && cd /workspaces/commish_tools && bundle install --binstubs && yarn install && PGUSER=postgres PGPASSWORD=postgres bundle exec rails db:create db:migrate && sudo bash .devcontainer/init-firewall.sh && bash .devcontainer/init-env.sh",
   "postStartCommand": "git config --global --add safe.directory ${containerWorkspaceFolder}",
   "customizations": {
     "vscode": {
@@ -79,8 +79,10 @@
     "RAILS_ENV": "development",
     "NODE_ENV": "development"
   },
+  "initializeCommand": "cp -n .env.devcontainer.example .env.devcontainer || true",
   "mounts": [
-    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/home/developer/.ssh,type=bind,readonly"
+    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/home/developer/.ssh,type=bind,readonly",
+    "source=${localWorkspaceFolder}/.env.devcontainer,target=/workspaces/commish_tools/.env.devcontainer,type=bind,readonly"
   ],
   "runArgs": [
     "--cap-add=SYS_PTRACE",

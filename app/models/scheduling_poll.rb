@@ -1,6 +1,9 @@
 # Represents a scheduling poll for league events (draft, playoffs, etc.)
 # Allows commissioners to create polls with multiple time slots and collect availability from members
 class SchedulingPoll < ApplicationRecord
+  # Result object for poll creation operations
+  CreationResult = Struct.new(:success?, :poll, :message, :error, keyword_init: true)
+
   belongs_to :league
   belongs_to :created_by, class_name: 'User'
 
@@ -9,10 +12,22 @@ class SchedulingPoll < ApplicationRecord
 
   enum :status, { active: 0, closed: 1, cancelled: 2 }
 
-  # For now we focus on draft, but can be extended to other event types
-  EVENT_TYPES = {
-    draft: 'Draft'
-  }.freeze
+  # Extensible event types configuration - can be extended via Rails configuration
+  EVENT_TYPES = begin
+    Rails.application.config.try(:scheduling_event_types) || {
+      draft: 'Draft',
+      playoffs: 'Playoffs',
+      championship: 'Championship',
+      meeting: 'League Meeting'
+    }
+  rescue StandardError
+    {
+      draft: 'Draft',
+      playoffs: 'Playoffs',
+      championship: 'Championship',
+      meeting: 'League Meeting'
+    }
+  end.freeze
 
   before_create :generate_public_token
 
@@ -23,6 +38,30 @@ class SchedulingPoll < ApplicationRecord
 
   scope :drafts, -> { where(event_type: 'draft') }
   scope :active_for_league, ->(league) { where(league: league, status: :active) }
+  scope :with_responses, -> { includes(scheduling_responses: { slot_availabilities: :event_time_slot }) }
+  scope :with_time_slots, -> { includes(:event_time_slots) }
+  scope :with_full_data, -> { includes(:event_time_slots, scheduling_responses: { slot_availabilities: :event_time_slot }) }
+
+  # Domain method to create a poll with proper validation and error handling
+  # Replaces PollCreator service object
+  def self.create_for_league(league:, created_by:, params:)
+    poll = league.scheduling_polls.build(params)
+    poll.created_by = created_by
+
+    if poll.save
+      CreationResult.new(
+        success?: true,
+        poll: poll,
+        message: 'Poll created successfully.'
+      )
+    else
+      CreationResult.new(
+        success?: false,
+        poll: poll,
+        error: poll.errors.full_messages.to_sentence
+      )
+    end
+  end
 
   def response_count
     scheduling_responses.count
@@ -35,17 +74,20 @@ class SchedulingPoll < ApplicationRecord
   end
 
   def optimal_slots(limit: 3)
-    # Get all time slots with their availability counts
-    slots_with_counts = event_time_slots.includes(:slot_availabilities).map do |slot|
-      availabilities = slot.slot_availabilities.group(:availability).count
-      [slot, availabilities[2] || 0, availabilities[1] || 0] # [slot, available_count, maybe_count]
-    end
-    
-    # Sort by available count first, then maybe count
-    sorted_slots = slots_with_counts.sort_by { |_, available, maybe| [-available, -maybe] }
-    
-    # Return just the slots, limited by the requested amount
-    sorted_slots.first(limit).map(&:first)
+    # Use a single optimized query to avoid N+1 issues
+    # Select all columns from event_time_slots and order by availability counts
+    # Convert to array to ensure proper behavior with .count
+    event_time_slots
+      .select("event_time_slots.*")
+      .joins("LEFT JOIN slot_availabilities ON slot_availabilities.event_time_slot_id = event_time_slots.id")
+      .group("event_time_slots.id")
+      .order(
+        Arel.sql("SUM(CASE WHEN slot_availabilities.availability = 2 THEN 1 ELSE 0 END) DESC"),
+        Arel.sql("SUM(CASE WHEN slot_availabilities.availability = 1 THEN 1 ELSE 0 END) DESC"),
+        :starts_at
+      )
+      .limit(limit)
+      .to_a
   end
 
   def default_duration_minutes

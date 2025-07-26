@@ -40,6 +40,7 @@ log/*.log
 .env
 .env.local
 .env.*.local
+.env.devcontainer
 
 # Node modules (if using Node.js tools)
 /node_modules
@@ -53,3 +54,4 @@ log/*.log
 *.swp
 *.swo
 *~
+.mcp.json

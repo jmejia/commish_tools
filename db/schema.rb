@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_26_041516) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_26_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -50,7 +50,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_26_041516) do
     t.integer "order_index", default: 0
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["scheduling_poll_id", "starts_at"], name: "index_event_time_slots_on_poll_and_start_time"
     t.index ["scheduling_poll_id"], name: "index_event_time_slots_on_scheduling_poll_id"
+    t.index ["starts_at", "duration_minutes"], name: "index_event_time_slots_on_time_and_duration"
     t.index ["starts_at"], name: "index_event_time_slots_on_starts_at"
   end
 
@@ -134,11 +136,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_26_041516) do
     t.jsonb "event_metadata", default: {}
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["closes_at"], name: "index_scheduling_polls_on_closes_at"
+    t.index ["created_by_id", "status"], name: "index_scheduling_polls_on_creator_status"
     t.index ["created_by_id"], name: "index_scheduling_polls_on_created_by_id"
     t.index ["event_type"], name: "index_scheduling_polls_on_event_type"
     t.index ["league_id", "event_type"], name: "index_scheduling_polls_on_league_id_and_event_type"
+    t.index ["league_id", "status", "event_type"], name: "index_scheduling_polls_on_league_status_event"
     t.index ["league_id"], name: "index_scheduling_polls_on_league_id"
     t.index ["public_token"], name: "index_scheduling_polls_on_public_token", unique: true
+    t.index ["settings"], name: "index_scheduling_polls_on_settings", using: :gin
     t.index ["status"], name: "index_scheduling_polls_on_status"
   end
 
@@ -150,7 +156,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_26_041516) do
     t.jsonb "metadata", default: {}
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["ip_address", "created_at"], name: "index_scheduling_responses_on_ip_and_created"
     t.index ["ip_address"], name: "index_scheduling_responses_on_ip_address"
+    t.index ["metadata"], name: "index_scheduling_responses_on_metadata", using: :gin
+    t.index ["scheduling_poll_id", "created_at"], name: "index_scheduling_responses_on_poll_and_created"
     t.index ["scheduling_poll_id", "respondent_identifier"], name: "index_scheduling_responses_on_poll_and_identifier", unique: true
     t.index ["scheduling_poll_id"], name: "index_scheduling_responses_on_scheduling_poll_id"
   end
@@ -178,6 +187,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_26_041516) do
     t.jsonb "preference_data", default: {}
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["event_time_slot_id", "availability"], name: "index_slot_availabilities_on_slot_and_availability"
     t.index ["event_time_slot_id"], name: "index_slot_availabilities_on_event_time_slot_id"
     t.index ["scheduling_response_id", "event_time_slot_id"], name: "index_slot_availability_unique", unique: true
   end

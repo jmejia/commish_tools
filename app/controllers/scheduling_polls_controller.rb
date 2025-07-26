@@ -8,7 +8,7 @@ class SchedulingPollsController < ApplicationController
   before_action :authorize_poll_management!, only: [:edit, :update, :destroy, :close, :reopen]
 
   def index
-    @polls = @league.scheduling_polls.includes(:event_time_slots)
+    @polls = @league.scheduling_polls.with_time_slots
   end
 
   def show
@@ -21,17 +21,17 @@ class SchedulingPollsController < ApplicationController
   end
 
   def create
-    result = PollCreator.new(
+    result = SchedulingPoll.create_for_league(
       league: @league,
-      user: current_user,
+      created_by: current_user,
       params: poll_params
-    ).create
+    )
 
     if result.success?
       redirect_to league_scheduling_poll_path(@league, result.poll),
                   notice: result.message
     else
-      @poll = @league.scheduling_polls.build(poll_params)
+      @poll = result.poll
       flash.now[:alert] = result.error
       render :new, status: :unprocessable_entity
     end

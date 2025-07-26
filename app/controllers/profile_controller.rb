@@ -1,6 +1,4 @@
 class ProfileController < ApplicationController
-  before_action :authenticate_user!
-
   def show
     @user = current_user
     @league_memberships = current_user.league_memberships.includes(:league, :voice_clone)

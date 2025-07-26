@@ -1,5 +1,4 @@
 class VoiceClonesController < ApplicationController
-  before_action :authenticate_user!
   before_action :set_league_membership
   before_action :set_voice_clone, only: [:show, :edit, :update, :destroy]
   before_action :ensure_own_membership, only: [:new, :create, :edit, :update, :destroy]

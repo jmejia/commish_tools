@@ -16,9 +16,9 @@ class EventTimeSlot < ApplicationRecord
   def availability_summary
     availabilities = slot_availabilities.group(:availability).count
     {
-      available: availabilities[2] || 0,
-      maybe: availabilities[1] || 0,
-      unavailable: availabilities[0] || 0,
+      available: availabilities["available"] || 0,
+      maybe: availabilities["maybe"] || 0,
+      unavailable: availabilities["unavailable"] || 0,
     }
   end
 

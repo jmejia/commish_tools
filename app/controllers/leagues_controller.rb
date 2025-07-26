@@ -1,7 +1,6 @@
 # Manages fantasy football leagues including creation, importing from Sleeper,
 # and dashboard functionality for league owners and members.
 class LeaguesController < ApplicationController
-  before_action :authenticate_user!
   before_action :set_league, only: [:show, :edit, :update, :destroy, :dashboard]
   before_action :ensure_league_member, only: [:show, :dashboard]
   before_action :ensure_league_admin, only: [:edit, :update, :destroy]

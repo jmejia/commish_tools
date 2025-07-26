@@ -4,12 +4,16 @@ class PublicSchedulingController < ApplicationController
   include RateLimitable
   include SpamProtectable
 
+  skip_before_action :authenticate_user!
+  skip_before_action :verify_authenticity_token
   before_action :set_poll_by_token
   before_action :check_poll_active
   before_action :apply_security_checks, only: [:create, :update]
   before_action :set_response_identifier
 
   def show
+    Rails.logger.info "PublicSchedulingController#show called"
+    Rails.logger.info "Poll found: #{@poll.inspect}"
     @time_slots = @poll.event_time_slots.order(:starts_at)
     @existing_response = find_existing_response
     @response = @existing_response || SchedulingResponse.new
@@ -27,16 +31,18 @@ class PublicSchedulingController < ApplicationController
   private
 
   def set_poll_by_token
-    Rails.logger.debug { "Looking for poll with token: #{params[:token]}" }
+    Rails.logger.info "Looking for poll with token: #{params[:token]}"
     @poll = SchedulingPoll.find_by!(public_token: params[:token])
-    Rails.logger.debug { "Found poll: #{@poll&.id}" }
+    Rails.logger.info "Found poll: #{@poll&.id}, status: #{@poll&.status}"
   rescue ActiveRecord::RecordNotFound
-    Rails.logger.debug { "Poll not found for token: #{params[:token]}" }
+    Rails.logger.error "Poll not found for token: #{params[:token]}"
     render plain: 'Poll not found', status: :not_found
   end
 
   def check_poll_active
+    Rails.logger.info "Checking poll active status: #{@poll&.status}"
     unless @poll.active?
+      Rails.logger.warn "Poll is not active, rendering 403"
       render plain: 'This poll is no longer accepting responses', status: :forbidden
     end
   end
@@ -62,10 +68,10 @@ class PublicSchedulingController < ApplicationController
   def apply_security_checks
     # Each security check method renders an error response and returns false if it fails
     # For before_action callbacks, we need to stop execution if any check fails
-    check_rate_limit(:public_response, request.remote_ip) &&
-      check_honeypot(:email_confirm) &&
-      check_spam_patterns([:respondent_name]) &&
-      check_submission_timing(:form_start_time)
+    return unless check_rate_limit(:public_response, request.remote_ip)
+    return unless check_honeypot(:email_confirm)
+    return unless check_spam_patterns([:respondent_name])
+    return unless check_submission_timing(:form_start_time)
   end
 
   def handle_response_submission(notice_message:)

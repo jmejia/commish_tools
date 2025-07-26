@@ -1,6 +1,5 @@
 # Manages league context editing for league owners
 class LeagueContextsController < ApplicationController
-  before_action :authenticate_user!
   before_action :set_league
   before_action :ensure_league_owner
 

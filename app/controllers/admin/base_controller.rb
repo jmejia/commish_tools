@@ -2,7 +2,6 @@
 
 module Admin
   class BaseController < ApplicationController
-    before_action :authenticate_user!
     before_action :require_super_admin!
 
     layout 'admin'

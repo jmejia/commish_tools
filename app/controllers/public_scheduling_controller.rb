@@ -4,8 +4,8 @@ class PublicSchedulingController < ApplicationController
   include RateLimitable
   include SpamProtectable
 
-  skip_before_action :authenticate_user!, raise: false
-  skip_before_action :verify_authenticity_token, raise: false
+  skip_before_action :authenticate_user!
+  skip_before_action :verify_authenticity_token
   before_action :set_poll_by_token
   before_action :check_poll_active
   before_action :apply_security_checks, only: [:create, :update]

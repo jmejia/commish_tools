@@ -1,5 +1,4 @@
 class VoiceUploadLinksController < ApplicationController
-  before_action :authenticate_user!
   before_action :set_voice_clone
   before_action :ensure_league_owner
 

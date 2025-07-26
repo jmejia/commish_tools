@@ -1,6 +1,5 @@
 # Manages press conference creation and management for league owners
 class PressConferencesController < ApplicationController
-  before_action :authenticate_user!
   before_action :set_league
   before_action :ensure_league_owner, only: [:new, :create, :edit, :update, :destroy]
   before_action :set_press_conference, only: [:show, :edit, :update, :destroy]

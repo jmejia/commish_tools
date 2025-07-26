@@ -3,14 +3,6 @@
 class ChatgptResponseGenerationJob < ApplicationJob
   queue_as :default
 
-  # Hardcoded league context for Phase 1
-  LEAGUE_CONTEXT = {
-    nature: "Fantasy football league with 12 competitive friends",
-    tone: "Humorous but competitive, with light trash talk",
-    rivalries: "Focus on season-long rivalries and recent matchups",
-    history: "League has been running for 5+ years with established personalities",
-    response_style: "Confident, slightly cocky, but good-natured",
-  }.freeze
 
   def perform(press_conference_id)
     press_conference = PressConference.find(press_conference_id)
@@ -20,6 +12,7 @@ class ChatgptResponseGenerationJob < ApplicationJob
 
     begin
       chatgpt_client = ChatgptClient.new
+      league_context = get_league_context(press_conference)
 
       # Update status to generating only after successful initialization
       press_conference.update!(status: :generating)
@@ -29,12 +22,12 @@ class ChatgptResponseGenerationJob < ApplicationJob
         Rails.logger.info "Generating response for question #{question.id}: #{question.question_text}"
 
         # Generate response using ChatGPT
-        response_text = chatgpt_client.generate_response(question.question_text, LEAGUE_CONTEXT)
+        response_text = chatgpt_client.generate_response(question.question_text, league_context)
 
         # Create the response record
         response = question.create_press_conference_response!(
           response_text: response_text,
-          generation_prompt: build_generation_prompt(question.question_text, LEAGUE_CONTEXT)
+          generation_prompt: build_generation_prompt(question.question_text, league_context)
         )
 
         Rails.logger.info "Generated response for question #{question.id}"
@@ -60,7 +53,25 @@ class ChatgptResponseGenerationJob < ApplicationJob
 
   private
 
+  def get_league_context(press_conference)
+    league_context = press_conference.league.league_context
+    
+    if league_context&.has_content?
+      league_context.structured_content
+    else
+      # Default fallback context
+      {
+        nature: "Fantasy football league with competitive players",
+        tone: "Humorous but competitive, with light trash talk",
+        rivalries: "Focus on season-long rivalries and recent matchups",
+        history: "League has been running with established personalities",
+        response_style: "Confident, slightly cocky, but good-natured"
+      }
+    end
+  end
+
   def build_generation_prompt(question, league_context)
-    "Question: #{question}\nLeague Context: #{league_context.values.join(', ')}"
+    context_summary = league_context.values.select(&:present?).join(', ')
+    "Question: #{question}\nLeague Context: #{context_summary}"
   end
 end

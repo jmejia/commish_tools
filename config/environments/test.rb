@@ -62,4 +62,13 @@ Rails.application.configure do
 
   # Raise error when a before_action's only/except options reference missing actions.
   config.action_controller.raise_on_missing_callback_actions = true
+
+  # Disable host authorization in test environment completely
+  config.host_authorization = { exclude: ->(request) { true } }
+  config.hosts << "localhost"
+  config.hosts << "127.0.0.1"
+  config.hosts << "www.example.com"
+
+  # Disable browser restrictions in test environment
+  config.browser = false
 end

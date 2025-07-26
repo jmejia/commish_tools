@@ -7,6 +7,7 @@ class League < ApplicationRecord
   has_many :users, through: :league_memberships
   has_many :press_conferences, dependent: :destroy
   has_many :voice_clones, through: :league_memberships
+  has_one :league_context, dependent: :destroy
 
   validates :sleeper_league_id, presence: true, uniqueness: true
   validates :name, presence: true, length: { maximum: 100 }

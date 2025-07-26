@@ -87,6 +87,7 @@ group :development, :test do
   # Testing framework
   gem "rspec-rails"
   gem "factory_bot_rails"
+  gem "shoulda-matchers"
 end
 
 group :development do

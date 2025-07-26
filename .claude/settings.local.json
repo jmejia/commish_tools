@@ -13,7 +13,27 @@
       "Bash(ls:*)",
       "Bash(bundle exec rspec:*)",
       "Bash(bundle install:*)",
-      "Bash(ffmpeg:*)"
+      "Bash(ffmpeg:*)",
+      "Bash(docker-compose:*)",
+      "Bash(docker compose:*)",
+      "Bash(docker:*)",
+      "Bash(colima start:*)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:docs.sleeper.com)",
+      "WebFetch(domain:github.com)",
+      "Bash(asdf install:*)",
+      "Bash(asdf reshim:*)",
+      "Bash(rvm install:*)",
+      "Bash(rvm use:*)",
+      "Bash(ruby --version)",
+      "Bash(bundle exec rails:*)",
+      "Bash(sudo service:*)",
+      "Bash(sudo systemctl start:*)",
+      "Bash(service:*)",
+      "Bash(sudo:*)",
+      "Bash(pg_ctl:*)",
+      "Bash(psql:*)",
+      "Bash(rm:*)"
     ],
     "deny": []
   }

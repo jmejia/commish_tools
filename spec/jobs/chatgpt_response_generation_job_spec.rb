@@ -62,18 +62,59 @@ RSpec.describe ChatgptResponseGenerationJob, type: :job do
       expect(responses.first.response_text).to include("mocked AI response")
     end
 
-    it 'uses league context when generating responses' do
+    it 'uses default league context when none available' do
       chatgpt_client = double('ChatgptClient')
       allow(ChatgptClient).to receive(:new).and_return(chatgpt_client)
       
+      default_context = {
+        nature: "Fantasy football league with competitive players",
+        tone: "Humorous but competitive, with light trash talk",
+        rivalries: "Focus on season-long rivalries and recent matchups",
+        history: "League has been running with established personalities",
+        response_style: "Confident, slightly cocky, but good-natured"
+      }
+      
       expect(chatgpt_client).to receive(:generate_response)
-        .with("How do you feel about your team?", hash_including(:nature, :tone, :response_style))
+        .with("How do you feel about your team?", default_context)
         .and_return("Response 1")
       expect(chatgpt_client).to receive(:generate_response)
-        .with("What's your strategy?", hash_including(:nature, :tone, :response_style))
+        .with("What's your strategy?", default_context)
         .and_return("Response 2")  
       expect(chatgpt_client).to receive(:generate_response)
-        .with("Any predictions?", hash_including(:nature, :tone, :response_style))
+        .with("Any predictions?", default_context)
+        .and_return("Response 3")
+      
+      described_class.perform_now(press_conference.id)
+    end
+
+    it 'uses custom league context when available' do
+      league_context = create(:league_context, league: league)
+      league_context.nature = "College friends league"
+      league_context.tone = "Friendly but competitive"
+      league_context.rivalries = "John vs Mike rivalry"
+      league_context.history = "5 year running league"
+      league_context.response_style = "Confident and witty"
+      league_context.save!
+      
+      chatgpt_client = double('ChatgptClient')
+      allow(ChatgptClient).to receive(:new).and_return(chatgpt_client)
+      
+      expected_context = {
+        nature: "College friends league",
+        tone: "Friendly but competitive", 
+        rivalries: "John vs Mike rivalry",
+        history: "5 year running league",
+        response_style: "Confident and witty"
+      }
+      
+      expect(chatgpt_client).to receive(:generate_response)
+        .with("How do you feel about your team?", expected_context)
+        .and_return("Response 1")
+      expect(chatgpt_client).to receive(:generate_response)
+        .with("What's your strategy?", expected_context)
+        .and_return("Response 2")  
+      expect(chatgpt_client).to receive(:generate_response)
+        .with("Any predictions?", expected_context)
         .and_return("Response 3")
       
       described_class.perform_now(press_conference.id)

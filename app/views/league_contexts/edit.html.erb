@@ -1,0 +1,180 @@
+<div class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+  <!-- Navigation -->
+  <nav class="px-6 py-4 border-b border-gray-800">
+    <div class="flex items-center justify-between max-w-6xl mx-auto">
+      <div class="flex items-center space-x-4">
+        <%= link_to root_path, class: "text-2xl font-bold text-white hover:text-cyan-400 transition-colors" do %>
+          CommishTools
+        <% end %>
+        <span class="text-gray-400">|</span>
+        <%= link_to leagues_path, class: "text-gray-400 hover:text-white transition-colors" do %>
+          My Leagues
+        <% end %>
+        <span class="text-gray-400">|</span>
+        <%= link_to dashboard_league_path(@league), class: "text-gray-400 hover:text-white transition-colors" do %>
+          <%= @league.name %>
+        <% end %>
+        <span class="text-gray-400">|</span>
+        <h1 class="text-xl font-semibold text-white">Edit League Context</h1>
+      </div>
+      
+      <div class="flex items-center space-x-4">
+        <%= link_to profile_path, class: "text-gray-400 hover:text-white transition-colors" do %>
+          👤 My Profile
+        <% end %>
+        <span class="text-white">Welcome, <%= current_user.first_name %>!</span>
+        <%= button_to 'Sign Out', destroy_user_session_path, method: :delete,
+            class: 'px-4 py-2 text-white hover:text-red-400 transition-colors bg-transparent border-none cursor-pointer' %>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Flash Messages -->
+  <% if flash.any? %>
+    <div class="px-6 py-4">
+      <div class="max-w-4xl mx-auto">
+        <% flash.each do |type, message| %>
+          <% flash_class = type == 'notice' ? 'bg-green-500/20 border-green-500/50 text-green-400' : 'bg-red-500/20 border-red-500/50 text-red-400' %>
+          <div class="<%= flash_class %> border rounded-lg p-4 mb-4">
+            <%= message %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Main Content -->
+  <div class="px-6 py-8">
+    <div class="max-w-4xl mx-auto">
+      
+      <!-- Header -->
+      <div class="mb-8">
+        <h2 class="text-3xl font-bold text-white mb-2">Edit League Context</h2>
+        <p class="text-gray-400">Share your league's history, rivalries, inside jokes, and traditions to enhance AI-generated press conferences</p>
+      </div>
+
+      <!-- Form -->
+      <div class="bg-gray-800/50 rounded-xl border border-gray-700 p-8">
+        <%= form_with model: [@league, @league_context], url: league_league_context_path(@league), method: :patch, local: true, class: "space-y-6" do |form| %>
+          
+          <!-- Error handling -->
+          <% if @league_context.errors.any? %>
+            <div class="bg-red-500/20 border border-red-500/50 text-red-400 rounded-lg p-4">
+              <h3 class="font-semibold mb-2">Please fix the following errors:</h3>
+              <ul class="list-disc list-inside space-y-1">
+                <% @league_context.errors.full_messages.each do |message| %>
+                  <li><%= message %></li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
+
+          <!-- Nature field -->
+          <div>
+            <%= form.label :nature, "League Nature", class: "block text-sm font-medium text-gray-300 mb-2" %>
+            <p class="text-sm text-gray-400 mb-3">
+              What type of league is this? (e.g., "Competitive friends from college", "Work colleagues", "Family league")
+            </p>
+            <%= form.text_area :nature, 
+                rows: 3,
+                placeholder: "Fantasy football league with 12 competitive friends from college",
+                class: "w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-vertical" %>
+            <p class="text-xs text-gray-500 mt-2">Maximum 1,000 characters</p>
+          </div>
+
+          <!-- Tone field -->
+          <div>
+            <%= form.label :tone, "League Tone", class: "block text-sm font-medium text-gray-300 mb-2" %>
+            <p class="text-sm text-gray-400 mb-3">
+              What's the vibe? (e.g., "Humorous but competitive", "Serious and strategic", "Casual and fun")
+            </p>
+            <%= form.text_area :tone, 
+                rows: 3,
+                placeholder: "Humorous but competitive, with light trash talk and friendly banter",
+                class: "w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-vertical" %>
+            <p class="text-xs text-gray-500 mt-2">Maximum 1,000 characters</p>
+          </div>
+
+          <!-- Rivalries field -->
+          <div>
+            <%= form.label :rivalries, "Rivalries & Drama", class: "block text-sm font-medium text-gray-300 mb-2" %>
+            <p class="text-sm text-gray-400 mb-3">
+              Who has beef? Any ongoing feuds, epic matchups, or recent drama?
+            </p>
+            <%= form.text_area :rivalries, 
+                rows: 3,
+                placeholder: "Team Awesome vs The Destroyers - bitter rivalry since 2019 championship. Mike always talks trash but hasn't won in 3 years.",
+                class: "w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-vertical" %>
+            <p class="text-xs text-gray-500 mt-2">Maximum 1,000 characters</p>
+          </div>
+
+          <!-- History field -->
+          <div>
+            <%= form.label :history, "League History", class: "block text-sm font-medium text-gray-300 mb-2" %>
+            <p class="text-sm text-gray-400 mb-3">
+              How long has this league been running? Any notable moments, champions, or traditions?
+            </p>
+            <%= form.text_area :history, 
+                rows: 4,
+                placeholder: "League has been running for 5+ years with the same core group. John won the first two championships, then Mike had a Cinderella run in 2022. We have a tradition where the last place team has to wear a tutu to the draft.",
+                class: "w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-vertical" %>
+            <p class="text-xs text-gray-500 mt-2">Maximum 1,000 characters</p>
+          </div>
+
+          <!-- Response Style field -->
+          <div>
+            <%= form.label :response_style, "Response Style", class: "block text-sm font-medium text-gray-300 mb-2" %>
+            <p class="text-sm text-gray-400 mb-3">
+              How should the AI respond? (e.g., "Confident and cocky", "Humble but determined", "Sarcastic and witty")
+            </p>
+            <%= form.text_area :response_style, 
+                rows: 3,
+                placeholder: "Confident, slightly cocky, but good-natured. Always optimistic about team chances.",
+                class: "w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-vertical" %>
+            <p class="text-xs text-gray-500 mt-2">Maximum 1,000 characters</p>
+          </div>
+
+          <!-- Action buttons -->
+          <div class="flex items-center justify-between pt-4">
+            <%= link_to dashboard_league_path(@league), 
+                class: "px-6 py-3 text-gray-400 hover:text-white border border-gray-600 hover:border-gray-500 rounded-lg transition-colors" do %>
+              Cancel
+            <% end %>
+            
+            <%= form.submit "Save Context", 
+                class: "px-8 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all" %>
+          </div>
+
+        <% end %>
+      </div>
+
+      <!-- Help section -->
+      <div class="mt-8 bg-gray-800/30 rounded-xl border border-gray-700/50 p-6">
+        <h3 class="text-lg font-semibold text-white mb-4">💡 Tips for Great League Context</h3>
+        <div class="grid md:grid-cols-2 gap-4 text-sm">
+          <div>
+            <h4 class="font-medium text-cyan-400 mb-2">Field Guidelines:</h4>
+            <ul class="text-gray-300 space-y-1">
+              <li>• <strong>Nature:</strong> Who's in your league?</li>
+              <li>• <strong>Tone:</strong> What's the vibe?</li>
+              <li>• <strong>Rivalries:</strong> Who has beef?</li>
+              <li>• <strong>History:</strong> League age & traditions</li>
+              <li>• <strong>Style:</strong> How should AI respond?</li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="font-medium text-cyan-400 mb-2">AI Enhancement:</h4>
+            <ul class="text-gray-300 space-y-1">
+              <li>• More context = better roasts</li>
+              <li>• Personal details make it funnier</li>
+              <li>• League traditions add personality</li>
+              <li>• Recent drama fuels press conferences</li>
+              <li>• Fill all fields for best results</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</div>

@@ -1,6 +1,14 @@
 require 'rails_helper'
 
 RSpec.describe "Press Conference Deletion Behavior", type: :model do
+  include ActiveJob::TestHelper
+
+  around(:each) do |example|
+    original_adapter = ActiveJob::Base.queue_adapter
+    ActiveJob::Base.queue_adapter = :test
+    example.run
+    ActiveJob::Base.queue_adapter = original_adapter
+  end
   let(:owner) { create(:user, first_name: "League", last_name: "Owner") }
   let(:member) { create(:user, first_name: "Team", last_name: "Member") }
   let(:league) { create(:league, owner: owner, name: "Test Fantasy League") }
@@ -135,10 +143,12 @@ RSpec.describe "Press Conference Deletion Behavior", type: :model do
       
       # Verify the specific blobs are scheduled for deletion
       blob_ids.each do |blob_id|
-        expect(ActiveJob::Base.queue_adapter.enqueued_jobs).to include(
+        expect(ActiveJob::Base.queue_adapter.enqueued_jobs.map(&:deep_stringify_keys)).to include(
           hash_including(
-            job: ActiveStorage::PurgeJob,
-            args: [hash_including("_aj_globalid" => "gid://commish-tools/ActiveStorage::Blob/#{blob_id}")]
+            "job_class" => "ActiveStorage::PurgeJob",
+            "arguments" => array_including(
+              hash_including("_aj_globalid" => "gid://commish-tools/ActiveStorage::Blob/#{blob_id}")
+            )
           )
         )
       end

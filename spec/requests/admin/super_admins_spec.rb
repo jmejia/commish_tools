@@ -1,6 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe 'Admin::SuperAdmins', type: :request do
+  before { host! 'localhost' }
+
   let(:admin_user) { create(:user) }
   let!(:admin) { create(:super_admin, user: admin_user) }
 

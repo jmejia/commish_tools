@@ -28,6 +28,8 @@ Rails.application.routes.draw do
       get :dashboard
     end
 
+    resource :league_context, only: [:edit, :update], path: 'context'
+
     resources :league_memberships, only: [:create, :destroy] do
       resources :voice_clones, except: [:index] do
         resources :voice_upload_links, only: [:index, :new, :create, :destroy], path: 'upload_links'

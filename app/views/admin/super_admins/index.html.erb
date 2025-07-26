@@ -6,9 +6,10 @@
     <% @super_admins.each do |super_admin| %>
       <li>
         <%= super_admin.user.display_name %> (<%= super_admin.user.email %>)
-        <%= link_to 'Remove', admin_super_admin_path(super_admin), 
-            method: :delete, 
-            confirm: "Are you sure you want to remove #{super_admin.user.display_name} as super admin?",
+        <%= button_to 'Remove', admin_super_admin_path(super_admin), 
+            method: :delete,
+            data: { turbo_confirm: "Are you sure you want to remove #{super_admin.user.display_name} as super admin?" },
+            class: 'inline-block',
             style: 'color: red; margin-left: 10px;' %>
       </li>
     <% end %>

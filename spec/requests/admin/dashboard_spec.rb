@@ -1,6 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe 'Admin::Dashboard', type: :request do
+  before { host! 'localhost' }
+
   describe 'GET /admin/dashboard' do
     context 'when user is not authenticated' do
       it 'redirects to sign in' do

@@ -3,7 +3,17 @@ require 'spec_helper'
 ENV['RAILS_ENV'] ||= 'test'
 require 'devise'
 require_relative '../config/environment'
-# require_relative '../config/routes' # Force route loading
+# Force route loading to ensure Devise mappings are available
+Rails.application.reload_routes!
+
+# Ensure routes are fully loaded for all tests
+RSpec.configure do |config|
+  config.before(:suite) do
+    Rails.application.routes.disable_clear_and_finalize = true
+    Rails.application.routes.clear!
+    Rails.application.reload_routes!
+  end
+end
 # Prevent database truncation if the environment is production
 abort("The Rails environment is running in production mode!") if Rails.env.production?
 # Uncomment the line below in case you have `--require rails_helper` in the `.rspec` file
@@ -44,6 +54,11 @@ RSpec.configure do |config|
   config.fixture_paths = [
     Rails.root.join('spec/fixtures'),
   ]
+
+  # Disable CSRF token validation for request specs
+  config.before(:each, type: :request) do
+    allow_any_instance_of(ActionController::Base).to receive(:verify_authenticity_token).and_return(true)
+  end
 
   # Database Cleaner configuration - replaces use_transactional_fixtures
   # We use Database Cleaner instead of transactional fixtures for better control
@@ -100,10 +115,20 @@ RSpec.configure do |config|
   # Devise test helpers for different spec types
   config.include Devise::Test::ControllerHelpers, type: :controller
   config.include Devise::Test::IntegrationHelpers, type: :request
+  config.include Devise::Test::IntegrationHelpers, type: :feature
   config.include Devise::Test::ControllerHelpers, type: :view
   config.include Rails.application.routes.url_helpers
+  config.include Rails.application.routes.url_helpers, type: :feature
 
   # Ensure routes are loaded before tests
   # Include the devise support file
   require_relative 'support/devise_helpers'
+end
+
+# Configure shoulda-matchers
+Shoulda::Matchers.configure do |config|
+  config.integrate do |with|
+    with.test_framework :rspec
+    with.library :rails
+  end
 end

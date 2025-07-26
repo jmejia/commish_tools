@@ -96,6 +96,73 @@
         </div>
       </div>
 
+      <!-- League Context -->
+      <div class="bg-gray-800/50 rounded-xl border border-gray-700 p-6 mb-8">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-xl font-bold text-white">League Context</h3>
+          <% if @league_membership&.owner? %>
+            <% if @league.league_context&.has_content? %>
+              <%= link_to edit_league_league_context_path(@league), 
+                  class: 'px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all' do %>
+                Edit League Context
+              <% end %>
+            <% else %>
+              <%= link_to edit_league_league_context_path(@league), 
+                  class: 'px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all' do %>
+                Add League Context
+              <% end %>
+            <% end %>
+          <% end %>
+        </div>
+        
+        <% if @league.league_context&.has_content? %>
+          <div class="bg-gray-700/50 rounded-lg p-4 border border-gray-600 space-y-4">
+            <% if @league.league_context.nature.present? %>
+              <div>
+                <h4 class="text-sm font-semibold text-cyan-400 mb-1">League Nature</h4>
+                <p class="text-gray-300 text-sm"><%= @league.league_context.nature %></p>
+              </div>
+            <% end %>
+            <% if @league.league_context.tone.present? %>
+              <div>
+                <h4 class="text-sm font-semibold text-cyan-400 mb-1">League Tone</h4>
+                <p class="text-gray-300 text-sm"><%= @league.league_context.tone %></p>
+              </div>
+            <% end %>
+            <% if @league.league_context.rivalries.present? %>
+              <div>
+                <h4 class="text-sm font-semibold text-cyan-400 mb-1">Rivalries & Drama</h4>
+                <p class="text-gray-300 text-sm"><%= @league.league_context.rivalries %></p>
+              </div>
+            <% end %>
+            <% if @league.league_context.history.present? %>
+              <div>
+                <h4 class="text-sm font-semibold text-cyan-400 mb-1">League History</h4>
+                <p class="text-gray-300 text-sm"><%= @league.league_context.history %></p>
+              </div>
+            <% end %>
+            <% if @league.league_context.response_style.present? %>
+              <div>
+                <h4 class="text-sm font-semibold text-cyan-400 mb-1">Response Style</h4>
+                <p class="text-gray-300 text-sm"><%= @league.league_context.response_style %></p>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="text-center py-8">
+            <div class="text-4xl mb-4">📝</div>
+            <h4 class="text-xl font-semibold text-white mb-2">Add custom context about your league</h4>
+            <p class="text-gray-400 mb-6">Share league history, rivalries, inside jokes, and traditions to enhance AI-generated press conferences!</p>
+            <% if @league_membership&.owner? %>
+              <%= link_to edit_league_league_context_path(@league), 
+                  class: 'px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all' do %>
+                Add League Context
+              <% end %>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+
       <!-- Recent Press Conferences -->
       <div class="bg-gray-800/50 rounded-xl border border-gray-700 p-6 mb-8">
         <div class="flex items-center justify-between mb-6">

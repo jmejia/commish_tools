@@ -4,7 +4,7 @@ RSpec.describe SchedulingPollsController, type: :controller do
   let(:user) { create(:user) }
   let(:league) { create(:league, owner: user) }
   let(:other_user) { create(:user) }
-  
+
   before { sign_in user }
 
   describe 'GET #new' do
@@ -34,16 +34,16 @@ RSpec.describe SchedulingPollsController, type: :controller do
         event_type: 'draft',
         event_time_slots_attributes: {
           '0' => { starts_at: 3.days.from_now, duration_minutes: 180 },
-          '1' => { starts_at: 4.days.from_now, duration_minutes: 180 }
-        }
+          '1' => { starts_at: 4.days.from_now, duration_minutes: 180 },
+        },
       }
     end
 
     context 'with valid params' do
       it 'creates a new scheduling poll' do
-        expect {
+        expect do
           post :create, params: { league_id: league.id, scheduling_poll: valid_attributes }
-        }.to change(SchedulingPoll, :count).by(1)
+        end.to change(SchedulingPoll, :count).by(1)
       end
 
       it 'creates associated time slots' do
@@ -63,9 +63,9 @@ RSpec.describe SchedulingPollsController, type: :controller do
     context 'with invalid params' do
       it 'does not create a poll with invalid event type' do
         invalid_attributes = valid_attributes.merge(event_type: 'invalid_type')
-        expect {
+        expect do
           post :create, params: { league_id: league.id, scheduling_poll: invalid_attributes }
-        }.not_to change(SchedulingPoll, :count)
+        end.not_to change(SchedulingPoll, :count)
       end
 
       it 're-renders the new template' do

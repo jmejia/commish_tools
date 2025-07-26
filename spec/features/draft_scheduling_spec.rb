@@ -18,7 +18,7 @@ RSpec.feature 'Draft Scheduling', type: :feature do
     fill_in 'Title', with: '2025 Fantasy Draft Scheduling'
     fill_in 'Description', with: 'Please select all times that work for you!'
 
-    # Add time slots - fill in the existing 3 time slots  
+    # Add time slots - fill in the existing 3 time slots
     first_datetime = 3.days.from_now.change(hour: 19, min: 0)
     second_datetime = 4.days.from_now.change(hour: 19, min: 0)
     third_datetime = 5.days.from_now.change(hour: 19, min: 0)
@@ -31,9 +31,9 @@ RSpec.feature 'Draft Scheduling', type: :feature do
     datetime_strings = [
       first_datetime.strftime('%Y-%m-%dT%H:%M'),
       second_datetime.strftime('%Y-%m-%dT%H:%M'),
-      third_datetime.strftime('%Y-%m-%dT%H:%M')
+      third_datetime.strftime('%Y-%m-%dT%H:%M'),
     ]
-    
+
     # Fill all datetime inputs that exist
     all('input[type="datetime-local"]').each_with_index do |input, index|
       if index < datetime_strings.length
@@ -41,11 +41,11 @@ RSpec.feature 'Draft Scheduling', type: :feature do
         input.set(datetime_strings[index])
       end
     end
-    
+
     all('select[name*="duration_minutes"]').each do |select|
       select.select("3 hours")
     end
-    
+
     # Create the poll
     click_button 'Create Poll'
 

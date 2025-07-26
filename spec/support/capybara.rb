@@ -35,7 +35,7 @@ Capybara.register_driver :headless_firefox do |app|
   options.add_argument('-headless')
   options.add_argument('--width=1400')
   options.add_argument('--height=1400')
-  
+
   # Add preferences to avoid crashes
   options.add_preference('dom.ipc.processCount', 1)
   options.add_preference('javascript.options.showInConsole', false)

@@ -10,17 +10,17 @@ RSpec.describe SchedulingPoll, type: :model do
 
   describe 'validations' do
     subject { build(:scheduling_poll) }
-    
+
     it 'validates title presence' do
       poll = build(:scheduling_poll, title: '', event_type: 'draft')
       expect(poll).not_to be_valid
       expect(poll.errors[:title]).to include("can't be blank")
-      
+
       poll.title = nil
       expect(poll).not_to be_valid
       expect(poll.errors[:title]).to include("can't be blank")
     end
-    
+
     it { should validate_length_of(:title).is_at_most(100) }
     it { should validate_presence_of(:event_type) }
     it { should validate_inclusion_of(:event_type).in_array(['draft']) }
@@ -45,14 +45,13 @@ RSpec.describe SchedulingPoll, type: :model do
       it 'ensures token uniqueness' do
         existing_poll = create(:scheduling_poll)
         new_poll = build(:scheduling_poll)
-        
+
         allow(SecureRandom).to receive(:urlsafe_base64).and_return(existing_poll.public_token, 'unique_token')
-        
+
         new_poll.save!
         expect(new_poll.public_token).to eq('unique_token')
       end
     end
-
   end
 
   describe '#response_rate' do

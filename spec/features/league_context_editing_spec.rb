@@ -79,11 +79,13 @@ RSpec.describe 'League Context Editing', type: :feature do
         expect(page).to have_field('League Nature', with: 'Competitive friends league')
         expect(page).to have_field('League Tone', with: 'Friendly but serious')
         expect(page).to have_field('Rivalries & Drama', with: 'John vs Mike rivalry')
-        expect(page).to have_field('League History', with: 'Our league has been running for 3 years with the same core group')
+        expect(page).to have_field('League History',
+with: 'Our league has been running for 3 years with the same core group')
         expect(page).to have_field('Response Style', with: 'Confident and witty')
 
         # Update the context
-        fill_in 'League History', with: 'Our league has been running for 4 years now! We have epic rivalries and the trophy has changed hands multiple times.'
+        fill_in 'League History',
+with: 'Our league has been running for 4 years now! We have epic rivalries and the trophy has changed hands multiple times.'
         fill_in 'League Tone', with: 'Very competitive with lots of trash talk'
 
         click_button 'Save Context'
@@ -105,7 +107,7 @@ RSpec.describe 'League Context Editing', type: :feature do
         fill_in 'Rivalries & Drama', with: ''
         fill_in 'League History', with: ''
         fill_in 'Response Style', with: ''
-        
+
         click_button 'Save Context'
 
         expect(page).to have_current_path(dashboard_league_path(league))

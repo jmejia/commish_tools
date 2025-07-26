@@ -2,14 +2,15 @@
 # Tracks who responded and their availability for each time slot
 class SchedulingResponse < ApplicationRecord
   # Result object for response recording operations
-  RecordingResult = Struct.new(:success?, :response, :message, :error, :redirect_path, :notice, :time_slots, keyword_init: true)
+  RecordingResult = Struct.new(:success?, :response, :message, :error, :redirect_path, :notice, :time_slots,
+keyword_init: true)
 
   belongs_to :scheduling_poll
   has_many :slot_availabilities, dependent: :destroy
 
   validates :respondent_name, presence: true, length: { maximum: 50 }
   validates :respondent_identifier, presence: true, uniqueness: { scope: :scheduling_poll_id }
-  
+
   # Add input sanitization to prevent XSS attacks
   before_validation :sanitize_respondent_name
 
@@ -20,7 +21,7 @@ class SchedulingResponse < ApplicationRecord
   def self.record_public_response(poll:, params:, request:, notice_message:)
     # Security: Sanitize input parameters early
     sanitized_params = sanitize_response_params(params)
-    
+
     recording_result = record_response_for_poll(
       poll: poll,
       params: sanitized_params.merge(
@@ -54,7 +55,7 @@ class SchedulingResponse < ApplicationRecord
 
     ActiveRecord::Base.transaction do
       response = find_or_initialize_response_for_poll(poll, params)
-      
+
       if update_response_with_availabilities(response, params)
         Rails.logger.info "Response recorded successfully for poll #{poll.id}"
         success_result(response: response, message: "Your availability has been recorded!")
@@ -99,10 +100,10 @@ class SchedulingResponse < ApplicationRecord
   # Input sanitization to prevent XSS attacks
   def sanitize_respondent_name
     return unless respondent_name.present?
-    
+
     # Strip HTML tags and excessive whitespace
     self.respondent_name = ActionController::Base.helpers.strip_tags(respondent_name).strip
-    
+
     # Limit length and remove potentially harmful characters
     self.respondent_name = respondent_name.gsub(/[<>&"']/, '').truncate(50)
   end
@@ -110,19 +111,19 @@ class SchedulingResponse < ApplicationRecord
   # Class-level input sanitization
   def self.sanitize_response_params(params)
     sanitized = params.dup
-    
+
     if sanitized[:respondent_name].present?
       # Strip HTML tags and harmful characters
       name = ActionController::Base.helpers.strip_tags(sanitized[:respondent_name]).strip
       sanitized[:respondent_name] = name.gsub(/[<>&"']/, '').truncate(50)
     end
-    
+
     sanitized
   end
 
   def self.find_or_initialize_response_for_poll(poll, params)
     identifier = generate_response_identifier(params[:respondent_name], poll.id)
-    
+
     poll.scheduling_responses.find_or_initialize_by(
       respondent_identifier: identifier
     ).tap do |response|

@@ -7,7 +7,7 @@ RSpec.describe LeagueContext, type: :model do
 
   describe 'validations' do
     subject { build(:league_context) }
-    
+
     it { should validate_length_of(:nature).is_at_most(1000) }
     it { should validate_length_of(:tone).is_at_most(1000) }
     it { should validate_length_of(:rivalries).is_at_most(1000) }
@@ -66,7 +66,7 @@ RSpec.describe LeagueContext, type: :model do
     it 'returns a hash with all content fields' do
       league_context = build(:league_context)
       result = league_context.structured_content
-      
+
       expect(result).to be_a(Hash)
       expect(result.keys).to eq([:nature, :tone, :rivalries, :history, :response_style])
       expect(result[:nature]).to eq(league_context.nature)
@@ -98,7 +98,7 @@ RSpec.describe LeagueContext, type: :model do
     it 'rejects fields that are too long' do
       league_context = LeagueContext.new(league: league)
       league_context.nature = 'A' * 1001
-      
+
       expect(league_context).not_to be_valid
       expect(league_context.errors[:nature]).to include('is too long (maximum is 1000 characters)')
     end
@@ -106,7 +106,7 @@ RSpec.describe LeagueContext, type: :model do
     it 'allows fields at the maximum length' do
       league_context = LeagueContext.new(league: league)
       league_context.nature = 'A' * 1000
-      
+
       expect(league_context).to be_valid
     end
   end
@@ -116,7 +116,7 @@ RSpec.describe LeagueContext, type: :model do
 
     it 'allows only one context per league' do
       create(:league_context, league: league)
-      
+
       duplicate_context = build(:league_context, league: league)
       expect(duplicate_context).not_to be_valid
       expect(duplicate_context.errors[:league_id]).to include('has already been taken')
@@ -125,10 +125,10 @@ RSpec.describe LeagueContext, type: :model do
     it 'allows different leagues to have their own contexts' do
       league1 = create(:league)
       league2 = create(:league, sleeper_league_id: 'different_id')
-      
+
       context1 = create(:league_context, league: league1)
       context2 = build(:league_context, league: league2)
-      
+
       expect(context1).to be_valid
       expect(context2).to be_valid
     end

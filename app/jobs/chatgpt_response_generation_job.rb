@@ -3,7 +3,6 @@
 class ChatgptResponseGenerationJob < ApplicationJob
   queue_as :default
 
-
   def perform(press_conference_id)
     press_conference = PressConference.find(press_conference_id)
     original_status = press_conference.status
@@ -55,7 +54,7 @@ class ChatgptResponseGenerationJob < ApplicationJob
 
   def get_league_context(press_conference)
     league_context = press_conference.league.league_context
-    
+
     if league_context&.has_content?
       league_context.structured_content
     else
@@ -65,7 +64,7 @@ class ChatgptResponseGenerationJob < ApplicationJob
         tone: "Humorous but competitive, with light trash talk",
         rivalries: "Focus on season-long rivalries and recent matchups",
         history: "League has been running with established personalities",
-        response_style: "Confident, slightly cocky, but good-natured"
+        response_style: "Confident, slightly cocky, but good-natured",
       }
     end
   end

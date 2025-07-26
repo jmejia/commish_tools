@@ -65,7 +65,7 @@ class PressConference < ApplicationRecord
       responses_count: press_conference_responses.count,
       has_final_audio: final_audio.attached?,
       question_audio_count: press_conference_questions.joins(:question_audio_attachment).count,
-      response_audio_count: press_conference_responses.joins(:response_audio_attachment).count
+      response_audio_count: press_conference_responses.joins(:response_audio_attachment).count,
     }
   end
 

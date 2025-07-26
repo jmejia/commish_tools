@@ -18,15 +18,15 @@ class SchedulingPoll < ApplicationRecord
       draft: 'Draft',
       playoffs: 'Playoffs',
       championship: 'Championship',
-      meeting: 'League Meeting'
+      meeting: 'League Meeting',
     }
-  rescue StandardError
-    {
-      draft: 'Draft',
-      playoffs: 'Playoffs',
-      championship: 'Championship',
-      meeting: 'League Meeting'
-    }
+                rescue StandardError
+                  {
+                    draft: 'Draft',
+                    playoffs: 'Playoffs',
+                    championship: 'Championship',
+                    meeting: 'League Meeting',
+                  }
   end.freeze
 
   before_create :generate_public_token
@@ -40,7 +40,9 @@ class SchedulingPoll < ApplicationRecord
   scope :active_for_league, ->(league) { where(league: league, status: :active) }
   scope :with_responses, -> { includes(scheduling_responses: { slot_availabilities: :event_time_slot }) }
   scope :with_time_slots, -> { includes(:event_time_slots) }
-  scope :with_full_data, -> { includes(:event_time_slots, scheduling_responses: { slot_availabilities: :event_time_slot }) }
+  scope :with_full_data, -> {
+    includes(:event_time_slots, scheduling_responses: { slot_availabilities: :event_time_slot })
+  }
 
   # Domain method to create a poll with proper validation and error handling
   # Replaces PollCreator service object
@@ -77,17 +79,17 @@ class SchedulingPoll < ApplicationRecord
     # Use a single optimized query to avoid N+1 issues
     # Select all columns from event_time_slots and order by availability counts
     # Convert to array to ensure proper behavior with .count
-    event_time_slots
-      .select("event_time_slots.*")
-      .joins("LEFT JOIN slot_availabilities ON slot_availabilities.event_time_slot_id = event_time_slots.id")
-      .group("event_time_slots.id")
-      .order(
+    event_time_slots.
+      select("event_time_slots.*").
+      joins("LEFT JOIN slot_availabilities ON slot_availabilities.event_time_slot_id = event_time_slots.id").
+      group("event_time_slots.id").
+      order(
         Arel.sql("SUM(CASE WHEN slot_availabilities.availability = 2 THEN 1 ELSE 0 END) DESC"),
         Arel.sql("SUM(CASE WHEN slot_availabilities.availability = 1 THEN 1 ELSE 0 END) DESC"),
         :starts_at
-      )
-      .limit(limit)
-      .to_a
+      ).
+      limit(limit).
+      to_a
   end
 
   def default_duration_minutes
@@ -107,7 +109,8 @@ class SchedulingPoll < ApplicationRecord
 
   def public_url
     # In development/test, use a default host if not configured
-    host = Rails.application.config.action_mailer.default_url_options&.fetch(:host, 'localhost:3000') || 'localhost:3000'
+    host = Rails.application.config.action_mailer.default_url_options&.fetch(:host,
+'localhost:3000') || 'localhost:3000'
     Rails.application.routes.url_helpers.public_scheduling_url(
       token: public_token,
       host: host

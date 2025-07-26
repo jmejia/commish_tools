@@ -9,7 +9,7 @@ RSpec.describe ChatgptClient do
       tone: "Humorous but competitive, with light trash talk",
       rivalries: "Focus on season-long rivalries and recent matchups",
       history: "League has been running for 5+ years with established personalities",
-      response_style: "Confident, slightly cocky, but good-natured"
+      response_style: "Confident, slightly cocky, but good-natured",
     }
   end
 
@@ -21,10 +21,10 @@ RSpec.describe ChatgptClient do
           "choices" => [
             {
               "message" => {
-                "content" => "Listen, my team's performance this week? Absolutely dominant! While you scrubs were struggling to get double digits, I was out here putting up numbers that would make Tom Brady jealous. My roster is stacked, my strategy is flawless, and my opponents? Well, let's just say they're learning what it means to face a fantasy football legend. This week was just a preview of the championship run I'm about to unleash on this league!"
-              }
-            }
-          ]
+                "content" => "Listen, my team's performance this week? Absolutely dominant! While you scrubs were struggling to get double digits, I was out here putting up numbers that would make Tom Brady jealous. My roster is stacked, my strategy is flawless, and my opponents? Well, let's just say they're learning what it means to face a fantasy football legend. This week was just a preview of the championship run I'm about to unleash on this league!",
+              },
+            },
+          ],
         }
 
         mock_client = double('OpenAI::Client')
@@ -45,23 +45,23 @@ RSpec.describe ChatgptClient do
         allow(OpenAI::Client).to receive(:new).and_return(mock_client)
         allow(mock_client).to receive(:chat).and_raise(StandardError.new("API Error"))
 
-        expect {
+        expect do
           client.generate_response(question, league_context)
-        }.to raise_error(ChatgptClient::GenerationError, /Failed to generate response/)
+        end.to raise_error(ChatgptClient::GenerationError, /Failed to generate response/)
       end
     end
 
     context 'when OpenAI API returns unexpected format' do
       it 'handles missing choices gracefully' do
         openai_response = { "choices" => [] }
-        
+
         mock_client = double('OpenAI::Client')
         allow(OpenAI::Client).to receive(:new).and_return(mock_client)
         allow(mock_client).to receive(:chat).and_return(openai_response)
 
-        expect {
+        expect do
           client.generate_response(question, league_context)
-        }.to raise_error(ChatgptClient::GenerationError, /No response generated/)
+        end.to raise_error(ChatgptClient::GenerationError, /No response generated/)
       end
     end
   end
@@ -69,11 +69,11 @@ RSpec.describe ChatgptClient do
   describe '#build_prompt' do
     it 'constructs a prompt with league context and question' do
       prompt = client.send(:build_prompt, question, league_context)
-      
+
       expect(prompt).to include("Fantasy football league")
       expect(prompt).to include("Humorous but competitive")
       expect(prompt).to include("Confident, slightly cocky")
       expect(prompt).to include(question)
     end
   end
-end 
+end

@@ -43,7 +43,7 @@ RSpec.describe VoiceClone, type: :model do
     end
 
     it 'requires unique league_membership_id' do
-      existing = create(:voice_clone, :with_audio_file, league_membership: league_membership)
+      create(:voice_clone, :with_audio_file, league_membership: league_membership)
       new_clone = build(:voice_clone, league_membership: league_membership)
       expect(new_clone).not_to be_valid
       expect(new_clone.errors[:league_membership_id]).to include("has already been taken")

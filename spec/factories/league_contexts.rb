@@ -1,7 +1,7 @@
 FactoryBot.define do
   factory :league_context do
     association :league
-    
+
     # Set up basic structured content
     after(:build) do |league_context|
       league_context.nature = "Fantasy football league with competitive friends"

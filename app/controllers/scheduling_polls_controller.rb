@@ -20,6 +20,9 @@ class SchedulingPollsController < ApplicationController
     3.times { @poll.event_time_slots.build }
   end
 
+  def edit
+  end
+
   def create
     result = SchedulingPoll.create_for_league(
       league: @league,
@@ -35,9 +38,6 @@ class SchedulingPollsController < ApplicationController
       flash.now[:alert] = result.error
       render :new, status: :unprocessable_entity
     end
-  end
-
-  def edit
   end
 
   def update

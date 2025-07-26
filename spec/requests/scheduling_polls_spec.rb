@@ -29,16 +29,16 @@ RSpec.describe 'SchedulingPolls', type: :request do
         event_type: 'draft',
         event_time_slots_attributes: {
           '0' => { starts_at: 3.days.from_now, duration_minutes: 180 },
-          '1' => { starts_at: 4.days.from_now, duration_minutes: 180 }
-        }
+          '1' => { starts_at: 4.days.from_now, duration_minutes: 180 },
+        },
       }
     end
 
     context 'with valid params' do
       it 'creates a new scheduling poll' do
-        expect {
+        expect do
           post league_scheduling_polls_path(league), params: { scheduling_poll: valid_attributes }
-        }.to change(SchedulingPoll, :count).by(1)
+        end.to change(SchedulingPoll, :count).by(1)
       end
 
       it 'creates associated time slots' do
@@ -57,9 +57,9 @@ RSpec.describe 'SchedulingPolls', type: :request do
     context 'with invalid params' do
       it 'does not create a poll without title' do
         invalid_attributes = valid_attributes.merge(title: '')
-        expect {
+        expect do
           post league_scheduling_polls_path(league), params: { scheduling_poll: invalid_attributes }
-        }.not_to change(SchedulingPoll, :count)
+        end.not_to change(SchedulingPoll, :count)
       end
     end
   end

@@ -9,7 +9,7 @@ FactoryBot.define do
     trait :with_audio_file do
       after(:build) do |voice_clone|
         # Create a file that's at least 1MB for validation
-        audio_content = "fake audio content" * 100000  # Approximately 1.9MB
+        audio_content = "fake audio content" * 100000 # Approximately 1.9MB
         voice_clone.audio_file.attach(
           io: StringIO.new(audio_content),
           filename: "sample.mp3",

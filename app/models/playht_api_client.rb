@@ -53,19 +53,19 @@ class PlayhtApiClient
       voice_engine: "Play3.0-mini",
       output_format: "mp3",
       speed: 1.0,
-      sample_rate: 24000
+      sample_rate: 24000,
     }
-    
+
     body = default_options.merge(options).merge(
       text: text,
       voice: voice
     )
-    
+
     response = @connection.post('tts/stream') do |req|
       req.headers['Accept'] = 'audio/mpeg'
       req.body = body
     end
-    
+
     # Return the binary audio data
     response.body
   end
@@ -80,19 +80,19 @@ class PlayhtApiClient
       voice_engine: "Play3.0-mini",
       output_format: "mp3",
       speed: 1.0,
-      sample_rate: 24000
+      sample_rate: 24000,
     }
-    
+
     body = default_options.merge(options).merge(
       text: text,
       voice: voice
     )
-    
+
     response = @connection.post('tts/stream') do |req|
       req.headers['Accept'] = 'audio/mpeg'
       req.body = body
     end
-    
+
     # Return the binary audio data
     response.body
   end

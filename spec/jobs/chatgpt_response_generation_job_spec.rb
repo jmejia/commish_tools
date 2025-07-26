@@ -10,20 +10,20 @@ RSpec.describe ChatgptResponseGenerationJob, type: :job do
     create(:press_conference, league: league, target_manager: target_member, status: :draft)
   end
   let!(:question_1) do
-    create(:press_conference_question, 
-           press_conference: press_conference, 
+    create(:press_conference_question,
+           press_conference: press_conference,
            question_text: "How do you feel about your team?",
            order_index: 1)
   end
   let!(:question_2) do
-    create(:press_conference_question, 
-           press_conference: press_conference, 
+    create(:press_conference_question,
+           press_conference: press_conference,
            question_text: "What's your strategy?",
            order_index: 2)
   end
   let!(:question_3) do
-    create(:press_conference_question, 
-           press_conference: press_conference, 
+    create(:press_conference_question,
+           press_conference: press_conference,
            question_text: "Any predictions?",
            order_index: 3)
   end
@@ -44,10 +44,10 @@ RSpec.describe ChatgptResponseGenerationJob, type: :job do
 
     it 'creates responses in the correct order' do
       described_class.perform_now(press_conference.id)
-      
-      responses = press_conference.press_conference_responses.joins(:press_conference_question)
-                                 .order('press_conference_questions.order_index')
-      
+
+      responses = press_conference.press_conference_responses.joins(:press_conference_question).
+        order('press_conference_questions.order_index')
+
       expect(responses.count).to eq(3)
       expect(responses.first.press_conference_question).to eq(question_1)
       expect(responses.second.press_conference_question).to eq(question_2)
@@ -56,7 +56,7 @@ RSpec.describe ChatgptResponseGenerationJob, type: :job do
 
     it 'stores the generated response text' do
       described_class.perform_now(press_conference.id)
-      
+
       responses = press_conference.press_conference_responses
       expect(responses.all? { |r| r.response_text.present? }).to be true
       expect(responses.first.response_text).to include("mocked AI response")
@@ -65,25 +65,25 @@ RSpec.describe ChatgptResponseGenerationJob, type: :job do
     it 'uses default league context when none available' do
       chatgpt_client = double('ChatgptClient')
       allow(ChatgptClient).to receive(:new).and_return(chatgpt_client)
-      
+
       default_context = {
         nature: "Fantasy football league with competitive players",
         tone: "Humorous but competitive, with light trash talk",
         rivalries: "Focus on season-long rivalries and recent matchups",
         history: "League has been running with established personalities",
-        response_style: "Confident, slightly cocky, but good-natured"
+        response_style: "Confident, slightly cocky, but good-natured",
       }
-      
-      expect(chatgpt_client).to receive(:generate_response)
-        .with("How do you feel about your team?", default_context)
-        .and_return("Response 1")
-      expect(chatgpt_client).to receive(:generate_response)
-        .with("What's your strategy?", default_context)
-        .and_return("Response 2")  
-      expect(chatgpt_client).to receive(:generate_response)
-        .with("Any predictions?", default_context)
-        .and_return("Response 3")
-      
+
+      expect(chatgpt_client).to receive(:generate_response).
+        with("How do you feel about your team?", default_context).
+        and_return("Response 1")
+      expect(chatgpt_client).to receive(:generate_response).
+        with("What's your strategy?", default_context).
+        and_return("Response 2")
+      expect(chatgpt_client).to receive(:generate_response).
+        with("Any predictions?", default_context).
+        and_return("Response 3")
+
       described_class.perform_now(press_conference.id)
     end
 
@@ -95,28 +95,28 @@ RSpec.describe ChatgptResponseGenerationJob, type: :job do
       league_context.history = "5 year running league"
       league_context.response_style = "Confident and witty"
       league_context.save!
-      
+
       chatgpt_client = double('ChatgptClient')
       allow(ChatgptClient).to receive(:new).and_return(chatgpt_client)
-      
+
       expected_context = {
         nature: "College friends league",
-        tone: "Friendly but competitive", 
+        tone: "Friendly but competitive",
         rivalries: "John vs Mike rivalry",
         history: "5 year running league",
-        response_style: "Confident and witty"
+        response_style: "Confident and witty",
       }
-      
-      expect(chatgpt_client).to receive(:generate_response)
-        .with("How do you feel about your team?", expected_context)
-        .and_return("Response 1")
-      expect(chatgpt_client).to receive(:generate_response)
-        .with("What's your strategy?", expected_context)
-        .and_return("Response 2")  
-      expect(chatgpt_client).to receive(:generate_response)
-        .with("Any predictions?", expected_context)
-        .and_return("Response 3")
-      
+
+      expect(chatgpt_client).to receive(:generate_response).
+        with("How do you feel about your team?", expected_context).
+        and_return("Response 1")
+      expect(chatgpt_client).to receive(:generate_response).
+        with("What's your strategy?", expected_context).
+        and_return("Response 2")
+      expect(chatgpt_client).to receive(:generate_response).
+        with("Any predictions?", expected_context).
+        and_return("Response 3")
+
       described_class.perform_now(press_conference.id)
     end
 
@@ -128,8 +128,8 @@ RSpec.describe ChatgptResponseGenerationJob, type: :job do
 
     context 'when ChatGPT API fails' do
       before do
-        allow_any_instance_of(ChatgptClient).to receive(:generate_response)
-          .and_raise(ChatgptClient::GenerationError, "API Error")
+        allow_any_instance_of(ChatgptClient).to receive(:generate_response).
+          and_raise(ChatgptClient::GenerationError, "API Error")
       end
 
       it 'does not create any responses' do
@@ -157,4 +157,4 @@ RSpec.describe ChatgptResponseGenerationJob, type: :job do
       end
     end
   end
-end 
+end

@@ -21,13 +21,13 @@ module SpamProtectable
       return true if text_fields.empty?
 
       text_content = text_fields.map { |field| params[field].to_s }.join(' ')
-      
+
       # Check for common spam indicators
       spam_indicators = [
-        /https?:\/\/[^\s]+/i,  # URLs
-        /\b(?:viagra|cialis|pharmacy|casino|poker)\b/i,  # Common spam words
-        /[A-Z]{10,}/,  # Excessive caps
-        /(.)\1{5,}/    # Repeated characters
+        /https?:\/\/[^\s]+/i, # URLs
+        /\b(?:viagra|cialis|pharmacy|casino|poker)\b/i, # Common spam words
+        /[A-Z]{10,}/, # Excessive caps
+        /(.)\1{5,}/, # Repeated characters
       ]
 
       if spam_indicators.any? { |pattern| text_content.match?(pattern) }
@@ -71,11 +71,11 @@ module SpamProtectable
     def render_spam_detected
       respond_to do |format|
         format.html do
-          render plain: 'Submission rejected. Please try again.', 
+          render plain: 'Submission rejected. Please try again.',
                  status: :unprocessable_entity
         end
         format.json do
-          render json: { error: 'Submission rejected' }, 
+          render json: { error: 'Submission rejected' },
                  status: :unprocessable_entity
         end
       end

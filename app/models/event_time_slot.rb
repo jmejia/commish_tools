@@ -18,7 +18,7 @@ class EventTimeSlot < ApplicationRecord
     {
       available: availabilities[2] || 0,
       maybe: availabilities[1] || 0,
-      unavailable: availabilities[0] || 0
+      unavailable: availabilities[0] || 0,
     }
   end
 

@@ -21,12 +21,12 @@ FactoryBot.define do
       after(:create) do |poll|
         create_list(:event_time_slot, 3, scheduling_poll: poll)
         3.times do |i|
-          response = create(:scheduling_response, 
+          response = create(:scheduling_response,
                           scheduling_poll: poll,
                           respondent_name: "Member #{i + 1}")
-          
+
           poll.event_time_slots.each do |slot|
-            create(:slot_availability, 
+            create(:slot_availability,
                    scheduling_response: response,
                    event_time_slot: slot,
                    availability: [0, 1, 2].sample)

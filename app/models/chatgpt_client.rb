@@ -1,4 +1,4 @@
-# Client for interacting with OpenAI's ChatGPT API to generate fantasy football 
+# Client for interacting with OpenAI's ChatGPT API to generate fantasy football
 # press conference responses based on league context and questions.
 class ChatgptClient
   class GenerationError < StandardError; end
@@ -10,16 +10,16 @@ class ChatgptClient
 
   def generate_response(question, league_context)
     prompt = build_prompt(question, league_context)
-    
+
     response = openai_client.chat(
       parameters: {
         model: "gpt-3.5-turbo",
         messages: [{ role: "user", content: prompt }],
         max_tokens: 200,
-        temperature: 0.8
+        temperature: 0.8,
       }
     )
-    
+
     extract_response_text(response)
   rescue StandardError => e
     Rails.logger.error "ChatGPT API error: #{e.message}"
@@ -51,17 +51,17 @@ class ChatgptClient
 
   def extract_response_text(response)
     choices = response.dig("choices")
-    
+
     if choices.nil? || choices.empty?
       raise GenerationError, "No response generated from OpenAI API"
     end
-    
+
     content = choices.first.dig("message", "content")
-    
+
     if content.blank?
       raise GenerationError, "Empty response from OpenAI API"
     end
-    
+
     content.strip
   end
-end 
+end

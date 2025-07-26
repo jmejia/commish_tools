@@ -96,28 +96,8 @@ class PressConferencesController < ApplicationController
 
   def destroy
     Rails.logger.info "User #{current_user.id} deleting press conference #{@press_conference.id}"
-    
-    # Log what will be deleted for audit purposes
-    questions_count = @press_conference.press_conference_questions.count
-    responses_count = @press_conference.press_conference_responses.count
-    has_final_audio = @press_conference.final_audio.attached?
-    
-    question_audio_count = @press_conference.press_conference_questions
-                                            .joins(:question_audio_attachment)
-                                            .count
-    response_audio_count = @press_conference.press_conference_responses
-                                            .joins(:response_audio_attachment)
-                                            .count
-    
-    Rails.logger.info "Deleting press conference #{@press_conference.id}: " \
-                      "#{questions_count} questions, #{responses_count} responses, " \
-                      "#{question_audio_count} question audio files, " \
-                      "#{response_audio_count} response audio files, " \
-                      "final audio: #{has_final_audio}"
-    
-    # Destroy the press conference (cascade will handle associated records and files)
+    @press_conference.log_deletion_details
     @press_conference.destroy!
-    
     Rails.logger.info "Successfully deleted press conference #{@press_conference.id} and all associated data"
     redirect_to dashboard_league_path(@league), notice: 'Press conference and all associated files deleted successfully'
   end

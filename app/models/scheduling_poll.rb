@@ -15,7 +15,6 @@ class SchedulingPoll < ApplicationRecord
   }.freeze
 
   before_create :generate_public_token
-  before_validation :set_default_title
 
   validates :title, presence: true, length: { maximum: 100 }
   validates :event_type, presence: true, inclusion: { in: EVENT_TYPES.keys.map(&:to_s) }
@@ -79,12 +78,6 @@ class SchedulingPoll < ApplicationRecord
     loop do
       self.public_token = SecureRandom.urlsafe_base64(8)
       break unless self.class.exists?(public_token: public_token)
-    end
-  end
-
-  def set_default_title
-    if event_type.present? && title.blank?
-      self.title = "#{EVENT_TYPES[event_type.to_sym]} Scheduling Poll"
     end
   end
 end

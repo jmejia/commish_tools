@@ -11,14 +11,14 @@ RSpec.describe SchedulingPoll, type: :model do
   describe 'validations' do
     subject { build(:scheduling_poll) }
     
-    it 'validates title presence after default is set' do
+    it 'validates title presence' do
       poll = build(:scheduling_poll, title: '', event_type: 'draft')
-      poll.valid?
-      expect(poll.title).to eq('Draft Scheduling Poll')
+      expect(poll).not_to be_valid
+      expect(poll.errors[:title]).to include("can't be blank")
       
       poll.title = nil
-      poll.valid?
-      expect(poll.title).to eq('Draft Scheduling Poll')
+      expect(poll).not_to be_valid
+      expect(poll.errors[:title]).to include("can't be blank")
     end
     
     it { should validate_length_of(:title).is_at_most(100) }
@@ -53,19 +53,6 @@ RSpec.describe SchedulingPoll, type: :model do
       end
     end
 
-    describe '#set_default_title' do
-      it 'sets default title based on event type' do
-        poll = build(:scheduling_poll, title: nil, event_type: 'draft')
-        poll.valid?
-        expect(poll.title).to eq('Draft Scheduling Poll')
-      end
-
-      it 'does not override provided title' do
-        poll = build(:scheduling_poll, title: 'Custom Title', event_type: 'draft')
-        poll.valid?
-        expect(poll.title).to eq('Custom Title')
-      end
-    end
   end
 
   describe '#response_rate' do

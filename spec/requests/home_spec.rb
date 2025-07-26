@@ -1,6 +1,10 @@
 require 'rails_helper'
 
 RSpec.describe "Homes", type: :request do
+  before do
+    host! 'localhost'
+  end
+
   describe "GET /" do
     context "when user is not authenticated" do
       it "returns http success" do

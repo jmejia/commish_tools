@@ -14,7 +14,8 @@ class VoiceUploadLinksController < ApplicationController
   def create
     @voice_upload_link = @voice_clone.voice_upload_links.build(voice_upload_link_params)
     if @voice_upload_link.save
-      redirect_to league_league_membership_voice_clone_voice_upload_links_path(@voice_clone.league, @voice_clone.league_membership, @voice_clone), notice: 'Shareable upload link created.'
+      redirect_to league_league_membership_voice_clone_voice_upload_links_path(@voice_clone.league, @voice_clone.league_membership, @voice_clone),
+notice: 'Shareable upload link created.'
     else
       render :new, status: :unprocessable_entity
     end
@@ -23,7 +24,8 @@ class VoiceUploadLinksController < ApplicationController
   def destroy
     @voice_upload_link = @voice_clone.voice_upload_links.find(params[:id])
     @voice_upload_link.destroy
-    redirect_to league_league_membership_voice_clone_voice_upload_links_path(@voice_clone.league, @voice_clone.league_membership, @voice_clone), notice: 'Shareable upload link deleted.'
+    redirect_to league_league_membership_voice_clone_voice_upload_links_path(@voice_clone.league, @voice_clone.league_membership, @voice_clone),
+notice: 'Shareable upload link deleted.'
   end
 
   private
@@ -41,4 +43,4 @@ class VoiceUploadLinksController < ApplicationController
   def voice_upload_link_params
     params.require(:voice_upload_link).permit(:title, :instructions, :expires_at, :active, :max_uploads)
   end
-end 
+end

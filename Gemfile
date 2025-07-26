@@ -61,6 +61,10 @@ gem "faraday-multipart"
 gem "faraday-retry"
 gem "aws-sdk-s3"
 gem 'sleeper_ff'
+gem "ruby-openai"
+
+# Audio processing
+gem "streamio-ffmpeg"
 
 # Environment variables
 gem "dotenv-rails"
@@ -83,6 +87,7 @@ group :development, :test do
   # Testing framework
   gem "rspec-rails"
   gem "factory_bot_rails"
+  gem "shoulda-matchers"
 end
 
 group :development do

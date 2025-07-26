@@ -1,5 +1,5 @@
 class VoiceUploadsController < ApplicationController
-  skip_before_action :authenticate_user!, only: [:show, :create], raise: false
+  # These actions are public and don't require authentication
   before_action :set_voice_upload_link, only: [:show, :create]
 
   # Show the upload form

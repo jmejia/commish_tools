@@ -1,0 +1,94 @@
+{
+  "name": "Rails Dev Container",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "installZsh": true,
+      "configureZshAsDefaultShell": true,
+      "installOhMyZsh": true,
+      "username": "developer",
+      "userUid": "automatic",
+      "userGid": "automatic"
+    },
+    "ghcr.io/devcontainers/features/git:1": {
+      "version": "latest",
+      "ppa": true
+    },
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20",
+      "nodeGypDependencies": true
+    },
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "version": "latest",
+      "moby": true,
+      "dockerDashComposeVersion": "v2"
+    },
+    "ghcr.io/devcontainers/features/ruby:1": {
+      "version": "3.2.2",
+      "installRubyGems": true
+    },
+    "ghcr.io/itsmechlark/features/postgresql:1": {
+      "version": "latest",
+      "postgresPassword": "postgres",
+      "initDbArgs": "--encoding=UTF8 --locale=C"
+    }
+  },
+  "forwardPorts": [
+    3000,
+    5432,
+    6379
+  ],
+  "postCreateCommand": "npm install -g @anthropic-ai/claude-code && gem install bundler && cd /workspaces/commish_tools && bundle install --binstubs && yarn install && PGUSER=postgres PGPASSWORD=postgres bundle exec rails db:create db:migrate && sudo bash .devcontainer/init-firewall.sh && bash .devcontainer/init-env.sh",
+  "postStartCommand": "git config --global --add safe.directory ${containerWorkspaceFolder}",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "KoichiSasada.vscode-rdbg",
+        "castwide.solargraph",
+        "rebornix.ruby",
+        "misogi.ruby-rubocop",
+        "bung87.rails",
+        "kaiwood.endwise",
+        "ninoseki.vscode-gem-lens",
+        "esbenp.prettier-vscode",
+        "streetsidesoftware.code-spell-checker",
+        "eamodio.gitlens",
+        "ms-azuretools.vscode-docker",
+        "redhat.vscode-yaml",
+        "ms-vscode.makefile-tools",
+        "anthropic.claude-dev"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "zsh",
+        "editor.formatOnSave": true,
+        "editor.tabSize": 2,
+        "files.insertFinalNewline": true,
+        "files.trimTrailingWhitespace": true,
+        "ruby.useLanguageServer": true,
+        "ruby.rubocop.executePath": "bundle",
+        "ruby.format": "rubocop",
+        "solargraph.useBundler": true
+      }
+    }
+  },
+  "remoteUser": "developer",
+  "containerEnv": {
+    "RAILS_ENV": "development",
+    "NODE_ENV": "development"
+  },
+  "initializeCommand": "cp -n .env.devcontainer.example .env.devcontainer || true",
+  "mounts": [
+    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/home/developer/.ssh,type=bind,readonly",
+    "source=${localWorkspaceFolder}/.env.devcontainer,target=/workspaces/commish_tools/.env.devcontainer,type=bind,readonly"
+  ],
+  "runArgs": [
+    "--cap-add=SYS_PTRACE",
+    "--security-opt",
+    "seccomp=unconfined",
+    "--init",
+    "--memory=8g"
+  ]
+}

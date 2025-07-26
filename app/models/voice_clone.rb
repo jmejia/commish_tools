@@ -64,8 +64,6 @@ class VoiceClone < ApplicationRecord
     end
   end
 
-  public
-
   scope :ready_for_use, -> { where(status: :ready) }
   scope :for_league, ->(league) { joins(:league_membership).where(league_memberships: { league: league }) }
 end

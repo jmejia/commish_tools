@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_04_173536) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_26_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -40,6 +40,28 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_04_173536) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "event_time_slots", force: :cascade do |t|
+    t.bigint "scheduling_poll_id", null: false
+    t.datetime "starts_at", null: false
+    t.integer "duration_minutes", default: 60, null: false
+    t.jsonb "slot_metadata", default: {}
+    t.integer "order_index", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["scheduling_poll_id", "starts_at"], name: "index_event_time_slots_on_poll_and_start_time"
+    t.index ["scheduling_poll_id"], name: "index_event_time_slots_on_scheduling_poll_id"
+    t.index ["starts_at", "duration_minutes"], name: "index_event_time_slots_on_time_and_duration"
+    t.index ["starts_at"], name: "index_event_time_slots_on_starts_at"
+  end
+
+  create_table "league_contexts", force: :cascade do |t|
+    t.bigint "league_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.jsonb "content"
+    t.index ["league_id"], name: "index_league_contexts_on_league_id"
   end
 
   create_table "league_memberships", force: :cascade do |t|
@@ -96,8 +118,50 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_04_173536) do
     t.jsonb "context_data"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "final_audio_url"
     t.index ["league_id"], name: "index_press_conferences_on_league_id"
     t.index ["target_manager_id"], name: "index_press_conferences_on_target_manager_id"
+  end
+
+  create_table "scheduling_polls", force: :cascade do |t|
+    t.bigint "league_id", null: false
+    t.bigint "created_by_id", null: false
+    t.string "public_token", null: false
+    t.string "event_type", default: "draft", null: false
+    t.string "title", null: false
+    t.text "description"
+    t.integer "status", default: 0, null: false
+    t.datetime "closes_at"
+    t.jsonb "settings", default: {}
+    t.jsonb "event_metadata", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["closes_at"], name: "index_scheduling_polls_on_closes_at"
+    t.index ["created_by_id", "status"], name: "index_scheduling_polls_on_creator_status"
+    t.index ["created_by_id"], name: "index_scheduling_polls_on_created_by_id"
+    t.index ["event_type"], name: "index_scheduling_polls_on_event_type"
+    t.index ["league_id", "event_type"], name: "index_scheduling_polls_on_league_id_and_event_type"
+    t.index ["league_id", "status", "event_type"], name: "index_scheduling_polls_on_league_status_event"
+    t.index ["league_id"], name: "index_scheduling_polls_on_league_id"
+    t.index ["public_token"], name: "index_scheduling_polls_on_public_token", unique: true
+    t.index ["settings"], name: "index_scheduling_polls_on_settings", using: :gin
+    t.index ["status"], name: "index_scheduling_polls_on_status"
+  end
+
+  create_table "scheduling_responses", force: :cascade do |t|
+    t.bigint "scheduling_poll_id", null: false
+    t.string "respondent_name", null: false
+    t.string "respondent_identifier", null: false
+    t.string "ip_address"
+    t.jsonb "metadata", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["ip_address", "created_at"], name: "index_scheduling_responses_on_ip_and_created"
+    t.index ["ip_address"], name: "index_scheduling_responses_on_ip_address"
+    t.index ["metadata"], name: "index_scheduling_responses_on_metadata", using: :gin
+    t.index ["scheduling_poll_id", "created_at"], name: "index_scheduling_responses_on_poll_and_created"
+    t.index ["scheduling_poll_id", "respondent_identifier"], name: "index_scheduling_responses_on_poll_and_identifier", unique: true
+    t.index ["scheduling_poll_id"], name: "index_scheduling_responses_on_scheduling_poll_id"
   end
 
   create_table "sleeper_connection_requests", force: :cascade do |t|
@@ -114,6 +178,18 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_04_173536) do
     t.index ["reviewed_by_id"], name: "index_sleeper_connection_requests_on_reviewed_by_id"
     t.index ["status"], name: "index_sleeper_connection_requests_on_status"
     t.index ["user_id"], name: "index_sleeper_connection_requests_on_user_id"
+  end
+
+  create_table "slot_availabilities", force: :cascade do |t|
+    t.bigint "scheduling_response_id", null: false
+    t.bigint "event_time_slot_id", null: false
+    t.integer "availability", null: false
+    t.jsonb "preference_data", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_time_slot_id", "availability"], name: "index_slot_availabilities_on_slot_and_availability"
+    t.index ["event_time_slot_id"], name: "index_slot_availabilities_on_event_time_slot_id"
+    t.index ["scheduling_response_id", "event_time_slot_id"], name: "index_slot_availability_unique", unique: true
   end
 
   create_table "solid_queue_blocked_executions", force: :cascade do |t|
@@ -291,6 +367,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_04_173536) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "event_time_slots", "scheduling_polls"
+  add_foreign_key "league_contexts", "leagues"
   add_foreign_key "league_memberships", "leagues"
   add_foreign_key "league_memberships", "users"
   add_foreign_key "leagues", "users", column: "owner_id"
@@ -298,8 +376,13 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_04_173536) do
   add_foreign_key "press_conference_responses", "press_conference_questions"
   add_foreign_key "press_conferences", "league_memberships", column: "target_manager_id"
   add_foreign_key "press_conferences", "leagues"
+  add_foreign_key "scheduling_polls", "leagues"
+  add_foreign_key "scheduling_polls", "users", column: "created_by_id"
+  add_foreign_key "scheduling_responses", "scheduling_polls"
   add_foreign_key "sleeper_connection_requests", "users"
   add_foreign_key "sleeper_connection_requests", "users", column: "reviewed_by_id"
+  add_foreign_key "slot_availabilities", "event_time_slots"
+  add_foreign_key "slot_availabilities", "scheduling_responses"
   add_foreign_key "solid_queue_blocked_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_claimed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_failed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade

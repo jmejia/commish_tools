@@ -2,9 +2,10 @@
 # Allows commissioners to create and manage polls with time slots
 class SchedulingPollsController < ApplicationController
   before_action :set_league
+  before_action :ensure_league_member, only: [:index, :show]
   before_action :authorize_commissioner!, only: [:new, :create]
-  before_action :set_poll, only: [:show, :edit, :update, :destroy, :close, :reopen]
-  before_action :authorize_poll_management!, only: [:edit, :update, :destroy, :close, :reopen]
+  before_action :set_poll, only: [:show, :edit, :update, :destroy, :close, :reopen, :export]
+  before_action :authorize_poll_management!, only: [:edit, :update, :destroy, :close, :reopen, :export]
 
   def index
     @polls = @league.scheduling_polls.with_time_slots
@@ -66,6 +67,17 @@ class SchedulingPollsController < ApplicationController
                 notice: 'Poll reopened successfully.'
   end
 
+  def export
+    respond_to do |format|
+      format.csv do
+        csv_data = @poll.to_csv
+        send_data csv_data,
+                  filename: "#{@poll.title.parameterize}-results-#{Date.current}.csv",
+                  type: 'text/csv; charset=utf-8'
+      end
+    end
+  end
+
   private
 
   def set_league
@@ -77,9 +89,16 @@ class SchedulingPollsController < ApplicationController
   end
 
   def authorize_commissioner!
-    unless @league.owner == current_user
+    membership = current_user.league_memberships.find_by(league: @league)
+    unless membership&.owner?
       redirect_to dashboard_league_path(@league),
                   alert: 'You must be the league owner to create polls.'
+    end
+  end
+
+  def ensure_league_member
+    unless current_user.leagues.include?(@league) || @league.owner == current_user
+      redirect_to leagues_path, alert: 'You are not a member of this league.'
     end
   end
 

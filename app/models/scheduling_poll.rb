@@ -112,7 +112,7 @@ class SchedulingPoll < ApplicationRecord
     url_options = Rails.application.config.action_mailer.default_url_options || {}
     host = url_options[:host] || 'localhost'
     port = url_options[:port] || (Rails.env.development? ? 3000 : nil)
-    
+
     Rails.application.routes.url_helpers.public_scheduling_url(
       token: public_token,
       host: host,
@@ -124,11 +124,66 @@ class SchedulingPoll < ApplicationRecord
     {
       sms: sms_template,
       email: email_template,
-      sleeper: sleeper_template
+      sleeper: sleeper_template,
     }
   end
 
+  def non_respondents
+    # Get all league members who haven't responded to this poll
+    responded_identifiers = scheduling_responses.pluck(:respondent_identifier)
+
+    league.league_memberships.includes(:user).reject do |membership|
+      identifier = generate_member_identifier(membership)
+      responded_identifiers.include?(identifier)
+    end
+  end
+
+  def response_completion_percentage
+    return 0 if league.members_count.zero?
+
+    ((league.members_count - non_respondents.count).to_f / league.members_count * 100).round
+  end
+
+  def to_csv
+    require 'csv'
+
+    CSV.generate(headers: true) do |csv|
+      # Header row
+      headers = ['Member Name'] + event_time_slots.map(&:display_label)
+      csv << headers
+
+      # Response rows
+      scheduling_responses.includes(slot_availabilities: :event_time_slot).each do |response|
+        row = [response.respondent_name]
+
+        event_time_slots.each do |slot|
+          availability = response.slot_availabilities.find { |sa| sa.event_time_slot_id == slot.id }
+          row << case availability&.availability
+                 when 'available' then 'Available'
+                 when 'maybe' then 'Maybe'
+                 else 'Unavailable'
+                 end
+        end
+
+        csv << row
+      end
+
+      # Add non-respondents
+      non_respondents.each do |membership|
+        row = [membership.user.display_name] + (['No Response'] * event_time_slots.count)
+        csv << row
+      end
+    end
+  end
+
   private
+
+  def generate_member_identifier(membership)
+    # Generate consistent identifier for a league member
+    # Uses the same logic as SchedulingResponse to match responses
+    name = membership.user.display_name
+    Digest::SHA256.hexdigest("#{name.downcase.strip}-#{id}")
+  end
 
   def generate_public_token
     loop do
@@ -144,13 +199,20 @@ class SchedulingPoll < ApplicationRecord
 
   def email_template
     deadline_text = closes_at ? "\n\nPlease respond by #{closes_at.strftime('%B %d, %Y at %l:%M %p')}." : ""
-    
+
     "Hi there!\n\nYou're invited to participate in the #{title} poll for #{league.name}.\n\nPlease let us know your availability by clicking the link below:\n#{public_url}#{deadline_text}\n\nThanks!"
   end
 
   def sleeper_template
     deadline_text = closes_at ? "\n📅 Deadline: #{closes_at.strftime('%B %d, %Y at %l:%M %p')}" : ""
-    
+
     "🏈 #{league.name} - #{title}\n\nPlease submit your availability: #{public_url}#{deadline_text}\n\nRespond ASAP to help us find the best time for everyone!"
+  end
+
+  def generate_member_identifier(membership)
+    # Generate the same identifier format used by scheduling responses
+    # This allows us to match league members with their responses
+    name = membership.user.display_name.downcase.strip
+    Digest::SHA256.hexdigest("#{name}-#{id}")
   end
 end

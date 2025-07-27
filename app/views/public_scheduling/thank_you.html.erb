@@ -1,0 +1,59 @@
+<div class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center px-4">
+  <div class="max-w-2xl w-full">
+    <!-- Success Card -->
+    <div class="bg-gray-800/50 backdrop-blur-lg rounded-xl border border-gray-700 shadow-2xl p-8 text-center">
+      <!-- Success Icon -->
+      <div class="flex justify-center mb-6">
+        <div class="w-20 h-20 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center shadow-lg shadow-green-500/30">
+          <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Thank You Message -->
+      <h1 class="text-3xl font-bold text-white mb-3">Thank You!</h1>
+      <p class="text-lg text-gray-300 mb-6">Your availability has been recorded for:</p>
+
+      <!-- Poll Info -->
+      <div class="bg-gray-700/50 rounded-lg p-4 mb-8">
+        <h2 class="text-xl font-semibold text-cyan-400 mb-2"><%= @poll.title %></h2>
+        <p class="text-sm text-gray-400"><%= @poll.league.name %></p>
+      </div>
+
+      <!-- Next Steps -->
+      <div class="bg-cyan-900/20 border border-cyan-700/50 rounded-lg p-6 mb-8">
+        <h3 class="text-lg font-semibold text-cyan-400 mb-3">What happens next?</h3>
+        <ul class="space-y-2 text-left max-w-md mx-auto">
+          <li class="flex items-start space-x-3">
+            <svg class="w-5 h-5 text-cyan-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span class="text-gray-300">Your commissioner will review all responses</span>
+          </li>
+          <li class="flex items-start space-x-3">
+            <svg class="w-5 h-5 text-cyan-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            <span class="text-gray-300">They'll select the best time based on everyone's availability</span>
+          </li>
+          <li class="flex items-start space-x-3">
+            <svg class="w-5 h-5 text-cyan-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+            </svg>
+            <span class="text-gray-300">You'll be notified of the final decision</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Branding -->
+      <div class="mt-8 pt-6 border-t border-gray-700">
+        <p class="text-sm text-gray-500">
+          Powered by <%= link_to "CommishTools", root_url,
+                        class: "text-cyan-400 hover:text-cyan-300 transition-colors",
+                        target: "_blank" %>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

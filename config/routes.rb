@@ -49,6 +49,7 @@ Rails.application.routes.draw do
       member do
         patch :close
         patch :reopen
+        get :export
       end
     end
   end
@@ -59,6 +60,7 @@ Rails.application.routes.draw do
 
   # Public scheduling routes (no authentication required)
   get '/schedule/:token', to: 'public_scheduling#show', as: :public_scheduling
+  get '/schedule/:token/thank-you', to: 'public_scheduling#thank_you', as: :public_scheduling_thank_you
   post '/schedule/:token', to: 'public_scheduling#create'
   patch '/schedule/:token', to: 'public_scheduling#update'
 

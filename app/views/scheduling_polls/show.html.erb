@@ -65,11 +65,12 @@
       <!-- Shareable Link -->
       <div class="bg-gradient-to-r from-cyan-900/20 to-blue-900/20 rounded-xl border border-cyan-700/50 p-6 mb-6">
         <h3 class="text-lg font-semibold text-white mb-4">Share this poll with your league members</h3>
-        <div class="flex items-center space-x-4">
+        
+        <!-- Direct Link Copy -->
+        <div class="flex items-center space-x-4 mb-6" data-controller="clipboard">
           <input type="text" 
-                 value="<%= public_scheduling_url(token: @poll.public_token) %>"
+                 value="<%= @poll.public_url %>"
                  readonly
-                 data-controller="clipboard"
                  data-clipboard-target="source"
                  class="flex-1 px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-gray-300 font-mono text-sm">
           <button data-action="click->clipboard#copy"
@@ -78,8 +79,63 @@
             Copy Link
           </button>
         </div>
-        <p class="mt-2 text-sm text-gray-400">
-          League members can use this link to submit their availability without needing to sign in.
+        
+        <!-- Message Templates -->
+        <div class="space-y-4">
+          <h4 class="text-md font-medium text-cyan-400">Pre-formatted Messages</h4>
+          
+          <!-- SMS Template -->
+          <div class="bg-gray-800/50 rounded-lg p-4 border border-gray-700" data-controller="clipboard">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-sm font-medium text-gray-300">📱 SMS Message</span>
+              <button data-clipboard-target="button"
+                      data-action="click->clipboard#copy"
+                      class="text-xs px-3 py-1 bg-gray-700 text-gray-300 rounded hover:bg-gray-600 transition-colors">
+                Copy
+              </button>
+            </div>
+            <textarea readonly
+                      data-clipboard-target="source"
+                      class="w-full px-3 py-2 bg-gray-900 border border-gray-600 rounded text-gray-300 text-sm resize-none"
+                      rows="2"><%= @poll.message_templates[:sms] %></textarea>
+            <p class="text-xs text-gray-500 mt-1">Character count: <%= @poll.message_templates[:sms].length %>/160</p>
+          </div>
+          
+          <!-- Email Template -->
+          <div class="bg-gray-800/50 rounded-lg p-4 border border-gray-700" data-controller="clipboard">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-sm font-medium text-gray-300">✉️ Email Message</span>
+              <button data-clipboard-target="button"
+                      data-action="click->clipboard#copy"
+                      class="text-xs px-3 py-1 bg-gray-700 text-gray-300 rounded hover:bg-gray-600 transition-colors">
+                Copy
+              </button>
+            </div>
+            <textarea readonly
+                      data-clipboard-target="source"
+                      class="w-full px-3 py-2 bg-gray-900 border border-gray-600 rounded text-gray-300 text-sm resize-none"
+                      rows="6"><%= @poll.message_templates[:email] %></textarea>
+          </div>
+          
+          <!-- Sleeper Template -->
+          <div class="bg-gray-800/50 rounded-lg p-4 border border-gray-700" data-controller="clipboard">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-sm font-medium text-gray-300">🏈 Sleeper Message</span>
+              <button data-clipboard-target="button"
+                      data-action="click->clipboard#copy"
+                      class="text-xs px-3 py-1 bg-gray-700 text-gray-300 rounded hover:bg-gray-600 transition-colors">
+                Copy
+              </button>
+            </div>
+            <textarea readonly
+                      data-clipboard-target="source"
+                      class="w-full px-3 py-2 bg-gray-900 border border-gray-600 rounded text-gray-300 text-sm resize-none"
+                      rows="4"><%= @poll.message_templates[:sleeper] %></textarea>
+          </div>
+        </div>
+        
+        <p class="mt-4 text-sm text-gray-400">
+          League members can use the link to submit their availability without needing to sign in.
         </p>
       </div>
 

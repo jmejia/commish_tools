@@ -109,12 +109,23 @@ class SchedulingPoll < ApplicationRecord
 
   def public_url
     # In development/test, use a default host if not configured
-    host = Rails.application.config.action_mailer.default_url_options&.fetch(:host,
-'localhost:3000') || 'localhost:3000'
+    url_options = Rails.application.config.action_mailer.default_url_options || {}
+    host = url_options[:host] || 'localhost'
+    port = url_options[:port] || (Rails.env.development? ? 3000 : nil)
+    
     Rails.application.routes.url_helpers.public_scheduling_url(
       token: public_token,
-      host: host
+      host: host,
+      port: port
     )
+  end
+
+  def message_templates
+    {
+      sms: sms_template,
+      email: email_template,
+      sleeper: sleeper_template
+    }
   end
 
   private
@@ -124,5 +135,22 @@ class SchedulingPoll < ApplicationRecord
       self.public_token = SecureRandom.urlsafe_base64(8)
       break unless self.class.exists?(public_token: public_token)
     end
+  end
+
+  def sms_template
+    deadline_text = closes_at ? " by #{closes_at.strftime('%m/%d')}" : ""
+    "#{league.name}: #{title} poll. Please respond#{deadline_text}. #{public_url}"
+  end
+
+  def email_template
+    deadline_text = closes_at ? "\n\nPlease respond by #{closes_at.strftime('%B %d, %Y at %l:%M %p')}." : ""
+    
+    "Hi there!\n\nYou're invited to participate in the #{title} poll for #{league.name}.\n\nPlease let us know your availability by clicking the link below:\n#{public_url}#{deadline_text}\n\nThanks!"
+  end
+
+  def sleeper_template
+    deadline_text = closes_at ? "\n📅 Deadline: #{closes_at.strftime('%B %d, %Y at %l:%M %p')}" : ""
+    
+    "🏈 #{league.name} - #{title}\n\nPlease submit your availability: #{public_url}#{deadline_text}\n\nRespond ASAP to help us find the best time for everyone!"
   end
 end

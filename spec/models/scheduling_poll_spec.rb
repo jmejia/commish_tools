@@ -113,4 +113,63 @@ RSpec.describe SchedulingPoll, type: :model do
       expect { poll.reopen! }.to change { poll.status }.from('closed').to('active')
     end
   end
+
+  describe '#public_url' do
+    let(:poll) { create(:scheduling_poll) }
+
+    it 'generates a public URL with the token' do
+      url = poll.public_url
+      expect(url).to include("/schedule/#{poll.public_token}")
+      expect(url).to include('http')
+    end
+
+    it 'includes port in development environment' do
+      allow(Rails).to receive(:env).and_return(ActiveSupport::StringInquirer.new('development'))
+      url = poll.public_url
+      expect(url).to include(':3000')
+    end
+  end
+
+  describe '#message_templates' do
+    let(:league) { create(:league, name: 'Fantasy Football League') }
+    let(:poll) { create(:scheduling_poll, league: league, title: 'Draft Scheduling', closes_at: 1.week.from_now) }
+    let(:public_url) { "https://example.com/schedule/#{poll.public_token}" }
+
+    before do
+      allow(poll).to receive(:public_url).and_return(public_url)
+    end
+
+    it 'generates SMS template' do
+      template = poll.message_templates[:sms]
+      expect(template).to include('Fantasy Football League')
+      expect(template).to include('Draft Scheduling')
+      expect(template).to include(public_url)
+      expect(template.length).to be <= 160 # SMS length limit
+    end
+
+    it 'generates email template' do
+      template = poll.message_templates[:email]
+      expect(template).to include('Fantasy Football League')
+      expect(template).to include('Draft Scheduling')
+      expect(template).to include(public_url)
+      expect(template).to include('Please respond by')
+    end
+
+    it 'generates Sleeper template' do
+      template = poll.message_templates[:sleeper]
+      expect(template).to include('Fantasy Football League')
+      expect(template).to include('Draft Scheduling')
+      expect(template).to include(public_url)
+      expect(template).to include('🏈')
+    end
+
+    context 'when poll has no closing date' do
+      let(:poll) { create(:scheduling_poll, league: league, title: 'Draft Scheduling', closes_at: nil) }
+
+      it 'does not include deadline in templates' do
+        expect(poll.message_templates[:email]).not_to include('Please respond by')
+        expect(poll.message_templates[:sleeper]).not_to include('Deadline:')
+      end
+    end
+  end
 end

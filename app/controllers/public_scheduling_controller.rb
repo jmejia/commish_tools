@@ -7,9 +7,9 @@ class PublicSchedulingController < ApplicationController
   skip_before_action :authenticate_user!
   skip_before_action :verify_authenticity_token
   before_action :set_poll_by_token
-  before_action :check_poll_active
+  before_action :check_poll_active, except: [:thank_you]
   before_action :apply_security_checks, only: [:create, :update]
-  before_action :set_response_identifier
+  before_action :set_response_identifier, except: [:thank_you]
 
   def show
     Rails.logger.info "PublicSchedulingController#show called"
@@ -26,6 +26,11 @@ class PublicSchedulingController < ApplicationController
 
   def update
     handle_response_submission(notice_message: 'Your availability has been updated!')
+  end
+
+  def thank_you
+    # Just display the thank you page
+    # The poll is already loaded by set_poll_by_token
   end
 
   private
@@ -71,7 +76,7 @@ class PublicSchedulingController < ApplicationController
     return unless check_rate_limit(:public_response, request.remote_ip)
     return unless check_honeypot(:email_confirm)
     return unless check_spam_patterns([:respondent_name])
-    return unless check_submission_timing(:form_start_time)
+    nil unless check_submission_timing(:form_start_time)
   end
 
   def handle_response_submission(notice_message:)
@@ -86,7 +91,32 @@ class PublicSchedulingController < ApplicationController
   end
 
   def handle_success(result)
-    redirect_to result.redirect_path, notice: result.notice
+    # Broadcast updates to all viewers of the poll
+    broadcast_poll_updates(result.response)
+
+    redirect_to public_scheduling_thank_you_path(@poll.public_token), notice: result.notice
+  end
+
+  def broadcast_poll_updates(response)
+    poll = response.scheduling_poll
+
+    # Reload poll with all associations to ensure fresh data
+    poll = SchedulingPoll.includes(
+      :league, 
+      :event_time_slots,
+      scheduling_responses: { slot_availabilities: :event_time_slot }
+    ).find(poll.id)
+    
+    # Broadcast the entire results section as one update
+    Turbo::StreamsChannel.broadcast_replace_to(
+      "scheduling_poll_#{poll.id}",
+      target: "poll-results",
+      partial: "scheduling_polls/results",
+      locals: { 
+        poll: poll, 
+        responses: poll.scheduling_responses
+      }
+    )
   end
 
   def handle_failure(result)

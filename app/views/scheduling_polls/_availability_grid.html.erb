@@ -1,0 +1,68 @@
+<div id="availability_grid" class="bg-gray-800/50 rounded-xl border border-gray-700 p-6">
+  <h3 class="text-xl font-bold text-white mb-6">Availability Grid</h3>
+  
+  <% if responses.any? %>
+    <!-- Visual Heatmap Grid -->
+    <div class="overflow-x-auto">
+      <div class="grid grid-cols-1 gap-4">
+        <!-- Header Row with Time Slots -->
+        <div class="grid grid-cols-[200px_repeat(<%= poll.event_time_slots.count %>,_minmax(120px,_1fr))] gap-2">
+          <div class="text-gray-400 font-medium">Members</div>
+          <% poll.event_time_slots.each do |slot| %>
+            <div class="text-center">
+              <div class="text-gray-300 font-medium text-sm"><%= slot.starts_at.strftime("%b %d") %></div>
+              <div class="text-gray-500 text-xs"><%= slot.starts_at.strftime("%l:%M %p") %></div>
+            </div>
+          <% end %>
+        </div>
+        
+        <!-- Response Rows -->
+        <% responses.each do |response| %>
+          <div class="grid grid-cols-[200px_repeat(<%= poll.event_time_slots.count %>,_minmax(120px,_1fr))] gap-2 items-center">
+            <div class="text-white truncate pr-2"><%= response.respondent_name %></div>
+            <% poll.event_time_slots.each do |slot| %>
+              <div class="flex justify-center">
+                <% if response.available_for?(slot) %>
+                  <div class="w-full h-10 bg-green-500/80 rounded-lg flex items-center justify-center shadow-lg shadow-green-500/20">
+                    <span class="text-white font-medium text-sm">Available</span>
+                  </div>
+                <% elsif response.maybe_for?(slot) %>
+                  <div class="w-full h-10 bg-yellow-500/80 rounded-lg flex items-center justify-center shadow-lg shadow-yellow-500/20">
+                    <span class="text-gray-900 font-medium text-sm">Maybe</span>
+                  </div>
+                <% else %>
+                  <div class="w-full h-10 bg-gray-700/50 rounded-lg flex items-center justify-center">
+                    <span class="text-gray-500 text-sm">Unavailable</span>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+        
+        <!-- Summary Row -->
+        <div class="grid grid-cols-[200px_repeat(<%= poll.event_time_slots.count %>,_minmax(120px,_1fr))] gap-2 items-center pt-4 mt-4 border-t border-gray-700">
+          <div class="text-cyan-400 font-medium">Summary</div>
+          <% poll.event_time_slots.each do |slot| %>
+            <% summary = slot.availability_summary %>
+            <div class="text-center">
+              <div class="flex flex-col space-y-1">
+                <div class="flex items-center justify-center space-x-1">
+                  <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                  <span class="text-xs text-gray-300"><%= summary[:available] %></span>
+                </div>
+                <div class="flex items-center justify-center space-x-1">
+                  <span class="w-2 h-2 bg-yellow-500 rounded-full"></span>
+                  <span class="text-xs text-gray-300"><%= summary[:maybe] %></span>
+                </div>
+                <div class="text-xs text-cyan-400 font-medium"><%= slot.availability_score %>%</div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% else %>
+    <p class="text-gray-400 text-center py-8">No responses yet. Share the poll link with your league members!</p>
+  <% end %>
+</div>

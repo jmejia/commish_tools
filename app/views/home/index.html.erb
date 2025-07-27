@@ -2,7 +2,7 @@
   <!-- Hero Section -->
   <div class="relative overflow-hidden">
     <div class="absolute inset-0 bg-gradient-to-r from-cyan-400/10 to-orange-400/10"></div>
-    
+
     <!-- Navigation -->
     <nav class="relative z-10 px-6 py-4">
       <div class="flex items-center justify-between max-w-6xl mx-auto">
@@ -11,15 +11,15 @@
         </div>
         <div class="flex items-center space-x-4">
           <% unless user_signed_in? %>
-            <%= link_to 'Sign In', new_user_session_path, 
+          <%= link_to 'Sign In', new_user_session_path,
                 class: 'px-4 py-2 text-white hover:text-cyan-400 transition-colors' %>
-            <%= link_to 'Sign Up', new_user_registration_path, 
+          <%= link_to 'Sign Up', new_user_registration_path,
                 class: 'px-6 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition-colors' %>
           <% else %>
-            <span class="text-white">Welcome, <%= current_user.first_name %>!</span>
-            <%= link_to 'My Leagues', leagues_path, 
+          <span class="text-white">Welcome, <%= current_user.first_name %>!</span>
+          <%= link_to 'My Leagues', leagues_path,
                 class: 'px-6 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition-colors' %>
-            <%= button_to 'Sign Out', destroy_user_session_path, method: :delete,
+          <%= button_to 'Sign Out', destroy_user_session_path, method: :delete,
                 class: 'px-4 py-2 text-white hover:text-red-400 transition-colors bg-transparent border-none cursor-pointer ml-4' %>
           <% end %>
         </div>
@@ -35,24 +35,24 @@
             Press Conferences
           </span>
         </h1>
-        
+
         <p class="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto">
-          Transform your Sleeper fantasy league with hilarious AI-generated press conferences. 
+          Transform your Sleeper fantasy league with hilarious AI-generated press conferences.
           Clone voices, create drama, and roast the lowest-scoring team each week.
         </p>
 
         <div class="flex flex-col sm:flex-row gap-4 justify-center">
           <% unless user_signed_in? %>
-            <%= link_to new_user_registration_path, 
+          <%= link_to new_user_registration_path,
                 class: 'px-8 py-4 bg-gradient-to-r from-cyan-500 to-cyan-600 text-white text-lg font-semibold rounded-xl hover:from-cyan-600 hover:to-cyan-700 transition-all transform hover:scale-105' do %>
-              Get Started Free
-              <span class="ml-2">🚀</span>
-            <% end %>
-            
-            <%= link_to '#features', 
+          Get Started Free
+          <span class="ml-2">🚀</span>
+          <% end %>
+
+          <%= link_to '#features',
                 class: 'px-8 py-4 border-2 border-gray-600 text-white text-lg font-semibold rounded-xl hover:border-cyan-400 hover:text-cyan-400 transition-all' do %>
-              Learn More
-            <% end %>
+          Learn More
+          <% end %>
           <% end %>
         </div>
       </div>
@@ -65,14 +65,14 @@
       <h2 class="text-4xl font-bold text-white text-center mb-16">
         Why Commissioners Love CommishTools
       </h2>
-      
+
       <div class="grid md:grid-cols-3 gap-8">
         <!-- Feature 1 -->
         <div class="bg-gray-800/50 p-8 rounded-2xl border border-gray-700">
           <div class="text-4xl mb-4">🎙️</div>
           <h3 class="text-2xl font-bold text-white mb-4">Voice Cloning</h3>
           <p class="text-gray-300">
-            Upload voice samples of your league members and our AI will clone their voices 
+            Upload voice samples of your league members and our AI will clone their voices
             for authentic-sounding press conferences.
           </p>
         </div>
@@ -82,7 +82,7 @@
           <div class="text-4xl mb-4">🤖</div>
           <h3 class="text-2xl font-bold text-white mb-4">AI Responses</h3>
           <p class="text-gray-300">
-            ChatGPT generates hilarious coach-style responses based on real league data, 
+            ChatGPT generates hilarious coach-style responses based on real league data,
             scores, and matchups from your Sleeper league.
           </p>
         </div>
@@ -92,7 +92,7 @@
           <div class="text-4xl mb-4">📱</div>
           <h3 class="text-2xl font-bold text-white mb-4">Mobile Ready</h3>
           <p class="text-gray-300">
-            Record voices directly in your browser, listen to press conferences, 
+            Record voices directly in your browser, listen to press conferences,
             and manage everything from your phone.
           </p>
         </div>
@@ -104,13 +104,13 @@
   <div class="py-20 px-6 bg-gray-800/30">
     <div class="max-w-4xl mx-auto text-center">
       <h2 class="text-4xl font-bold text-white mb-16">How It Works</h2>
-      
+
       <div class="space-y-12">
         <div class="flex flex-col md:flex-row items-center gap-8">
           <div class="flex-1">
             <h3 class="text-2xl font-bold text-cyan-400 mb-4">1. Connect Your League</h3>
             <p class="text-gray-300 text-lg">
-              Link your Sleeper fantasy league to automatically pull in team data, 
+              Link your Sleeper fantasy league to automatically pull in team data,
               scores, and player stats each week.
             </p>
           </div>
@@ -121,7 +121,7 @@
           <div class="flex-1">
             <h3 class="text-2xl font-bold text-orange-400 mb-4">2. Upload Voice Samples</h3>
             <p class="text-gray-300 text-lg">
-              Record or upload short voice samples for each team manager. 
+              Record or upload short voice samples for each team manager.
               Our AI will learn their unique speaking patterns.
             </p>
           </div>
@@ -132,7 +132,7 @@
           <div class="flex-1">
             <h3 class="text-2xl font-bold text-green-400 mb-4">3. Generate & Share</h3>
             <p class="text-gray-300 text-lg">
-              Each week, create hilarious press conferences for the lowest-scoring team. 
+              Each week, create hilarious press conferences for the lowest-scoring team.
               Share the audio with your league for maximum entertainment.
             </p>
           </div>

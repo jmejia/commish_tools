@@ -1,33 +1,5 @@
 <div class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
-  <!-- Navigation -->
-  <nav class="px-6 py-4 border-b border-gray-800">
-    <div class="flex items-center justify-between max-w-4xl mx-auto">
-      <div class="flex items-center space-x-4">
-        <%= link_to root_path, class: "text-2xl font-bold text-white hover:text-cyan-400 transition-colors" do %>
-          CommishTools
-        <% end %>
-        <span class="text-gray-400">|</span>
-        <%= link_to leagues_path, class: "text-gray-400 hover:text-white transition-colors" do %>
-          My Leagues
-        <% end %>
-        <span class="text-gray-400">|</span>
-        <%= link_to dashboard_league_path(@league), class: "text-gray-400 hover:text-white transition-colors" do %>
-          <%= @league.name %>
-        <% end %>
-        <span class="text-gray-400">|</span>
-        <h1 class="text-xl font-semibold text-white">Create Press Conference</h1>
-      </div>
-      
-      <div class="flex items-center space-x-4">
-        <%= link_to profile_path, class: "text-gray-400 hover:text-white transition-colors" do %>
-          👤 My Profile
-        <% end %>
-        <span class="text-white">Welcome, <%= current_user.first_name %>!</span>
-        <%= button_to 'Sign Out', destroy_user_session_path, method: :delete,
-            class: 'px-4 py-2 text-white hover:text-red-400 transition-colors bg-transparent border-none cursor-pointer' %>
-      </div>
-    </div>
-  </nav>
+  <%= render 'shared/app_navigation', league: @league, page_title: 'Create Press Conference', nav_container_class: 'max-w-4xl' %>
 
   <!-- Flash Messages -->
   <% if flash.any? %>

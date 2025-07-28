@@ -149,20 +149,13 @@ RSpec.feature 'Draft Scheduling', type: :feature do
 
     # Should see sharing section
     expect(page).to have_content('Share this poll with your league members')
-    
-    # Debug: Check page content
-    puts "=== PAGE CONTENT ==="
-    puts page.body.include?('Share this poll') ? "FOUND SHARE TEXT" : "NO SHARE TEXT"
-    puts page.body.include?('bg-gradient-to-r') ? "FOUND CSS CLASS" : "NO CSS CLASS"
-    puts "Page title: #{page.title}"
-    puts "=== END DEBUG ==="
-    
+
     # Should see direct link copy
     expect(page).to have_button('Copy Link')
-    
+
     # Should see pre-formatted message templates
     expect(page).to have_content('Pre-formatted Messages')
-    
+
     # Should see SMS template
     expect(page).to have_content('📱 SMS Message')
     sms_textarea = find('textarea', text: /#{league.name}.*#{poll.title}.*poll/)
@@ -170,7 +163,7 @@ RSpec.feature 'Draft Scheduling', type: :feature do
     expect(sms_textarea.value).to include(poll.title)
     expect(sms_textarea.value).to include("/schedule/#{poll.public_token}")
     expect(page).to have_content('Character count:')
-    
+
     # Should see Email template
     expect(page).to have_content('✉️ Email Message')
     email_textarea = all('textarea').find { |t| t.value.include?('Hi there!') }
@@ -179,7 +172,7 @@ RSpec.feature 'Draft Scheduling', type: :feature do
     expect(email_textarea.value).to include(poll.title)
     expect(email_textarea.value).to include("/schedule/#{poll.public_token}")
     expect(email_textarea.value).to include('Please respond by')
-    
+
     # Should see Sleeper template
     expect(page).to have_content('🏈 Sleeper Message')
     sleeper_textarea = all('textarea').find { |t| t.value.include?('🏈') }
@@ -187,7 +180,7 @@ RSpec.feature 'Draft Scheduling', type: :feature do
     expect(sleeper_textarea.value).to include(league.name)
     expect(sleeper_textarea.value).to include(poll.title)
     expect(sleeper_textarea.value).to include("/schedule/#{poll.public_token}")
-    
+
     # Each template should have a copy button
     expect(page).to have_button('Copy', count: 4) # Link + 3 templates
   end
@@ -200,7 +193,7 @@ RSpec.feature 'Draft Scheduling', type: :feature do
     # Email template should not mention deadline
     email_textarea = all('textarea').find { |t| t.value.include?('Hi there!') }
     expect(email_textarea.value).not_to include('Please respond by')
-    
+
     # Sleeper template should not mention deadline
     sleeper_textarea = all('textarea').find { |t| t.value.include?('🏈') }
     expect(sleeper_textarea.value).not_to include('Deadline:')

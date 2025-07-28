@@ -285,7 +285,7 @@ RSpec.describe 'Sleeper Integration', type: :feature do
       visit leagues_path
       first(:link, 'Connect Your Sleeper Account').click
 
-      expect(page).to have_link('🏈 CommishTools')
+      expect(page).to have_css('img[alt="CommishTools"]')
       expect(page).to have_link('My Leagues')
       expect(page).to have_content('Connect Sleeper')
 

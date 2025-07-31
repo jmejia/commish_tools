@@ -14,7 +14,7 @@ class DraftGradesController < ApplicationController
   end
 
   def show
-    @draft_grade = @draft_grade.includes(:user, :league_membership)
+    # @draft_grade is already loaded with associations in set_draft_grade
   end
 
   def import

@@ -52,7 +52,8 @@
       "Bash(gem list)",
       "Bash(bundle exec rubocop:*)",
       "Bash(gh pr view:*)",
-      "Bash(gh pr comment:*)"
+      "Bash(gh pr comment:*)",
+      "Bash(gh api:*)"
     ],
     "deny": []
   },

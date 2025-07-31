@@ -11,10 +11,10 @@
     <div class="flex justify-between items-start mb-8">
       <div>
         <h1 class="text-3xl font-bold text-gray-900 mb-2">
-          <%= @draft_grade.display_team_name %>
+          <%= h(@draft_grade.display_team_name) %>
         </h1>
         <p class="text-lg text-gray-600">
-          <%= @draft_grade.user.display_name %>
+          <%= h(@draft_grade.user.display_name) %>
         </p>
       </div>
       
@@ -67,7 +67,7 @@
     <div class="mb-8">
       <h2 class="text-xl font-bold text-gray-900 mb-4">Analysis</h2>
       <div class="bg-blue-50 rounded-lg p-4 mb-4">
-        <p class="text-gray-800"><%= @draft_grade.analysis['summary'] %></p>
+        <p class="text-gray-800"><%= h(@draft_grade.analysis['summary']) %></p>
       </div>
       
       <% if @draft_grade.analysis['strengths']&.any? %>
@@ -75,7 +75,7 @@
           <h3 class="font-semibold text-gray-900 mb-2">Strengths</h3>
           <ul class="list-disc list-inside space-y-1">
             <% @draft_grade.analysis['strengths'].each do |strength| %>
-              <li class="text-gray-700"><%= strength %></li>
+              <li class="text-gray-700"><%= h(strength) %></li>
             <% end %>
           </ul>
         </div>
@@ -86,7 +86,7 @@
           <h3 class="font-semibold text-gray-900 mb-2">Areas for Improvement</h3>
           <ul class="list-disc list-inside space-y-1">
             <% @draft_grade.analysis['weaknesses'].each do |weakness| %>
-              <li class="text-gray-700"><%= weakness %></li>
+              <li class="text-gray-700"><%= h(weakness) %></li>
             <% end %>
           </ul>
         </div>
@@ -102,7 +102,7 @@
             <% @draft_grade.best_picks.each do |pick| %>
               <div class="bg-green-50 rounded p-3 text-sm">
                 <p class="font-medium text-green-900">
-                  <%= pick['player_name'] %> (<%= pick['position'] %>)
+                  <%= h(pick['player_name']) %> (<%= h(pick['position']) %>)
                 </p>
                 <p class="text-green-700">
                   Round <%= pick['round'] %>, Pick <%= pick['pick'] %>
@@ -123,7 +123,7 @@
             <% @draft_grade.worst_picks.each do |pick| %>
               <div class="bg-red-50 rounded p-3 text-sm">
                 <p class="font-medium text-red-900">
-                  <%= pick['player_name'] %> (<%= pick['position'] %>)
+                  <%= h(pick['player_name']) %> (<%= h(pick['position']) %>)
                 </p>
                 <p class="text-red-700">
                   Round <%= pick['round'] %>, Pick <%= pick['pick'] %>

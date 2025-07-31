@@ -37,7 +37,20 @@ class Draft < ApplicationRecord
 
   def calculate_grades
     return unless status_completed?
-    DraftAnalysis.new(self).calculate_all_grades
+    # Need to construct draft_data from the draft's picks
+    draft_data = {
+      'draft' => draft_picks.map do |pick|
+        {
+          'player_id' => pick.sleeper_player_id,
+          'picked_by' => pick.sleeper_user_id,
+          'round' => pick.round,
+          'pick_no' => pick.pick_number,
+          'metadata' => pick.metadata
+        }
+      end,
+      'league_size' => league_size
+    }
+    DraftAnalysis.new(league, draft_data).calculate_all_grades
   end
 
   def grades_calculated?

@@ -12,15 +12,16 @@ module DraftGradesHelper
     GRADE_COLOR_CLASSES[draft_grade.grade_category] || 'text-gray-600 bg-gray-50'
   end
 
+  POSITION_GRADE_COLORS = {
+    'A' => 'text-green-600',
+    'B' => 'text-blue-600',
+    'C' => 'text-yellow-600',
+    'D' => 'text-orange-600',
+    'F' => 'text-red-600'
+  }.freeze
+
   def position_grade_color(grade)
-    case grade
-    when 'A' then 'text-green-600'
-    when 'B' then 'text-blue-600'
-    when 'C' then 'text-yellow-600'
-    when 'D' then 'text-orange-600'
-    when 'F' then 'text-red-600'
-    else 'text-gray-600'
-    end
+    POSITION_GRADE_COLORS[grade] || 'text-gray-600'
   end
 
   def format_playoff_probability(probability)

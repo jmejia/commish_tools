@@ -23,12 +23,17 @@ class DraftGrade < ApplicationRecord
   scope :for_draft, ->(draft) { where(draft: draft) }
   scope :with_associations, -> { includes(:user, :league_membership) }
   scope :by_grade, -> {
-    order(Arel.sql("CASE grade
-    WHEN 'A+' THEN 1 WHEN 'A' THEN 2 WHEN 'A-' THEN 3
-    WHEN 'B+' THEN 4 WHEN 'B' THEN 5 WHEN 'B-' THEN 6
-    WHEN 'C+' THEN 7 WHEN 'C' THEN 8 WHEN 'C-' THEN 9
-    WHEN 'D+' THEN 10 WHEN 'D' THEN 11 WHEN 'D-' THEN 12
-    WHEN 'F' THEN 13 END"))
+    # Safe grade ordering without SQL injection risk
+    grade_order_sql = sanitize_sql([
+      "CASE grade " +
+      "WHEN ? THEN 1 WHEN ? THEN 2 WHEN ? THEN 3 " +
+      "WHEN ? THEN 4 WHEN ? THEN 5 WHEN ? THEN 6 " +
+      "WHEN ? THEN 7 WHEN ? THEN 8 WHEN ? THEN 9 " +
+      "WHEN ? THEN 10 WHEN ? THEN 11 WHEN ? THEN 12 " +
+      "WHEN ? THEN 13 END",
+      'A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F'
+    ])
+    order(Arel.sql(grade_order_sql))
   }
   scope :by_projected_rank, -> { order(:projected_rank) }
 

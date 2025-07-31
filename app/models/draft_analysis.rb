@@ -401,6 +401,10 @@ end
 
 # Generates analysis summaries for draft grades
 class DraftAnalysisSummaryGenerator
+  # Analysis thresholds
+  VALUE_PICK_THRESHOLD = 3
+  REACH_PICK_THRESHOLD = 3
+
   attr_reader :projection_data, :picks
 
   def initialize(projection_data:, picks:)
@@ -431,7 +435,7 @@ class DraftAnalysisSummaryGenerator
 
     # Check for value picks
     value_picks = picks.select(&:is_value?)
-    if value_picks.size >= 3
+    if value_picks.size >= VALUE_PICK_THRESHOLD
       strengths << "Excellent draft value with #{value_picks.size} steals"
     end
 
@@ -450,7 +454,7 @@ class DraftAnalysisSummaryGenerator
 
     # Check for reaches
     reaches = picks.select(&:is_reach?)
-    if reaches.size >= 3
+    if reaches.size >= REACH_PICK_THRESHOLD
       weaknesses << "Reached on #{reaches.size} picks"
     end
 

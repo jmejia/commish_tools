@@ -18,5 +18,6 @@ class CreateDrafts < ActiveRecord::Migration[8.0]
     add_index :drafts, [:league_id, :season_year]
     add_index :drafts, :status
     add_index :drafts, :completed_at
+    add_index :drafts, :settings, using: :gin
   end
 end

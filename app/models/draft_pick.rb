@@ -1,6 +1,13 @@
 # Represents a single pick in a fantasy football draft
 # Tracks player selection, projections, and value analysis
 class DraftPick < ApplicationRecord
+  # Pick evaluation thresholds
+  REACH_THRESHOLD = -8
+  VALUE_THRESHOLD = 12
+  MASSIVE_REACH_THRESHOLD = -15
+  GOOD_VALUE_THRESHOLD = 8
+  STEAL_THRESHOLD = 20
+
   belongs_to :draft
   belongs_to :user
 
@@ -50,23 +57,23 @@ class DraftPick < ApplicationRecord
 
   def is_reach?
     return false unless reach_value
-    reach_value < -8 # Picked more than 8 spots early
+    reach_value < REACH_THRESHOLD
   end
 
   def is_value?
     return false unless reach_value
-    reach_value > 12 # Picked more than 12 spots late
+    reach_value > VALUE_THRESHOLD
   end
 
   def pick_quality
     return 'unknown' unless reach_value
 
     case reach_value
-    when -Float::INFINITY..-15 then 'massive_reach'
-    when -15..-8 then 'reach'
-    when -8..8 then 'fair_value'
-    when 8..20 then 'good_value'
-    when 20..Float::INFINITY then 'steal'
+    when -Float::INFINITY..MASSIVE_REACH_THRESHOLD then 'massive_reach'
+    when MASSIVE_REACH_THRESHOLD..REACH_THRESHOLD then 'reach'
+    when REACH_THRESHOLD..GOOD_VALUE_THRESHOLD then 'fair_value'
+    when GOOD_VALUE_THRESHOLD..STEAL_THRESHOLD then 'good_value'
+    when STEAL_THRESHOLD..Float::INFINITY then 'steal'
     end
   end
 

@@ -4,7 +4,11 @@ class DraftGradeCalculationJob < ApplicationJob
   queue_as :default
 
   # Retry with exponential backoff if external API fails
-  retry_on StandardError, wait: :polynomially_longer, attempts: 3
+  # Retry only on specific recoverable errors
+  retry_on ActiveRecord::DeadlockRetry, wait: :polynomially_longer, attempts: 3
+  retry_on ActiveRecord::StatementTimeout, wait: :polynomially_longer, attempts: 3
+  retry_on Net::TimeoutError, wait: :polynomially_longer, attempts: 3
+  retry_on HTTP::TimeoutError, wait: :polynomially_longer, attempts: 3 if defined?(HTTP::TimeoutError)
 
   def perform(draft)
     Rails.logger.info "Calculating grades for draft #{draft.id} in league #{draft.league.name}"

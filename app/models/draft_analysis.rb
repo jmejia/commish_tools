@@ -4,6 +4,10 @@ class DraftAnalysis
   attr_reader :league, :draft_data
 
   def initialize(league, draft_data)
+    raise ArgumentError, "league cannot be nil" if league.nil?
+    raise ArgumentError, "draft_data cannot be nil" if draft_data.nil?
+    raise ArgumentError, "draft_data must contain 'draft' key" unless draft_data.key?('draft')
+    
     @league = league
     @draft_data = draft_data
   end
@@ -80,7 +84,8 @@ class DraftAnalysis
   end
 
   def calculate_overall_pick(pick_data)
-    league_size = draft_data['league_size'] || 12
+    # Prefer league object data over draft_data for consistency
+    league_size = league.try(:league_size) || draft_data['league_size'] || 12
     ((pick_data['round'] - 1) * league_size) + pick_data['pick_no']
   end
 

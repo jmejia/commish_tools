@@ -56,8 +56,5 @@
     ],
     "deny": []
   },
-  "enableAllProjectMcpServers": true,
-  "enabledMcpjsonServers": [
-    "linear"
-  ]
+  "enableAllProjectMcpServers": true
 }

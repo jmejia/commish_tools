@@ -24,6 +24,7 @@ class DraftGrade < ApplicationRecord
   scope :with_associations, -> { includes(:user, :league_membership) }
   scope :by_grade, -> {
     # Safe grade ordering without SQL injection risk
+    # Future optimization: consider adding grade_value column for simpler queries
     grade_order_sql = sanitize_sql([
       "CASE grade " +
       "WHEN ? THEN 1 WHEN ? THEN 2 WHEN ? THEN 3 " +

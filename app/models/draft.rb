@@ -67,6 +67,10 @@ class Draft < ApplicationRecord
   def import_picks_from_sleeper(picks_data)
     transaction do
       picks_data.each do |pick_data|
+        required_fields = %w[player_id picked_by round pick_no]
+        missing_fields = required_fields - pick_data.keys
+        raise ArgumentError, "Missing required fields: #{missing_fields.join(', ')}" if missing_fields.any?
+        
         draft_picks.create!(
           sleeper_player_id: pick_data['player_id'],
           sleeper_user_id: pick_data['picked_by'],

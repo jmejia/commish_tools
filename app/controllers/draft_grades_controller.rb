@@ -8,9 +8,9 @@ class DraftGradesController < ApplicationController
   before_action :set_draft_grade, only: [:show]
 
   def index
-    @draft_grades = @league.draft_grades
-                          .with_associations
-                          .by_projected_rank
+    @draft_grades = @league.draft_grades.
+      with_associations.
+      by_projected_rank
   end
 
   def show
@@ -53,9 +53,8 @@ class DraftGradesController < ApplicationController
   end
 
   def set_draft_grade
-    @draft_grade = @league.draft_grades
-                          .includes(:draft, :user, :league_membership)
-                          .find(params[:id])
+    @draft_grade = @league.draft_grades.
+      includes(:draft, :user, :league_membership).
+      find(params[:id])
   end
 end
-

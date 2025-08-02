@@ -56,15 +56,19 @@ class DraftPick < ApplicationRecord
     overall_pick - adp.to_f
   end
 
-  def is_reach?
+  def reach?
     return false unless reach_value
     reach_value < REACH_THRESHOLD
   end
 
-  def is_value?
+  def value?
     return false unless reach_value
     reach_value > VALUE_THRESHOLD
   end
+
+  # Backward compatibility aliases
+  alias_method :is_reach?, :reach?
+  alias_method :is_value?, :value?
 
   def pick_quality
     return 'unknown' unless reach_value

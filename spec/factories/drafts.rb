@@ -1,7 +1,7 @@
 FactoryBot.define do
   factory :draft do
     association :league
-    
+
     sleeper_draft_id { "draft_#{SecureRandom.hex(8)}" }
     status { 'completed' }
     season_year { Date.current.year }

@@ -6,8 +6,8 @@ module SleeperUserLookup
   private
 
   def find_user_by_sleeper_id(sleeper_user_id)
-    league.league_memberships
-          .find_by(sleeper_user_id: sleeper_user_id)
-          &.user
+    league.league_memberships.
+      find_by(sleeper_user_id: sleeper_user_id)&.
+      user
   end
 end

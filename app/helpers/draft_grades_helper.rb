@@ -17,7 +17,7 @@ module DraftGradesHelper
     'B' => 'text-blue-600',
     'C' => 'text-yellow-600',
     'D' => 'text-orange-600',
-    'F' => 'text-red-600'
+    'F' => 'text-red-600',
   }.freeze
 
   def position_grade_color(grade)

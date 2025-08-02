@@ -2,7 +2,7 @@
 # Encapsulates the business logic for evaluating draft performance
 class DraftAnalysis
   include SleeperUserLookup
-  
+
   attr_reader :league, :draft_data
 
   def initialize(league, draft_data)
@@ -132,7 +132,6 @@ class DraftAnalysis
       picks: picks,
     }
   end
-
 
   def add_relative_rankings(projections)
     sorted_teams = projections.sort_by { |_, data| -data[:starter_points] }
@@ -396,7 +395,7 @@ class DraftGradeGenerator
 
   def find_best_picks
     projection_data[:picks].
-      select(&:is_value?).
+      select(&:value?).
       sort_by { |p| -(p.reach_value || 0) }.
       first(3).
       map(&:pick_summary)
@@ -404,7 +403,7 @@ class DraftGradeGenerator
 
   def find_worst_picks
     projection_data[:picks].
-      select(&:is_reach?).
+      select(&:reach?).
       sort_by { |p| p.reach_value || 0 }.
       first(3).
       map(&:pick_summary)
@@ -453,7 +452,7 @@ class DraftAnalysisSummaryGenerator
     end
 
     # Check for value picks
-    value_picks = picks.select(&:is_value?)
+    value_picks = picks.select(&:value?)
     if value_picks.size >= VALUE_PICK_THRESHOLD
       strengths << "Excellent draft value with #{value_picks.size} steals"
     end
@@ -472,7 +471,7 @@ class DraftAnalysisSummaryGenerator
     end
 
     # Check for reaches
-    reaches = picks.select(&:is_reach?)
+    reaches = picks.select(&:reach?)
     if reaches.size >= REACH_PICK_THRESHOLD
       weaknesses << "Reached on #{reaches.size} picks"
     end

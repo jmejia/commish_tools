@@ -15,7 +15,7 @@ RSpec.describe SlotAvailability, type: :model do
       expect(SlotAvailability.availabilities).to eq({
         'unavailable' => 0,
         'maybe' => 1,
-        'available' => 2
+        'available' => 2,
       })
     end
 
@@ -67,15 +67,15 @@ RSpec.describe SlotAvailability, type: :model do
     it 'enforces uniqueness of response and slot combination' do
       response = create(:scheduling_response)
       slot = create(:event_time_slot)
-      
-      create(:slot_availability, 
-             scheduling_response: response, 
-             event_time_slot: slot, 
+
+      create(:slot_availability,
+             scheduling_response: response,
+             event_time_slot: slot,
              availability: :available)
 
-      duplicate = build(:slot_availability, 
-                       scheduling_response: response, 
-                       event_time_slot: slot, 
+      duplicate = build(:slot_availability,
+                       scheduling_response: response,
+                       event_time_slot: slot,
                        availability: :maybe)
 
       expect { duplicate.save! }.to raise_error(ActiveRecord::RecordNotUnique)

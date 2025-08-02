@@ -23,8 +23,7 @@ module DraftGradeMonitoring
         ActiveSupport::Notifications.instrument('draft_grade.calculation_completed',
           draft_id: draft.id,
           duration: duration,
-          grade_count: draft.draft_grades.count
-        )
+          grade_count: draft.draft_grades.count)
 
         Rails.logger.info(
           event: 'draft_grades_calculated',
@@ -40,8 +39,7 @@ module DraftGradeMonitoring
       ActiveSupport::Notifications.instrument('draft_grade.calculation_failed',
         draft_id: draft.id,
         error: e.class.name,
-        message: e.message
-      )
+        message: e.message)
 
       Rails.logger.error(
         event: 'draft_grades_calculation_failed',

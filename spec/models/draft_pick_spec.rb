@@ -18,8 +18,7 @@ RSpec.describe DraftPick, type: :model do
       position: 'WR',
       projected_points: 280,
       value_over_replacement: 190, # 280 - 90
-      adp: 15.5
-    )
+      adp: 15.5)
   end
 
   subject { draft_pick }
@@ -57,14 +56,13 @@ RSpec.describe DraftPick, type: :model do
 
     context 'without projections' do
       let(:draft_pick_no_proj) do
-        create(:draft_pick, 
-          draft: draft, 
+        create(:draft_pick,
+          draft: draft,
           user: user,
           projected_points: nil,
-          value_over_replacement: nil
-        )
+          value_over_replacement: nil)
       end
-      
+
       it 'can have nil VOR' do
         expect(draft_pick_no_proj.value_over_replacement).to be_nil
       end
@@ -82,10 +80,9 @@ RSpec.describe DraftPick, type: :model do
           draft: draft,
           user: user,
           overall_pick: 17,
-          adp: nil
-        )
+          adp: nil)
       end
-      
+
       it 'returns nil' do
         expect(draft_pick_no_adp.reach_value).to be_nil
       end
@@ -99,10 +96,9 @@ RSpec.describe DraftPick, type: :model do
           draft: draft,
           user: user,
           overall_pick: 17,
-          adp: 30.0  # picked at 17, ADP is 30, reach_value = -13, which is < -8 (REACH_THRESHOLD)
-        )
+          adp: 30.0) # picked at 17, ADP is 30, reach_value = -13, which is < -8 (REACH_THRESHOLD)
       end
-      
+
       it 'returns true' do
         expect(reach_pick.is_reach?).to be true
       end
@@ -122,10 +118,9 @@ RSpec.describe DraftPick, type: :model do
           draft: draft,
           user: user,
           overall_pick: 30,
-          adp: 3.0  # picked at 30, ADP is 3, reach_value = 27, which is > 12 (VALUE_THRESHOLD)
-        )
+          adp: 3.0) # picked at 30, ADP is 3, reach_value = 27, which is > 12 (VALUE_THRESHOLD)
       end
-      
+
       it 'returns true' do
         expect(value_pick.is_value?).to be true
       end
@@ -173,10 +168,9 @@ RSpec.describe DraftPick, type: :model do
           draft: draft,
           user: user,
           overall_pick: 17,
-          projected_points: nil
-        )
+          projected_points: nil)
       end
-      
+
       it 'returns 0' do
         expect(draft_pick_no_points.points_per_draft_capital).to eq(0)
       end

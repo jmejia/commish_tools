@@ -2,7 +2,7 @@
 # Manages draft lifecycle and grade calculation orchestration
 class Draft < ApplicationRecord
   include SleeperUserLookup
-  
+
   belongs_to :league
   has_many :draft_picks, dependent: :destroy
   has_many :draft_grades, dependent: :destroy
@@ -11,13 +11,13 @@ class Draft < ApplicationRecord
     pending: 'pending',
     in_progress: 'in_progress',
     completed: 'completed',
-    cancelled: 'cancelled'
+    cancelled: 'cancelled',
   }, prefix: true
 
   enum :draft_type, {
     snake: 0,
     auction: 1,
-    linear: 2
+    linear: 2,
   }, prefix: true
 
   validates :sleeper_draft_id, presence: true, uniqueness: true
@@ -47,10 +47,10 @@ class Draft < ApplicationRecord
           'picked_by' => pick.sleeper_user_id,
           'round' => pick.round,
           'pick_no' => pick.pick_number,
-          'metadata' => pick.metadata
+          'metadata' => pick.metadata,
         }
       end,
-      'league_size' => league_size
+      'league_size' => league_size,
     }
     DraftAnalysis.new(league, draft_data).calculate_all_grades
   end
@@ -67,10 +67,10 @@ class Draft < ApplicationRecord
   def import_picks_from_sleeper(picks_data)
     transaction do
       picks_data.each do |pick_data|
-        required_fields = %w[player_id picked_by round pick_no]
+        required_fields = %w(player_id picked_by round pick_no)
         missing_fields = required_fields - pick_data.keys
         raise ArgumentError, "Missing required fields: #{missing_fields.join(', ')}" if missing_fields.any?
-        
+
         draft_picks.create!(
           sleeper_player_id: pick_data['player_id'],
           sleeper_user_id: pick_data['picked_by'],
@@ -97,5 +97,4 @@ class Draft < ApplicationRecord
   def calculate_overall_pick(round, pick_number)
     ((round - 1) * league_size) + pick_number
   end
-
 end

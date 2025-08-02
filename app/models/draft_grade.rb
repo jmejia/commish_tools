@@ -32,7 +32,7 @@ class DraftGrade < ApplicationRecord
       "WHEN ? THEN 7 WHEN ? THEN 8 WHEN ? THEN 9 " +
       "WHEN ? THEN 10 WHEN ? THEN 11 WHEN ? THEN 12 " +
       "WHEN ? THEN 13 END",
-      'A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F'
+      'A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F',
     ])
     order(Arel.sql(grade_order_sql))
   }
@@ -53,7 +53,7 @@ class DraftGrade < ApplicationRecord
 
   # For backwards compatibility with existing tests
   def grade_color_class
-    ActiveSupport::Deprecation.warn("grade_color_class is deprecated. Use DraftGradesHelper#grade_color_class instead")
+    Rails.logger.warn("DEPRECATION WARNING: DraftGrade#grade_color_class is deprecated. Use DraftGradesHelper#grade_color_class instead")
     case grade_category
     when :excellent then 'text-green-600 bg-green-50'
     when :good then 'text-blue-600 bg-blue-50'
@@ -74,8 +74,6 @@ class DraftGrade < ApplicationRecord
     end
   end
 
-  private
-
   GRADE_VALUES = {
     'A+' => 4.3, 'A' => 4.0, 'A-' => 3.7,
     'B+' => 3.3, 'B' => 3.0, 'B-' => 2.7,
@@ -84,4 +82,3 @@ class DraftGrade < ApplicationRecord
     'F' => 0.0,
   }.freeze
 end
-

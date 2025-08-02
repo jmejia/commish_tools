@@ -36,41 +36,47 @@ This codebase prioritizes maintainability through enforced standards and clear a
 
 When responding to CodeRabbit feedback on pull requests, follow this systematic approach:
 
-### 1. Initial Assessment
+### 1. Check CodeRabbit Status
+- **First check**: Determine if CodeRabbit is still actively reviewing the PR
+- **Look for indicators**: Recent CodeRabbit activity, pending review status, or "in progress" comments
+- **User confirmation**: If CodeRabbit appears active, ask: "CodeRabbit appears to still be actively reviewing this PR. Should I proceed with addressing existing comments, or would you prefer to wait for CodeRabbit to complete its review?"
+- **Proceed only after**: User explicitly confirms to continue with current feedback
+
+### 2. Initial Assessment
 - Use `gh pr view [PR_NUMBER] --json comments,reviews` to get overview
 - Identify unresolved CodeRabbit comments (those with "Resolve conversation" button visible)
 - Create todo list to track responses systematically
 
-### 2. Finding Unresolved Comments
+### 3. Finding Unresolved Comments
 - **Visual inspection**: Check PR files page for "Resolve conversation" buttons
 - **API approach**: Use `gh api repos/REPO/pulls/PR/comments` to find comments without replies
 - **WebFetch verification**: Fetch PR files page to confirm unresolved status
 
-### 3. Responding to Comments (CRITICAL)
+### 4. Responding to Comments (CRITICAL)
 - **NEVER leave general PR comments** - Always respond to specific inline code comments
 - **Use nested replies**: Respond directly to CodeRabbit's inline comments in files view
 - **Command format**: `gh api repos/REPO/pulls/PR/comments/COMMENT_ID/replies -X POST --field body="RESPONSE"`
 - **Verify nesting**: Responses should appear under original comment with proper threading
 
-### 4. Response Strategy
+### 5. Response Strategy
 - **Agree**: Implement suggested changes and explain what was done
 - **Disagree**: Provide clear reasoning with context about why suggestion doesn't fit
 - **Partial agreement**: Acknowledge valid points while explaining constraints
 - **Be constructive**: Engage in technical dialogue to reach consensus
 
-### 5. Implementation When Agreeing
+### 6. Implementation When Agreeing
 - Extract duplicated logic into concerns/modules
 - Add proper error handling and validation
 - Implement suggested architectural improvements
 - Run tests to ensure changes work correctly
 
-### 6. Validation
+### 7. Validation
 - Ensure all responses are properly nested under original comments
 - Verify comment URLs follow format: `#discussion_r[NUMBER]`
 - Check that conversation threads are properly linked
 - Run tests and linting after any code changes
 
-### 7. Commit and Push Changes
+### 8. Commit and Push Changes
 - **ALWAYS commit code changes** made during CodeRabbit review process
 - Use descriptive commit message that references the CodeRabbit feedback addressed
 - Include the standard Claude Code footer in commit message

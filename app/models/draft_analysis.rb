@@ -144,16 +144,41 @@ class DraftAnalysis
   end
 
   def playoff_probability_for_rank(rank)
-    # Assumes 6 team playoff - should be configurable
-    case rank
-    when 1..2 then 0.95
-    when 3..4 then 0.80
-    when 5..6 then 0.60
-    when 7..8 then 0.35
-    when 9..10 then 0.20
-    when 11..12 then 0.05
-    else 0.02
+    playoff_teams = get_playoff_teams_count
+    total_teams = get_total_teams_count
+    
+    # Calculate probability based on playoff spots and total teams
+    if rank <= playoff_teams * 0.33  # Top third of playoff teams
+      0.95
+    elsif rank <= playoff_teams * 0.67  # Middle third of playoff teams  
+      0.80
+    elsif rank <= playoff_teams  # Bottom third of playoff teams
+      0.60
+    elsif rank <= total_teams * 0.67  # Upper non-playoff teams
+      0.35
+    elsif rank <= total_teams * 0.83  # Middle non-playoff teams
+      0.20
+    elsif rank <= total_teams  # Bottom teams
+      0.05
+    else
+      0.02
     end
+  end
+
+  private
+
+  def get_playoff_teams_count
+    # Try league settings first, then draft settings, then default to 6
+    league.settings&.dig('playoff_teams') ||
+      draft_data.dig('settings', 'playoff_teams') ||
+      6
+  end
+
+  def get_total_teams_count
+    # Try league first, then draft_data, then default to 12
+    league.try(:league_size) ||
+      draft_data['league_size'] ||
+      12
   end
 
   def generate_and_save_grades(projections)

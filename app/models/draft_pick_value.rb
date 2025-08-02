@@ -29,7 +29,7 @@ class DraftPickValue < Dry::Struct
   end
 
   def reach_value
-    adp ? (adp - overall_pick) : 0
+    adp ? (overall_pick - adp) : 0
   end
 
   def pick_summary

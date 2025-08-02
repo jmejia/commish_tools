@@ -53,6 +53,7 @@ class DraftGrade < ApplicationRecord
 
   # For backwards compatibility with existing tests
   def grade_color_class
+    ActiveSupport::Deprecation.warn("grade_color_class is deprecated. Use DraftGradesHelper#grade_color_class instead")
     case grade_category
     when :excellent then 'text-green-600 bg-green-50'
     when :good then 'text-blue-600 bg-blue-50'

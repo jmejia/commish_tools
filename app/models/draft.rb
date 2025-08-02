@@ -1,6 +1,8 @@
 # Represents a fantasy football draft with picks and calculated grades
 # Manages draft lifecycle and grade calculation orchestration
 class Draft < ApplicationRecord
+  include SleeperUserLookup
+  
   belongs_to :league
   has_many :draft_picks, dependent: :destroy
   has_many :draft_grades, dependent: :destroy
@@ -92,9 +94,4 @@ class Draft < ApplicationRecord
     ((round - 1) * league_size) + pick_number
   end
 
-  def find_user_by_sleeper_id(sleeper_user_id)
-    league.league_memberships
-          .find_by(sleeper_user_id: sleeper_user_id)
-          &.user
-  end
 end

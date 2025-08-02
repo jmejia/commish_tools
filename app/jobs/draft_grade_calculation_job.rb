@@ -21,7 +21,8 @@ class DraftGradeCalculationJob < ApplicationJob
 
     Rails.logger.info "Successfully calculated grades for draft #{draft.id}"
   rescue => e
-    Rails.logger.error "Failed to calculate grades for draft #{draft.id}: #{e.message}"
+    Rails.logger.error "Failed to calculate grades for draft #{draft.id} in league #{draft.league.name} (league_id: #{draft.league.id}): #{e.message}"
+    Rails.logger.error e.backtrace.join("\n") if Rails.env.development?
     raise # Re-raise to trigger retry
   end
 end

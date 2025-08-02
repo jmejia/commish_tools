@@ -1,6 +1,8 @@
 # Domain object that analyzes draft results and generates grades
 # Encapsulates the business logic for evaluating draft performance
 class DraftAnalysis
+  include SleeperUserLookup
+  
   attr_reader :league, :draft_data
 
   def initialize(league, draft_data)
@@ -131,11 +133,6 @@ class DraftAnalysis
     }
   end
 
-  def find_user_by_sleeper_id(sleeper_user_id)
-    league.league_memberships.
-      find_by(sleeper_user_id: sleeper_user_id)&.
-      user
-  end
 
   def add_relative_rankings(projections)
     sorted_teams = projections.sort_by { |_, data| -data[:starter_points] }

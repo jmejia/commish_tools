@@ -50,37 +50,22 @@ class DraftAnalysis
   end
 
   def create_draft_pick_object(pick_data)
-    pick = OpenStruct.new(
+    # Generate mock projections
+    projection = generate_mock_projection(pick_data)
+    
+    # Create DraftPickValue with all required attributes
+    DraftPickValue.new(
       round: pick_data['round'],
       pick_number: pick_data['pick_no'],
       overall_pick: calculate_overall_pick(pick_data),
       player_id: pick_data['player_id'],
-      sleeper_user_id: pick_data['picked_by']
+      sleeper_user_id: pick_data['picked_by'],
+      player_name: projection[:name],
+      position: projection[:position],
+      projected_points: projection[:projected_points],
+      value_over_replacement: projection[:projected_points] - replacement_level_for_position(projection[:position]),
+      adp: nil # No ADP data for now
     )
-
-    # Add mock projections
-    projection = generate_mock_projection(pick_data)
-    pick.player_name = projection[:name]
-    pick.position = projection[:position]
-    pick.projected_points = projection[:projected_points]
-    pick.value_over_replacement = projection[:projected_points] - replacement_level_for_position(projection[:position])
-    pick.adp = nil # No ADP data for now
-
-    # Add methods needed by the analysis
-    pick.define_singleton_method(:is_value?) { (adp || overall_pick + 12) < overall_pick }
-    pick.define_singleton_method(:is_reach?) { (adp || overall_pick - 12) > overall_pick }
-    pick.define_singleton_method(:reach_value) { adp ? (adp - overall_pick) : 0 }
-    pick.define_singleton_method(:pick_summary) do
-      {
-        player_name: player_name,
-        position: position,
-        round: round,
-        pick: pick_number,
-        projected_points: projected_points,
-      }
-    end
-
-    pick
   end
 
   def calculate_overall_pick(pick_data)

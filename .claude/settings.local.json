@@ -53,7 +53,8 @@
       "Bash(bundle exec rubocop:*)",
       "Bash(gh pr view:*)",
       "Bash(gh pr comment:*)",
-      "Bash(gh api:*)"
+      "Bash(gh api:*)",
+      "Bash(bundle exec ruby:*)"
     ],
     "deny": []
   },

@@ -48,7 +48,7 @@
               
               <div class="flex justify-between">
                 <span class="text-gray-600">Playoff Odds:</span>
-                <span class="font-medium"><%= (grade.playoff_probability * 100).round %>%</span>
+                <span class="font-medium"><%= format_playoff_probability(grade.playoff_probability) %></span>
               </div>
             </div>
             

@@ -22,13 +22,13 @@ class SleeperDraft
     end
   end
 
+  private
+
   def fetch_completed_draft
     drafts = client.league_drafts(league.sleeper_league_id)
 
     drafts&.find { |d| d.status == 'complete' }
   end
-
-  private
 
   def client
     @client ||= SleeperFF.new
@@ -41,7 +41,7 @@ class SleeperDraft
       'draft_id' => sleeper_draft_data.draft_id,
       'draft' => picks,
       'settings' => sleeper_draft_data.settings,
-      'league_size' => sleeper_draft_data.settings['teams'] || 12,
+      'league_size' => sleeper_draft_data.settings['teams'] || league.league_size || 12,
     }
   end
 end

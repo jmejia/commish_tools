@@ -39,7 +39,7 @@
       </div>
       
       <div class="bg-gray-50 rounded-lg p-4 text-center">
-        <p class="text-2xl font-bold text-gray-900"><%= (@draft_grade.playoff_probability * 100).round %>%</p>
+        <p class="text-2xl font-bold text-gray-900"><%= format_playoff_probability(@draft_grade.playoff_probability) %></p>
         <p class="text-sm text-gray-600">Playoff Odds</p>
       </div>
       

@@ -39,7 +39,11 @@ class DraftAnalysis
   def organize_picks_by_user
     picks_by_user = Hash.new { |h, k| h[k] = [] }
 
-    draft_data['draft'].each do |pick_data|
+    # Defensive programming: handle missing or empty draft data gracefully
+    draft_picks = draft_data['draft'] || []
+    return {} if draft_picks.empty?
+
+    draft_picks.each do |pick_data|
       sleeper_user_id = pick_data['picked_by']
       user = find_user_by_sleeper_id(sleeper_user_id)
       next unless user

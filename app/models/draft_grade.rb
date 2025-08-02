@@ -5,6 +5,7 @@ class DraftGrade < ApplicationRecord
 
   belongs_to :league
   belongs_to :user
+  belongs_to :draft
 
   # Association to get league membership for this user in this league
   def league_membership

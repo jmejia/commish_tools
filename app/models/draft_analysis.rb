@@ -7,13 +7,13 @@ class DraftAnalysis
     raise ArgumentError, "league cannot be nil" if league.nil?
     raise ArgumentError, "draft_data cannot be nil" if draft_data.nil?
     raise ArgumentError, "draft_data must contain 'draft' key" unless draft_data.key?('draft')
-    
+
     @league = league
     @draft_data = draft_data
   end
 
-  def calculate_all_grades
-    return if league.draft_grades.any?
+  def calculate_all_grades(force: false)
+    return if league.draft_grades.any? && !force
 
     ActiveRecord::Base.transaction do
       team_projections = calculate_team_projections
@@ -52,7 +52,7 @@ class DraftAnalysis
   def create_draft_pick_object(pick_data)
     # Generate mock projections
     projection = generate_mock_projection(pick_data)
-    
+
     # Create DraftPickValue with all required attributes
     DraftPickValue.new(
       round: pick_data['round'],
@@ -74,15 +74,24 @@ class DraftAnalysis
     ((pick_data['round'] - 1) * league_size) + pick_data['pick_no']
   end
 
+  # Mock projection constants for generating test data
+  MOCK_PROJECTION_BASE_POINTS = 300        # Starting fantasy points for first overall pick
+  MOCK_PICK_PENALTY = 2                    # Points lost per pick within round
+  MOCK_ROUND_PENALTY = 10                  # Additional points lost per round
+  MOCK_VARIANCE_RANGE = (-20..20)          # Random variance in projection accuracy
+  MOCK_MINIMUM_POINTS = 50                 # Floor for projected points
+
   def generate_mock_projection(pick_data)
-    base_points = 300 - (pick_data['pick_no'].to_i * 2) - (pick_data['round'].to_i * 10)
-    variance = rand(-20..20)
+    base_points = MOCK_PROJECTION_BASE_POINTS -
+                  (pick_data['pick_no'].to_i * MOCK_PICK_PENALTY) -
+                  (pick_data['round'].to_i * MOCK_ROUND_PENALTY)
+    variance = rand(MOCK_VARIANCE_RANGE)
     position = determine_position_from_pick(pick_data)
 
     {
       name: extract_player_name(pick_data),
       position: position,
-      projected_points: [base_points + variance, 50].max.to_f,
+      projected_points: [base_points + variance, MOCK_MINIMUM_POINTS].max.to_f,
     }
   end
 
@@ -146,26 +155,24 @@ class DraftAnalysis
   def playoff_probability_for_rank(rank)
     playoff_teams = get_playoff_teams_count
     total_teams = get_total_teams_count
-    
+
     # Calculate probability based on playoff spots and total teams
-    if rank <= playoff_teams * 0.33  # Top third of playoff teams
+    if rank <= playoff_teams * 0.33 # Top third of playoff teams
       0.95
-    elsif rank <= playoff_teams * 0.67  # Middle third of playoff teams  
+    elsif rank <= playoff_teams * 0.67 # Middle third of playoff teams
       0.80
-    elsif rank <= playoff_teams  # Bottom third of playoff teams
+    elsif rank <= playoff_teams # Bottom third of playoff teams
       0.60
     elsif rank <= total_teams * 0.67  # Upper non-playoff teams
       0.35
     elsif rank <= total_teams * 0.83  # Middle non-playoff teams
       0.20
-    elsif rank <= total_teams  # Bottom teams
+    elsif rank <= total_teams # Bottom teams
       0.05
     else
       0.02
     end
   end
-
-  private
 
   def get_playoff_teams_count
     # Try league settings first, then draft settings, then default to 6

@@ -23,11 +23,7 @@ class DraftPick < ApplicationRecord
   scope :with_projections, -> { where.not(projected_points: nil) }
   scope :ordered, -> { order(:overall_pick) }
 
-  # Class method to fetch replacement level points for a position
-  def self.replacement_level_for(position)
-    REPLACEMENT_LEVELS[position] || 50
-  end
-
+  # Replacement level fantasy points by position for VOR calculations
   REPLACEMENT_LEVELS = {
     'QB' => 180,
     'RB' => 80,
@@ -36,6 +32,11 @@ class DraftPick < ApplicationRecord
     'DST' => 50,
     'K' => 100,
   }.freeze
+
+  # Class method to fetch replacement level points for a position
+  def self.replacement_level_for(position)
+    REPLACEMENT_LEVELS[position] || 50
+  end
 
   def update_projections(projection_data)
     update!(
@@ -100,4 +101,3 @@ class DraftPick < ApplicationRecord
     projection_data[:projected_points] - replacement_level
   end
 end
-

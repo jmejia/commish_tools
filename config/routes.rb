@@ -52,6 +52,12 @@ Rails.application.routes.draw do
         get :export
       end
     end
+
+    resources :draft_grades, only: [:index, :show] do
+      collection do
+        post :import
+      end
+    end
   end
 
   # Voice upload routes (public access via token)

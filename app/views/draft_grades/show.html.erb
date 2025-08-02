@@ -1,0 +1,142 @@
+<div class="max-w-4xl mx-auto px-4 py-8">
+  <%= link_to league_draft_grades_path(@league), class: "inline-flex items-center text-blue-600 hover:text-blue-800 mb-6" do %>
+    <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+    </svg>
+    Back to All Grades
+  <% end %>
+
+  <div class="bg-white rounded-lg shadow-lg p-8">
+    <!-- Header -->
+    <div class="flex justify-between items-start mb-8">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">
+          <%= h(@draft_grade.display_team_name) %>
+        </h1>
+        <p class="text-lg text-gray-600">
+          <%= h(@draft_grade.user.display_name) %>
+        </p>
+      </div>
+      
+      <div class="text-center">
+        <div class="inline-flex items-center justify-center w-24 h-24 rounded-full <%= grade_color_class(@draft_grade) %> font-bold text-4xl mb-2">
+          <%= @draft_grade.grade %>
+        </div>
+        <p class="text-sm font-medium text-gray-600">Overall Grade</p>
+      </div>
+    </div>
+
+    <!-- Key Stats -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div class="bg-gray-50 rounded-lg p-4 text-center">
+        <p class="text-2xl font-bold text-gray-900">#<%= @draft_grade.projected_rank %></p>
+        <p class="text-sm text-gray-600">Projected Rank</p>
+      </div>
+      
+      <div class="bg-gray-50 rounded-lg p-4 text-center">
+        <p class="text-2xl font-bold text-gray-900"><%= @draft_grade.projected_wins %></p>
+        <p class="text-sm text-gray-600">Projected Wins</p>
+      </div>
+      
+      <div class="bg-gray-50 rounded-lg p-4 text-center">
+        <p class="text-2xl font-bold text-gray-900"><%= format_playoff_probability(@draft_grade.playoff_probability) %></p>
+        <p class="text-sm text-gray-600">Playoff Odds</p>
+      </div>
+      
+      <div class="bg-gray-50 rounded-lg p-4 text-center">
+        <p class="text-2xl font-bold text-gray-900"><%= @draft_grade.projected_points.round %></p>
+        <p class="text-sm text-gray-600">Projected Points</p>
+      </div>
+    </div>
+
+    <!-- Position Grades -->
+    <div class="mb-8">
+      <h2 class="text-xl font-bold text-gray-900 mb-4">Position Grades</h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <% %w[QB RB WR TE].each do |pos| %>
+          <% pos_grade = @draft_grade.position_grades[pos] || 'N/A' %>
+          <div class="bg-gray-50 rounded-lg p-3 text-center">
+            <p class="text-lg font-bold text-gray-900"><%= pos %></p>
+            <p class="text-xl font-semibold <%= position_grade_color(pos_grade) %>"><%= pos_grade %></p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Analysis -->
+    <div class="mb-8">
+      <h2 class="text-xl font-bold text-gray-900 mb-4">Analysis</h2>
+      <div class="bg-blue-50 rounded-lg p-4 mb-4">
+        <p class="text-gray-800"><%= h(@draft_grade.analysis['summary']) %></p>
+      </div>
+      
+      <% if @draft_grade.analysis['strengths']&.any? %>
+        <div class="mb-4">
+          <h3 class="font-semibold text-gray-900 mb-2">Strengths</h3>
+          <ul class="list-disc list-inside space-y-1">
+            <% @draft_grade.analysis['strengths'].each do |strength| %>
+              <li class="text-gray-700"><%= h(strength) %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+      
+      <% if @draft_grade.analysis['weaknesses']&.any? %>
+        <div>
+          <h3 class="font-semibold text-gray-900 mb-2">Areas for Improvement</h3>
+          <ul class="list-disc list-inside space-y-1">
+            <% @draft_grade.analysis['weaknesses'].each do |weakness| %>
+              <li class="text-gray-700"><%= h(weakness) %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Best/Worst Picks -->
+    <div class="grid md:grid-cols-2 gap-6">
+      <% if @draft_grade.best_picks.any? %>
+        <div>
+          <h3 class="font-semibold text-green-800 mb-3">Best Value Picks</h3>
+          <div class="space-y-2">
+            <% @draft_grade.best_picks.each do |pick| %>
+              <div class="bg-green-50 rounded p-3 text-sm">
+                <p class="font-medium text-green-900">
+                  <%= h(pick['player_name']) %> (<%= h(pick['position']) %>)
+                </p>
+                <p class="text-green-700">
+                  Round <%= pick['round'] %>, Pick <%= pick['pick'] %>
+                  <% if pick['reach_value'] != 'N/A' %>
+                    • <%= pick['reach_value'].abs %> picks later than ADP
+                  <% end %>
+                </p>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+      
+      <% if @draft_grade.worst_picks.any? %>
+        <div>
+          <h3 class="font-semibold text-red-800 mb-3">Biggest Reaches</h3>
+          <div class="space-y-2">
+            <% @draft_grade.worst_picks.each do |pick| %>
+              <div class="bg-red-50 rounded p-3 text-sm">
+                <p class="font-medium text-red-900">
+                  <%= h(pick['player_name']) %> (<%= h(pick['position']) %>)
+                </p>
+                <p class="text-red-700">
+                  Round <%= pick['round'] %>, Pick <%= pick['pick'] %>
+                  <% if pick['reach_value'] != 'N/A' %>
+                    • <%= pick['reach_value'].abs %> picks earlier than ADP
+                  <% end %>
+                </p>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+

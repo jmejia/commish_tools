@@ -227,9 +227,10 @@
         <div class="bg-gray-800/50 rounded-xl border border-gray-700 p-6">
           <h3 class="text-lg font-semibold text-white mb-4">Quick Actions</h3>
           <div class="space-y-3">
-            <button class="block w-full px-4 py-2 text-left text-gray-300 hover:text-white hover:bg-gray-700/50 rounded-lg transition-colors">
-              📊 View League Stats
-            </button>
+            <%= link_to league_draft_grades_path(@league), 
+                class: 'block w-full px-4 py-2 text-left text-gray-300 hover:text-white hover:bg-gray-700/50 rounded-lg transition-colors' do %>
+              📊 Draft Grades
+            <% end %>
             <button class="block w-full px-4 py-2 text-left text-gray-300 hover:text-white hover:bg-gray-700/50 rounded-lg transition-colors">
               🏆 Season Summary
             </button>

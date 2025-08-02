@@ -1,7 +1,7 @@
 # Handles the homepage and user redirections based on authentication and league ownership.
 class HomeController < ApplicationController
   skip_before_action :authenticate_user!
-  
+
   def index
     return unless user_signed_in?
 

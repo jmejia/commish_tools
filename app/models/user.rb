@@ -15,6 +15,7 @@ class User < ApplicationRecord
   has_many :league_memberships, dependent: :destroy
   has_many :leagues, through: :league_memberships
   has_many :voice_clones, through: :league_memberships
+  has_many :draft_grades, dependent: :destroy
   has_one :super_admin, dependent: :destroy
   has_many :sleeper_connection_requests, dependent: :destroy
 

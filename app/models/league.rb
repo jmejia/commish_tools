@@ -8,6 +8,8 @@ class League < ApplicationRecord
   has_many :press_conferences, dependent: :destroy
   has_many :voice_clones, through: :league_memberships
   has_many :scheduling_polls, dependent: :destroy
+  has_many :drafts, dependent: :destroy
+  has_many :draft_grades, dependent: :destroy
   has_one :league_context, dependent: :destroy
 
   validates :sleeper_league_id, presence: true, uniqueness: true

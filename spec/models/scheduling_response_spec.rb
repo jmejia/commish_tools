@@ -43,8 +43,8 @@ RSpec.describe SchedulingResponse, type: :model do
         respondent_name: 'John Doe',
         availabilities: {
           poll.event_time_slots.first.id.to_s => '2',
-          poll.event_time_slots.last.id.to_s => '0'
-        }
+          poll.event_time_slots.last.id.to_s => '0',
+        },
       }
     end
     let(:request) { double('request', remote_ip: '127.0.0.1', user_agent: 'Test Agent') }
@@ -158,9 +158,9 @@ RSpec.describe SchedulingResponse, type: :model do
 
     context 'when user is available' do
       before do
-        create(:slot_availability, 
-               scheduling_response: response, 
-               event_time_slot: slot, 
+        create(:slot_availability,
+               scheduling_response: response,
+               event_time_slot: slot,
                availability: :available)
       end
 
@@ -179,9 +179,9 @@ RSpec.describe SchedulingResponse, type: :model do
 
     context 'when user is maybe available' do
       before do
-        create(:slot_availability, 
-               scheduling_response: response, 
-               event_time_slot: slot, 
+        create(:slot_availability,
+               scheduling_response: response,
+               event_time_slot: slot,
                availability: :maybe)
       end
 
@@ -200,9 +200,9 @@ RSpec.describe SchedulingResponse, type: :model do
 
     context 'when user is unavailable' do
       before do
-        create(:slot_availability, 
-               scheduling_response: response, 
-               event_time_slot: slot, 
+        create(:slot_availability,
+               scheduling_response: response,
+               event_time_slot: slot,
                availability: :unavailable)
       end
 
@@ -240,7 +240,7 @@ RSpec.describe SchedulingResponse, type: :model do
     it 'creates new availability records' do
       availabilities = {
         slot1.id.to_s => '2',
-        slot2.id.to_s => '0'
+        slot2.id.to_s => '0',
       }
 
       response.update_availabilities(availabilities)
@@ -251,9 +251,9 @@ RSpec.describe SchedulingResponse, type: :model do
     end
 
     it 'updates existing availability records' do
-      create(:slot_availability, 
-             scheduling_response: response, 
-             event_time_slot: slot1, 
+      create(:slot_availability,
+             scheduling_response: response,
+             event_time_slot: slot1,
              availability: :unavailable)
 
       availabilities = { slot1.id.to_s => '2' }

@@ -28,7 +28,7 @@ Rails.application.routes.draw do
       get :dashboard
     end
 
-    resource :league_context, only: [:edit, :update], path: 'context'
+    resource :league_context, only: [:edit, :update], path: 'context', controller: 'leagues/contexts'
 
     resources :league_memberships, only: [:create, :destroy] do
       resources :voice_clones, except: [:index] do
@@ -45,7 +45,7 @@ Rails.application.routes.draw do
       resources :press_conference_questions, path: :questions
     end
 
-    resources :scheduling_polls do
+    resources :scheduling_polls, controller: 'scheduling/polls' do
       member do
         patch :close
         patch :reopen
@@ -59,10 +59,10 @@ Rails.application.routes.draw do
   post '/voice_uploads/:token', to: 'voice_uploads#create'
 
   # Public scheduling routes (no authentication required)
-  get '/schedule/:token', to: 'public_scheduling#show', as: :public_scheduling
-  get '/schedule/:token/thank-you', to: 'public_scheduling#thank_you', as: :public_scheduling_thank_you
-  post '/schedule/:token', to: 'public_scheduling#create'
-  patch '/schedule/:token', to: 'public_scheduling#update'
+  get '/schedule/:token', to: 'scheduling/public#show', as: :public_scheduling
+  get '/schedule/:token/thank-you', to: 'scheduling/public#thank_you', as: :public_scheduling_thank_you
+  post '/schedule/:token', to: 'scheduling/public#create'
+  patch '/schedule/:token', to: 'scheduling/public#update'
 
   # Audio streaming routes
   get '/audio/:id', to: 'audio#stream', as: :audio_stream

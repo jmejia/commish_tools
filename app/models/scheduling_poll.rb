@@ -1,8 +1,6 @@
 # Represents a scheduling poll for league events (draft, playoffs, etc.)
 # Allows commissioners to create polls with multiple time slots and collect availability from members
 class SchedulingPoll < ApplicationRecord
-  # Result object for poll creation operations
-  CreationResult = Struct.new(:success?, :poll, :message, :error, keyword_init: true)
 
   belongs_to :league
   belongs_to :created_by, class_name: 'User'
@@ -44,25 +42,10 @@ class SchedulingPoll < ApplicationRecord
     includes(:event_time_slots, scheduling_responses: { slot_availabilities: :event_time_slot })
   }
 
-  # Domain method to create a poll with proper validation and error handling
-  # Replaces PollCreator service object
+  # Delegate to PORO for poll creation
   def self.create_for_league(league:, created_by:, params:)
-    poll = league.scheduling_polls.build(params)
-    poll.created_by = created_by
-
-    if poll.save
-      CreationResult.new(
-        success?: true,
-        poll: poll,
-        message: 'Poll created successfully.'
-      )
-    else
-      CreationResult.new(
-        success?: false,
-        poll: poll,
-        error: poll.errors.full_messages.to_sentence
-      )
-    end
+    creator = Scheduling::PollCreator.new(league: league, created_by: created_by)
+    creator.create(params)
   end
 
   def response_count
@@ -108,23 +91,8 @@ class SchedulingPoll < ApplicationRecord
   end
 
   def broadcast_updates
-    # Reload with all associations to ensure fresh data
-    poll = SchedulingPoll.includes(
-      :league,
-      :event_time_slots,
-      scheduling_responses: { slot_availabilities: :event_time_slot }
-    ).find(id)
-
-    # Broadcast the entire results section as one update
-    Turbo::StreamsChannel.broadcast_replace_to(
-      "scheduling_poll_#{id}",
-      target: "poll-results",
-      partial: "scheduling_polls/results",
-      locals: {
-        poll: poll,
-        responses: poll.scheduling_responses,
-      }
-    )
+    broadcaster = Scheduling::Broadcaster.new(self)
+    broadcaster.broadcast_updates
   end
 
   def public_url
@@ -165,35 +133,8 @@ class SchedulingPoll < ApplicationRecord
   end
 
   def to_csv
-    require 'csv'
-
-    CSV.generate(headers: true) do |csv|
-      # Header row
-      headers = ['Member Name'] + event_time_slots.map(&:display_label)
-      csv << headers
-
-      # Response rows
-      scheduling_responses.includes(slot_availabilities: :event_time_slot).each do |response|
-        row = [response.respondent_name]
-
-        event_time_slots.each do |slot|
-          availability = response.slot_availabilities.find { |sa| sa.event_time_slot_id == slot.id }
-          row << case availability&.availability
-                 when 'available_ideal' then 'Available and works well'
-                 when 'available_not_ideal' then 'Available but not ideal'
-                 else 'Not available'
-                 end
-        end
-
-        csv << row
-      end
-
-      # Add non-respondents
-      non_respondents.each do |membership|
-        row = [membership.user.display_name] + (['No Response'] * event_time_slots.count)
-        csv << row
-      end
-    end
+    exporter = Scheduling::CsvExporter.new(self)
+    exporter.export
   end
 
   private

@@ -1,5 +1,5 @@
 # Manages league context editing for league owners
-class LeagueContextsController < ApplicationController
+class Leagues::ContextsController < ApplicationController
   before_action :set_league
   before_action :ensure_league_owner
 

@@ -1,6 +1,6 @@
 <div class="space-y-6">
   <!-- Availability Grid (Heatmap) -->
-  <%= render "scheduling_polls/availability_grid", poll: poll, responses: responses %>
+  <%= render "scheduling/polls/availability_grid", poll: poll, responses: responses %>
 
   <!-- Time Slots Summary -->
   <div class="bg-gray-800/50 rounded-xl border border-gray-700 p-6">
@@ -57,7 +57,7 @@
     </div>
 
     <!-- Optimal Slots Recommendation -->
-    <%= render "scheduling_polls/optimal_slots", poll: poll %>
+    <%= render "scheduling/polls/optimal_slots", poll: poll %>
   </div>
 
   <!-- Non-Respondents Section -->

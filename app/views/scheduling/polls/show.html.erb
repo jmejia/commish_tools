@@ -14,7 +14,7 @@
             <% if @poll.description.present? %>
               <p class="text-gray-400 mb-4"><%= @poll.description %></p>
             <% end %>
-            <%= render "scheduling_polls/statistics", poll: @poll %>
+            <%= render "scheduling/polls/statistics", poll: @poll %>
           </div>
           
           <% if @poll.created_by == current_user || @league.owner == current_user %>

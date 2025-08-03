@@ -1,6 +1,6 @@
 # Handles public responses to scheduling polls without authentication
 # League members can submit their availability via a unique link
-class PublicSchedulingController < ApplicationController
+class Scheduling::PublicController < ApplicationController
   include RateLimitable
   include SpamProtectable
 

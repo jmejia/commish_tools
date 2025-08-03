@@ -1,6 +1,6 @@
 # Manages scheduling polls for league events
 # Allows commissioners to create and manage polls with time slots
-class SchedulingPollsController < ApplicationController
+class Scheduling::PollsController < ApplicationController
   before_action :set_league
   before_action :ensure_league_member, only: [:index, :show]
   before_action :authorize_commissioner!, only: [:new, :create]

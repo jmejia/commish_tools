@@ -49,9 +49,34 @@ fi
 
 # Source the environment file for the current session
 if [ -f "/workspaces/commish_tools/.env.devcontainer" ]; then
-    # Add to bash profile so variables are available in all sessions
-    echo "# Load devcontainer environment variables" >> ~/.bashrc
-    echo "export \$(grep -v '^#' /workspaces/commish_tools/.env.devcontainer | xargs)" >> ~/.bashrc
+    # Create a reusable environment loader script
+    cat > ~/.load-devcontainer-env.sh << 'EOF'
+#!/bin/bash
+if [ -f "/workspaces/commish_tools/.env.devcontainer" ]; then
+    # Use a more robust approach that works in both bash and zsh
+    while IFS= read -r line; do
+        # Skip comments and empty lines
+        if [[ ! "$line" =~ ^[[:space:]]*# ]] && [[ -n "$line" ]]; then
+            export "$line"
+        fi
+    done < "/workspaces/commish_tools/.env.devcontainer"
+fi
+EOF
+    chmod +x ~/.load-devcontainer-env.sh
+    
+    # Add to multiple shell profiles so variables are available in all sessions
+    for profile in ~/.bashrc ~/.zshrc ~/.profile ~/.bash_profile; do
+        if [ -f "$profile" ] || [ "$profile" = ~/.bashrc ] || [ "$profile" = ~/.zshrc ]; then
+            if ! grep -q "load-devcontainer-env.sh" "$profile" 2>/dev/null; then
+                echo "" >> "$profile"
+                echo "# Load devcontainer environment variables" >> "$profile"
+                echo "source ~/.load-devcontainer-env.sh" >> "$profile"
+            fi
+        fi
+    done
+    
+    # Load immediately for current session
+    source ~/.load-devcontainer-env.sh
 fi
 
 echo "🎉 Devcontainer environment initialization complete!"

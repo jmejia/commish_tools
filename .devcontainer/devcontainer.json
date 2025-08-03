@@ -42,7 +42,7 @@
     6379
   ],
   "postCreateCommand": "npm install -g @anthropic-ai/claude-code && gem install bundler && cd /workspaces/commish_tools && bundle install --binstubs && yarn install && PGUSER=postgres PGPASSWORD=postgres bundle exec rails db:create db:migrate && sudo bash .devcontainer/init-firewall.sh && bash .devcontainer/init-env.sh && mkdir -p /home/developer/.ssh && sudo cp -r /tmp/.ssh-host/* /home/developer/.ssh/ 2>/dev/null || true && sudo chown -R developer:developer /home/developer/.ssh && chmod 700 /home/developer/.ssh && find /home/developer/.ssh -type f -exec chmod 600 {} \\;",
-  "postStartCommand": "git config --global --add safe.directory ${containerWorkspaceFolder}",
+  "postStartCommand": "git config --global --add safe.directory ${containerWorkspaceFolder} && source ~/.load-devcontainer-env.sh 2>/dev/null || true",
   "customizations": {
     "vscode": {
       "extensions": [

@@ -2,6 +2,7 @@ FactoryBot.define do
   factory :draft_grade do
     association :league
     association :user
+    association :draft
 
     grade { %w(A+ A A- B+ B B- C+ C C- D+ D D- F).sample }
     projected_rank { rand(1..12) }
@@ -50,7 +51,6 @@ FactoryBot.define do
       }
     end
 
-    draft_id { "draft_#{SecureRandom.hex(8)}" }
     calculated_at { 1.day.ago }
   end
 end

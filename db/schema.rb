@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_03_000003) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_03_015808) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -82,7 +82,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_03_000003) do
     t.decimal "projected_points", precision: 10, scale: 2
     t.decimal "actual_points", precision: 10, scale: 2
     t.decimal "value_over_replacement", precision: 10, scale: 2
-    t.integer "adp"
+    t.decimal "adp", precision: 5, scale: 1
     t.jsonb "metadata", default: {}
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -105,6 +105,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_03_000003) do
     t.datetime "completed_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "draft_type"
+    t.integer "league_size"
     t.index ["completed_at"], name: "index_drafts_on_completed_at"
     t.index ["league_id", "season_year"], name: "index_drafts_on_league_id_and_season_year"
     t.index ["league_id"], name: "index_drafts_on_league_id"

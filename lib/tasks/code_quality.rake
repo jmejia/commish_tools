@@ -207,7 +207,7 @@ task :standards_summary do
 
   # Domain namespaces (simplified check)
   namespaced_controllers = Dir.glob("app/controllers/**/*.rb").select do |file|
-    file.include?("/") && !file.include?("application_controller")
+    file.include?("/") && file.exclude?("application_controller")
   end.count
   namespaces_status = namespaced_controllers > 0 ? "✅" : "⚠️"
   puts "#{namespaces_status} Domain namespaces (Billing::, Schedule::)"

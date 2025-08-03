@@ -9,7 +9,13 @@ echo "🔧 Initializing devcontainer environment..."
 # Load environment variables from .env.devcontainer if it exists
 if [ -f "/workspaces/commish_tools/.env.devcontainer" ]; then
     echo "📁 Loading environment variables from .env.devcontainer"
-    export $(grep -v '^#' /workspaces/commish_tools/.env.devcontainer | xargs)
+    # Use a more robust approach that handles spaces and special characters
+    while IFS= read -r line; do
+        # Skip comments and empty lines
+        if [[ ! "$line" =~ ^[[:space:]]*# ]] && [[ -n "$line" ]]; then
+            export "$line"
+        fi
+    done < "/workspaces/commish_tools/.env.devcontainer"
 else
     echo "⚠️  No .env.devcontainer file found. Copy .env.devcontainer.example to .env.devcontainer and configure your environment variables."
 fi

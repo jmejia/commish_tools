@@ -71,11 +71,11 @@ keyword_init: true)
   end
 
   def available_for?(event_time_slot)
-    slot_availabilities.find_by(event_time_slot: event_time_slot)&.available?
+    slot_availabilities.find_by(event_time_slot: event_time_slot)&.available_ideal?
   end
 
-  def maybe_for?(event_time_slot)
-    slot_availabilities.find_by(event_time_slot: event_time_slot)&.maybe?
+  def available_not_ideal_for?(event_time_slot)
+    slot_availabilities.find_by(event_time_slot: event_time_slot)&.available_not_ideal?
   end
 
   def unavailable_for?(event_time_slot)
@@ -99,7 +99,7 @@ keyword_init: true)
 
   # Input sanitization to prevent XSS attacks
   def sanitize_respondent_name
-    return unless respondent_name.present?
+    return if respondent_name.blank?
 
     # Strip HTML tags and excessive whitespace
     self.respondent_name = ActionController::Base.helpers.strip_tags(respondent_name).strip
@@ -146,7 +146,7 @@ keyword_init: true)
   end
 
   def self.find_existing_response_for_poll(poll, params)
-    return nil unless params[:respondent_name].present?
+    return nil if params[:respondent_name].blank?
 
     identifier = generate_response_identifier(params[:respondent_name], poll.id)
     poll.scheduling_responses.find_by(respondent_identifier: identifier)
@@ -175,5 +175,4 @@ keyword_init: true)
       error: error_message
     )
   end
-
 end

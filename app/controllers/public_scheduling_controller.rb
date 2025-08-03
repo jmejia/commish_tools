@@ -92,31 +92,9 @@ class PublicSchedulingController < ApplicationController
 
   def handle_success(result)
     # Broadcast updates to all viewers of the poll
-    broadcast_poll_updates(result.response)
+    result.response.scheduling_poll.broadcast_updates
 
     redirect_to public_scheduling_thank_you_path(@poll.public_token), notice: result.notice
-  end
-
-  def broadcast_poll_updates(response)
-    poll = response.scheduling_poll
-
-    # Reload poll with all associations to ensure fresh data
-    poll = SchedulingPoll.includes(
-      :league, 
-      :event_time_slots,
-      scheduling_responses: { slot_availabilities: :event_time_slot }
-    ).find(poll.id)
-    
-    # Broadcast the entire results section as one update
-    Turbo::StreamsChannel.broadcast_replace_to(
-      "scheduling_poll_#{poll.id}",
-      target: "poll-results",
-      partial: "scheduling_polls/results",
-      locals: { 
-        poll: poll, 
-        responses: poll.scheduling_responses
-      }
-    )
   end
 
   def handle_failure(result)

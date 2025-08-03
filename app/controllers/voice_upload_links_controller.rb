@@ -40,6 +40,6 @@ notice: 'Shareable upload link deleted.'
   end
 
   def voice_upload_link_params
-    params.require(:voice_upload_link).permit(:title, :instructions, :expires_at, :active, :max_uploads)
+    params.expect(voice_upload_link: [:title, :instructions, :expires_at, :active, :max_uploads])
   end
 end

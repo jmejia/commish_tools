@@ -78,21 +78,21 @@
                       <%= radio_button_tag "availabilities[#{slot.id}]", "2", 
                           @response&.available_for?(slot),
                           class: "mr-2 text-green-500 focus:ring-green-500" %>
-                      <span class="text-green-400">Available</span>
+                      <span class="text-green-400">Available and works well</span>
                     </label>
                     
                     <label class="flex items-center cursor-pointer">
                       <%= radio_button_tag "availabilities[#{slot.id}]", "1", 
-                          @response&.maybe_for?(slot),
+                          @response&.available_not_ideal_for?(slot),
                           class: "mr-2 text-yellow-500 focus:ring-yellow-500" %>
-                      <span class="text-yellow-400">Maybe</span>
+                      <span class="text-yellow-400">Available but not ideal</span>
                     </label>
                     
                     <label class="flex items-center cursor-pointer">
                       <%= radio_button_tag "availabilities[#{slot.id}]", "0", 
                           @response ? @response.unavailable_for?(slot) : true,
                           class: "mr-2 text-red-500 focus:ring-red-500" %>
-                      <span class="text-red-400">Not Available</span>
+                      <span class="text-red-400">Not available</span>
                     </label>
                   </div>
                 </div>
@@ -106,15 +106,15 @@
             <div class="flex space-x-6 text-sm">
               <div class="flex items-center space-x-2">
                 <span class="w-3 h-3 bg-green-500 rounded-full"></span>
-                <span class="text-gray-300">Available - I can definitely make this time</span>
+                <span class="text-gray-300">Available and works well - This time works perfectly</span>
               </div>
               <div class="flex items-center space-x-2">
                 <span class="w-3 h-3 bg-yellow-500 rounded-full"></span>
-                <span class="text-gray-300">Maybe - I might be able to make it</span>
+                <span class="text-gray-300">Available but not ideal - Can attend but not preferred</span>
               </div>
               <div class="flex items-center space-x-2">
                 <span class="w-3 h-3 bg-red-500 rounded-full"></span>
-                <span class="text-gray-300">Not Available - I cannot make this time</span>
+                <span class="text-gray-300">Not available - Cannot attend at this time</span>
               </div>
             </div>
           </div>

@@ -1,3 +1,4 @@
+require 'English'
 namespace :quality do
   desc "Run all code quality checks"
   task :check do
@@ -10,7 +11,7 @@ namespace :quality do
     puts "1️⃣  Running RuboCop (Style Guide)..."
     puts "=" * 50
     system("RAILS_ENV=development bundle exec rubocop")
-    rubocop_success = $?.success?
+    rubocop_success = $CHILD_STATUS.success?
     all_passed = false unless rubocop_success
     puts rubocop_success ? "✅ RuboCop: PASSED" : "❌ RuboCop: FAILED"
     puts "\n"
@@ -19,7 +20,7 @@ namespace :quality do
     puts "2️⃣  Running Brakeman (Security Scanner)..."
     puts "=" * 50
     system("bundle exec brakeman --no-pager")
-    brakeman_success = $?.success?
+    brakeman_success = $CHILD_STATUS.success?
     all_passed = false unless brakeman_success
     puts brakeman_success ? "✅ Brakeman: PASSED" : "❌ Brakeman: FAILED"
     puts "\n"
@@ -28,7 +29,7 @@ namespace :quality do
     puts "3️⃣  Running Reek (Code Smell Detection)..."
     puts "=" * 50
     system("bundle exec reek --no-documentation")
-    reek_success = $?.success?
+    reek_success = $CHILD_STATUS.success?
     all_passed = false unless reek_success
     puts reek_success ? "✅ Reek: PASSED" : "❌ Reek: FAILED"
     puts "\n"
@@ -37,7 +38,7 @@ namespace :quality do
     puts "4️⃣  Running RSpec (Tests + Coverage)..."
     puts "=" * 50
     system("RAILS_ENV=test bundle exec rspec")
-    rspec_success = $?.success?
+    rspec_success = $CHILD_STATUS.success?
     all_passed = false unless rspec_success
     puts rspec_success ? "✅ RSpec: PASSED" : "❌ RSpec: FAILED"
     puts "\n"
@@ -46,7 +47,7 @@ namespace :quality do
     puts "5️⃣  Running Coding Standards Checks..."
     puts "=" * 50
     system("bundle exec rake coding_standards")
-    coding_standards_success = $?.success?
+    coding_standards_success = $CHILD_STATUS.success?
     all_passed = false unless coding_standards_success
     puts coding_standards_success ? "✅ Coding Standards: PASSED" : "❌ Coding Standards: FAILED"
     puts "\n"
@@ -73,30 +74,30 @@ namespace :quality do
   desc "Run RuboCop style checks"
   task :style do
     puts "🎨 Running RuboCop (Style Guide)..."
-    system("RAILS_ENV=development bundle exec rubocop") or exit 1
+    system("RAILS_ENV=development bundle exec rubocop") || exit(1)
   end
 
   desc "Run Brakeman security scan"
   task :security do
     puts "🔒 Running Brakeman (Security Scanner)..."
-    system("bundle exec brakeman --no-pager") or exit 1
+    system("bundle exec brakeman --no-pager") || exit(1)
   end
 
   desc "Run Reek code smell detection"
   task :smells do
     puts "👃 Running Reek (Code Smell Detection)..."
-    system("bundle exec reek --no-documentation") or exit 1
+    system("bundle exec reek --no-documentation") || exit(1)
   end
 
   desc "Run tests with coverage"
   task :test do
     puts "🧪 Running RSpec (Tests + Coverage)..."
-    system("RAILS_ENV=test bundle exec rspec") or exit 1
+    system("RAILS_ENV=test bundle exec rspec") || exit(1)
   end
 
   desc "Auto-fix RuboCop style issues where possible"
   task :fix do
     puts "🔧 Auto-fixing RuboCop issues..."
-    system("RAILS_ENV=development bundle exec rubocop --autocorrect") or exit 1
+    system("RAILS_ENV=development bundle exec rubocop --autocorrect") || exit(1)
   end
 end

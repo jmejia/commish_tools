@@ -82,8 +82,8 @@ RSpec.describe SchedulingPoll, type: :model do
       # Create responses with different availability patterns
       3.times do
         response = create(:scheduling_response, scheduling_poll: poll)
-        create(:slot_availability, scheduling_response: response, event_time_slot: slot1, availability: 2) # available
-        create(:slot_availability, scheduling_response: response, event_time_slot: slot2, availability: 1) # maybe
+        create(:slot_availability, scheduling_response: response, event_time_slot: slot1, availability: 2)
+        create(:slot_availability, scheduling_response: response, event_time_slot: slot2, availability: 1)
         create(:slot_availability, scheduling_response: response, event_time_slot: slot3, availability: 0) # unavailable
       end
     end

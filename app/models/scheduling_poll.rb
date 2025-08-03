@@ -107,6 +107,26 @@ class SchedulingPoll < ApplicationRecord
     update!(status: :active)
   end
 
+  def broadcast_updates
+    # Reload with all associations to ensure fresh data
+    poll = SchedulingPoll.includes(
+      :league,
+      :event_time_slots,
+      scheduling_responses: { slot_availabilities: :event_time_slot }
+    ).find(id)
+
+    # Broadcast the entire results section as one update
+    Turbo::StreamsChannel.broadcast_replace_to(
+      "scheduling_poll_#{id}",
+      target: "poll-results",
+      partial: "scheduling_polls/results",
+      locals: {
+        poll: poll,
+        responses: poll.scheduling_responses,
+      }
+    )
+  end
+
   def public_url
     # In development/test, use a default host if not configured
     url_options = Rails.application.config.action_mailer.default_url_options || {}
@@ -159,9 +179,9 @@ class SchedulingPoll < ApplicationRecord
         event_time_slots.each do |slot|
           availability = response.slot_availabilities.find { |sa| sa.event_time_slot_id == slot.id }
           row << case availability&.availability
-                 when 'available' then 'Available'
-                 when 'maybe' then 'Maybe'
-                 else 'Unavailable'
+                 when 'available_ideal' then 'Available and works well'
+                 when 'available_not_ideal' then 'Available but not ideal'
+                 else 'Not available'
                  end
         end
 

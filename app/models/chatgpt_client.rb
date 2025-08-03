@@ -52,7 +52,7 @@ class ChatgptClient
   def extract_response_text(response)
     choices = response.dig("choices")
 
-    if choices.nil? || choices.empty?
+    if choices.blank?
       raise GenerationError, "No response generated from OpenAI API"
     end
 

@@ -16,14 +16,14 @@ class EventTimeSlot < ApplicationRecord
   def availability_summary
     availabilities = slot_availabilities.group(:availability).count
     {
-      available: availabilities["available"] || 0,
-      maybe: availabilities["maybe"] || 0,
+      available_ideal: availabilities["available_ideal"] || 0,
+      available_not_ideal: availabilities["available_not_ideal"] || 0,
       unavailable: availabilities["unavailable"] || 0,
     }
   end
 
   def available_count
-    availability_summary[:available]
+    availability_summary[:available_ideal]
   end
 
   def availability_score
@@ -31,8 +31,8 @@ class EventTimeSlot < ApplicationRecord
     total_responses = summary.values.sum
     return 0 if total_responses.zero?
 
-    # Weighted score: available = 2 points, maybe = 1 point
-    ((summary[:available] * 2 + summary[:maybe]) / (total_responses * 2.0) * 100).round
+    # Weighted score: available_ideal = 2 points, available_not_ideal = 1 point
+    ((summary[:available_ideal] * 2 + summary[:available_not_ideal]) / (total_responses * 2.0) * 100).round
   end
 
   def formatted_time(timezone = nil)

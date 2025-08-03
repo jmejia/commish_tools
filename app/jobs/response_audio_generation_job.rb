@@ -16,7 +16,7 @@ class ResponseAudioGenerationJob < ApplicationJob
     voice_clone = target_manager.voice_clone
 
     # Check if voice clone exists and is ready
-    unless voice_clone&.playht_voice_id.present?
+    if voice_clone&.playht_voice_id.blank?
       Rails.logger.error "No voice clone available for user #{target_manager.user.id}"
       return
     end

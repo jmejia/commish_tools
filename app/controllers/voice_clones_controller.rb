@@ -67,6 +67,6 @@ class VoiceClonesController < ApplicationController
   end
 
   def voice_clone_params
-    params.require(:voice_clone).permit(:audio_file)
+    params.expect(voice_clone: [:audio_file])
   end
 end

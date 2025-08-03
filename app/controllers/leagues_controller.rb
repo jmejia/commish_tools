@@ -148,6 +148,6 @@ class LeaguesController < ApplicationController
   end
 
   def league_params
-    params.require(:league).permit(:name, :sleeper_league_id, :season_year)
+    params.expect(league: [:name, :sleeper_league_id, :season_year])
   end
 end

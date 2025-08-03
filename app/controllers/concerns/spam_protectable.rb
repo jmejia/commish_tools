@@ -9,7 +9,7 @@ module SpamProtectable
     # Check for honeypot field submissions (should be empty)
     def check_honeypot(honeypot_field = :email_confirm)
       return true if Rails.env.test?
-      
+
       if params[honeypot_field].present?
         Rails.logger.warn "Honeypot triggered from IP: #{request.remote_ip}, UA: #{request.user_agent}"
         render_spam_detected
@@ -44,8 +44,11 @@ module SpamProtectable
 
     # Time-based submission check (too fast = likely bot)
     def check_submission_timing(form_start_time_param = :form_start_time)
-      # Skip timing check in test environment or if no timestamp provided
-      return true if Rails.env.test? || !params[form_start_time_param].present?
+      # Skip timing check in test environment
+      return true if Rails.env.test?
+
+      # Skip if no timestamp provided
+      return true if params[form_start_time_param].blank?
 
       begin
         form_start_time = Time.parse(params[form_start_time_param])

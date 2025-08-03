@@ -43,8 +43,8 @@ RSpec.describe SchedulingResponse, type: :model do
         respondent_name: 'John Doe',
         availabilities: {
           poll.event_time_slots.first.id.to_s => '2',
-          poll.event_time_slots.last.id.to_s => '0'
-        }
+          poll.event_time_slots.last.id.to_s => '0',
+        },
       }
     end
     let(:request) { double('request', remote_ip: '127.0.0.1', user_agent: 'Test Agent') }
@@ -158,18 +158,18 @@ RSpec.describe SchedulingResponse, type: :model do
 
     context 'when user is available' do
       before do
-        create(:slot_availability, 
-               scheduling_response: response, 
-               event_time_slot: slot, 
-               availability: :available)
+        create(:slot_availability,
+               scheduling_response: response,
+               event_time_slot: slot,
+               availability: :available_ideal)
       end
 
       it '#available_for? returns true' do
         expect(response.available_for?(slot)).to be true
       end
 
-      it '#maybe_for? returns false' do
-        expect(response.maybe_for?(slot)).to be false
+      it '#available_not_ideal_for? returns false' do
+        expect(response.available_not_ideal_for?(slot)).to be false
       end
 
       it '#unavailable_for? returns false' do
@@ -177,20 +177,20 @@ RSpec.describe SchedulingResponse, type: :model do
       end
     end
 
-    context 'when user is maybe available' do
+    context 'when user is available but not ideal' do
       before do
-        create(:slot_availability, 
-               scheduling_response: response, 
-               event_time_slot: slot, 
-               availability: :maybe)
+        create(:slot_availability,
+               scheduling_response: response,
+               event_time_slot: slot,
+               availability: :available_not_ideal)
       end
 
       it '#available_for? returns false' do
         expect(response.available_for?(slot)).to be false
       end
 
-      it '#maybe_for? returns true' do
-        expect(response.maybe_for?(slot)).to be true
+      it '#available_not_ideal_for? returns true' do
+        expect(response.available_not_ideal_for?(slot)).to be true
       end
 
       it '#unavailable_for? returns false' do
@@ -200,9 +200,9 @@ RSpec.describe SchedulingResponse, type: :model do
 
     context 'when user is unavailable' do
       before do
-        create(:slot_availability, 
-               scheduling_response: response, 
-               event_time_slot: slot, 
+        create(:slot_availability,
+               scheduling_response: response,
+               event_time_slot: slot,
                availability: :unavailable)
       end
 
@@ -210,8 +210,8 @@ RSpec.describe SchedulingResponse, type: :model do
         expect(response.available_for?(slot)).to be false
       end
 
-      it '#maybe_for? returns false' do
-        expect(response.maybe_for?(slot)).to be false
+      it '#available_not_ideal_for? returns false' do
+        expect(response.available_not_ideal_for?(slot)).to be false
       end
 
       it '#unavailable_for? returns true' do
@@ -226,7 +226,7 @@ RSpec.describe SchedulingResponse, type: :model do
 
       it 'other methods return nil/false' do
         expect(response.available_for?(slot)).to be_falsey
-        expect(response.maybe_for?(slot)).to be_falsey
+        expect(response.available_not_ideal_for?(slot)).to be_falsey
       end
     end
   end
@@ -240,7 +240,7 @@ RSpec.describe SchedulingResponse, type: :model do
     it 'creates new availability records' do
       availabilities = {
         slot1.id.to_s => '2',
-        slot2.id.to_s => '0'
+        slot2.id.to_s => '0',
       }
 
       response.update_availabilities(availabilities)
@@ -251,9 +251,9 @@ RSpec.describe SchedulingResponse, type: :model do
     end
 
     it 'updates existing availability records' do
-      create(:slot_availability, 
-             scheduling_response: response, 
-             event_time_slot: slot1, 
+      create(:slot_availability,
+             scheduling_response: response,
+             event_time_slot: slot1,
              availability: :unavailable)
 
       availabilities = { slot1.id.to_s => '2' }

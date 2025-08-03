@@ -74,11 +74,11 @@ RSpec.feature 'Draft Scheduling', type: :feature do
 
     # Select availability for time slots
     within all('.bg-gray-700\\/50').first do
-      choose 'Available'
+      choose 'Available and works well'
     end
 
     within all('.bg-gray-700\\/50').last do
-      choose 'Not Available'
+      choose 'Not available'
     end
 
     # Submit response
@@ -93,7 +93,7 @@ RSpec.feature 'Draft Scheduling', type: :feature do
     expect(page).to have_button('Update Response')
 
     within all('.bg-gray-700\\/50').first do
-      choose 'Maybe'
+      choose 'Available but not ideal'
     end
 
     click_button 'Update Response'
@@ -111,8 +111,8 @@ RSpec.feature 'Draft Scheduling', type: :feature do
     expect(page).to have_content("#{poll.response_rate}%")
 
     # Should see availability summary for each slot
-    expect(page).to have_content('Available:')
-    expect(page).to have_content('Maybe:')
+    expect(page).to have_content('Works well:')
+    expect(page).to have_content('Not ideal:')
     expect(page).to have_content('Unavailable:')
 
     # Should see recommended slots

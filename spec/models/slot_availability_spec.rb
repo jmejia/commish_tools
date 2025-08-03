@@ -14,21 +14,21 @@ RSpec.describe SlotAvailability, type: :model do
     it 'defines availability enum correctly' do
       expect(SlotAvailability.availabilities).to eq({
         'unavailable' => 0,
-        'maybe' => 1,
-        'available' => 2
+        'available_not_ideal' => 1,
+        'available_ideal' => 2,
       })
     end
 
     it 'allows setting availability by name' do
-      availability = build(:slot_availability, availability: :available)
-      expect(availability.availability).to eq('available')
-      expect(availability.available?).to be true
+      availability = build(:slot_availability, availability: :available_ideal)
+      expect(availability.availability).to eq('available_ideal')
+      expect(availability.available_ideal?).to be true
     end
 
     it 'allows setting availability by number' do
       availability = build(:slot_availability, availability: 1)
-      expect(availability.availability).to eq('maybe')
-      expect(availability.maybe?).to be true
+      expect(availability.availability).to eq('available_not_ideal')
+      expect(availability.available_not_ideal?).to be true
     end
   end
 
@@ -38,18 +38,18 @@ RSpec.describe SlotAvailability, type: :model do
     it 'responds to availability state queries' do
       availability.availability = :unavailable
       expect(availability.unavailable?).to be true
-      expect(availability.maybe?).to be false
-      expect(availability.available?).to be false
+      expect(availability.available_not_ideal?).to be false
+      expect(availability.available_ideal?).to be false
 
-      availability.availability = :maybe
+      availability.availability = :available_not_ideal
       expect(availability.unavailable?).to be false
-      expect(availability.maybe?).to be true
-      expect(availability.available?).to be false
+      expect(availability.available_not_ideal?).to be true
+      expect(availability.available_ideal?).to be false
 
-      availability.availability = :available
+      availability.availability = :available_ideal
       expect(availability.unavailable?).to be false
-      expect(availability.maybe?).to be false
-      expect(availability.available?).to be true
+      expect(availability.available_not_ideal?).to be false
+      expect(availability.available_ideal?).to be true
     end
   end
 
@@ -67,16 +67,16 @@ RSpec.describe SlotAvailability, type: :model do
     it 'enforces uniqueness of response and slot combination' do
       response = create(:scheduling_response)
       slot = create(:event_time_slot)
-      
-      create(:slot_availability, 
-             scheduling_response: response, 
-             event_time_slot: slot, 
-             availability: :available)
 
-      duplicate = build(:slot_availability, 
-                       scheduling_response: response, 
-                       event_time_slot: slot, 
-                       availability: :maybe)
+      create(:slot_availability,
+             scheduling_response: response,
+             event_time_slot: slot,
+             availability: :available_ideal)
+
+      duplicate = build(:slot_availability,
+                       scheduling_response: response,
+                       event_time_slot: slot,
+                       availability: :available_not_ideal)
 
       expect { duplicate.save! }.to raise_error(ActiveRecord::RecordNotUnique)
     end

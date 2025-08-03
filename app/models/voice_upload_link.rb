@@ -4,7 +4,6 @@ class VoiceUploadLink < ApplicationRecord
   before_validation :generate_public_token, on: :create
 
   validates :public_token, presence: true, uniqueness: true
-  validates :voice_clone_id, presence: true
 
   private
 

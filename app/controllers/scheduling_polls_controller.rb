@@ -110,9 +110,11 @@ class SchedulingPollsController < ApplicationController
   end
 
   def poll_params
-    params.require(:scheduling_poll).permit(
-      :event_type, :title, :description, :closes_at,
-      event_time_slots_attributes: [:id, :starts_at, :duration_minutes, :_destroy]
+    params.expect(
+      scheduling_poll: [
+        :event_type, :title, :description, :closes_at,
+        event_time_slots_attributes: [:id, :starts_at, :duration_minutes, :_destroy],
+      ]
     )
   end
 end

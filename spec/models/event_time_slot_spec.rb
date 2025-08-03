@@ -37,8 +37,8 @@ RSpec.describe EventTimeSlot, type: :model do
       it 'returns zeros for all availability types' do
         summary = slot.availability_summary
         expect(summary).to eq({
-          available: 0,
-          maybe: 0,
+          available_ideal: 0,
+          available_not_ideal: 0,
           unavailable: 0,
         })
       end
@@ -56,18 +56,18 @@ RSpec.describe EventTimeSlot, type: :model do
           create(:slot_availability,
                  scheduling_response: response,
                  event_time_slot: slot,
-                 availability: :available)
+                 availability: :available_ideal)
         end
 
         2.times do |i|
           response = create(:scheduling_response,
                           scheduling_poll: poll,
-                          respondent_name: "Maybe User #{i + 1}",
-                          respondent_identifier: "maybe_#{i + 1}")
+                          respondent_name: "Not Ideal User #{i + 1}",
+                          respondent_identifier: "not_ideal_#{i + 1}")
           create(:slot_availability,
                  scheduling_response: response,
                  event_time_slot: slot,
-                 availability: :maybe)
+                 availability: :available_not_ideal)
         end
 
         response = create(:scheduling_response,
@@ -83,8 +83,8 @@ RSpec.describe EventTimeSlot, type: :model do
       it 'counts each availability type correctly' do
         summary = slot.availability_summary
         expect(summary).to eq({
-          available: 3,
-          maybe: 2,
+          available_ideal: 3,
+          available_not_ideal: 2,
           unavailable: 1,
         })
       end
@@ -105,7 +105,7 @@ RSpec.describe EventTimeSlot, type: :model do
         create(:slot_availability,
                scheduling_response: response,
                event_time_slot: slot,
-               availability: :available)
+               availability: :available_ideal)
       end
 
       expect(slot.available_count).to eq(2)
@@ -123,7 +123,7 @@ RSpec.describe EventTimeSlot, type: :model do
 
     context 'with mixed responses' do
       before do
-        # 2 available (2 points each), 1 maybe (1 point), 1 unavailable (0 points)
+        # 2 available_ideal (2 points each), 1 available_not_ideal (1 point), 1 unavailable (0 points)
         # Total: 5 points out of 8 possible (4 responses * 2 max points)
         # Score: 5/8 * 100 = 62.5%, rounded to 63%
         poll = slot.scheduling_poll
@@ -136,17 +136,17 @@ RSpec.describe EventTimeSlot, type: :model do
           create(:slot_availability,
                  scheduling_response: response,
                  event_time_slot: slot,
-                 availability: :available)
+                 availability: :available_ideal)
         end
 
         response = create(:scheduling_response,
                         scheduling_poll: poll,
-                        respondent_name: "Maybe Score",
-                        respondent_identifier: "maybe_score_1")
+                        respondent_name: "Not Ideal Score",
+                        respondent_identifier: "not_ideal_score_1")
         create(:slot_availability,
                scheduling_response: response,
                event_time_slot: slot,
-               availability: :maybe)
+               availability: :available_not_ideal)
 
         response = create(:scheduling_response,
                         scheduling_poll: poll,
@@ -175,7 +175,7 @@ RSpec.describe EventTimeSlot, type: :model do
           create(:slot_availability,
                  scheduling_response: response,
                  event_time_slot: slot,
-                 availability: :available)
+                 availability: :available_ideal)
         end
       end
 

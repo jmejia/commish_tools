@@ -38,6 +38,6 @@ class LeagueContextsController < ApplicationController
   end
 
   def league_context_params
-    params.require(:league_context).permit(:nature, :tone, :rivalries, :history, :response_style)
+    params.expect(league_context: [:nature, :tone, :rivalries, :history, :response_style])
   end
 end

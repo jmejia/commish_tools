@@ -1,6 +1,6 @@
 class PlayhtApiClient
-  BASE_URL = "https://api.play.ht/api/v2"
-  USER_AGENT = "PlayHT Ruby Client/1.0"
+  BASE_URL = "https://api.play.ht/api/v2".freeze
+  USER_AGENT = "PlayHT Ruby Client/1.0".freeze
 
   # Custom error classes following Octokit pattern
   class Error < StandardError; end

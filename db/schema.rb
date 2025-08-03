@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_02_192704) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_03_000003) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -79,9 +79,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_02_192704) do
     t.integer "overall_pick", null: false
     t.string "player_name"
     t.string "position"
-    t.decimal "adp", precision: 5, scale: 2
-    t.decimal "projected_points", precision: 8, scale: 2
-    t.decimal "value_over_replacement", precision: 8, scale: 2
+    t.decimal "projected_points", precision: 10, scale: 2
+    t.decimal "actual_points", precision: 10, scale: 2
+    t.decimal "value_over_replacement", precision: 10, scale: 2
+    t.integer "adp"
     t.jsonb "metadata", default: {}
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -97,10 +98,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_02_192704) do
   create_table "drafts", force: :cascade do |t|
     t.bigint "league_id", null: false
     t.string "sleeper_draft_id", null: false
+    t.string "season_year", null: false
     t.string "status", null: false
-    t.integer "season_year", null: false
-    t.integer "draft_type", default: 0, null: false
-    t.integer "league_size", null: false
     t.jsonb "settings", default: {}
     t.datetime "started_at"
     t.datetime "completed_at"

@@ -3,10 +3,8 @@ class CreateDrafts < ActiveRecord::Migration[8.0]
     create_table :drafts do |t|
       t.references :league, null: false, foreign_key: true
       t.string :sleeper_draft_id, null: false
+      t.string :season_year, null: false
       t.string :status, null: false
-      t.integer :season_year, null: false
-      t.integer :draft_type, default: 0, null: false
-      t.integer :league_size, null: false
       t.jsonb :settings, default: {}
       t.datetime :started_at
       t.datetime :completed_at

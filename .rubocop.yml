@@ -26,6 +26,10 @@ Layout/LineLength:
 Rails:
   Enabled: true
 
+# Disable I18n locale texts cop - we'll handle i18n when needed
+Rails/I18nLocaleTexts:
+  Enabled: false
+
 # Allow multiple expectations per example for RSpec
 RSpec/MultipleExpectations:
   Max: 5

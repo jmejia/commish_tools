@@ -52,7 +52,7 @@ When responding to CodeRabbit feedback on pull requests, follow this systematic 
 ### 3. Finding Unresolved Comments
 
 - **Visual inspection**: Check PR files page for "Resolve conversation" buttons
-- **API approach**: Use `gh api repos/REPO/pulls/PR/comments` to find comments without replies
+- **API approach**: Use `gh api repos/{OWNER}/{REPO}/pulls/{PR}/comments` to find comments without replies
 - **WebFetch verification**: Fetch PR files page to confirm unresolved status
 
 ### 4. Responding to Comments (CRITICAL) - CHECKPOINT PROTOCOL
@@ -64,7 +64,7 @@ When responding to CodeRabbit feedback on pull requests, follow this systematic 
 
 Run this exact test command with a real comment ID:
 ```bash
-gh api repos/REPO/pulls/PR/comments/COMMENT_ID/replies -X POST --field body="TEST - please ignore"
+gh api repos/{OWNER}/{REPO}/pulls/{PR}/comments/{COMMENT_ID}/replies -X POST --field body="TEST - please ignore"
 ```
 
 **Required response format:**
@@ -78,7 +78,7 @@ gh api repos/REPO/pulls/PR/comments/COMMENT_ID/replies -X POST --field body="TES
 
 - **NEVER leave general PR comments** - Always respond to specific inline code comments
 - **Use nested replies**: Respond directly to CodeRabbit's inline comments in files view
-- **Command format**: `gh api repos/REPO/pulls/PR/comments/COMMENT_ID/replies -X POST --field body="RESPONSE"`
+- **Command format**: `gh api repos/{OWNER}/{REPO}/pulls/{PR}/comments/{COMMENT_ID}/replies -X POST --field body="RESPONSE"`
 - **Show proof**: Paste the success JSON for each response
 
 #### CHECKPOINT 3: Verify All Responses Complete

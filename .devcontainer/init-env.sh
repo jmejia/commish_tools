@@ -70,12 +70,14 @@ EOF
     
     # Add to multiple shell profiles so variables are available in all sessions
     for profile in ~/.bashrc ~/.zshrc ~/.profile ~/.bash_profile; do
-        if [ -f "$profile" ] || [ "$profile" = ~/.bashrc ] || [ "$profile" = ~/.zshrc ]; then
-            if ! grep -q "load-devcontainer-env.sh" "$profile" 2>/dev/null; then
-                echo "" >> "$profile"
-                echo "# Load devcontainer environment variables" >> "$profile"
-                echo "source ~/.load-devcontainer-env.sh" >> "$profile"
-            fi
+        # Create profile file if it doesn't exist (for shells that might be installed later)
+        touch "$profile"
+        
+        # Add environment loader if not already present
+        if ! grep -q "load-devcontainer-env.sh" "$profile" 2>/dev/null; then
+            echo "" >> "$profile"
+            echo "# Load devcontainer environment variables" >> "$profile"
+            echo "source ~/.load-devcontainer-env.sh" >> "$profile"
         fi
     done
     

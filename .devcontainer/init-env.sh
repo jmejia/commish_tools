@@ -9,13 +9,10 @@ echo "🔧 Initializing devcontainer environment..."
 # Load environment variables from .env.devcontainer if it exists
 if [ -f "/workspaces/commish_tools/.env.devcontainer" ]; then
     echo "📁 Loading environment variables from .env.devcontainer"
-    # Use a more robust approach that handles spaces and special characters
-    while IFS= read -r line; do
-        # Skip comments and empty lines
-        if [[ ! "$line" =~ ^[[:space:]]*# ]] && [[ -n "$line" ]]; then
-            export "$line"
-        fi
-    done < "/workspaces/commish_tools/.env.devcontainer"
+    # Use set -a to automatically export all variables from the file
+    set -a
+    . "/workspaces/commish_tools/.env.devcontainer"
+    set +a
 else
     echo "⚠️  No .env.devcontainer file found. Copy .env.devcontainer.example to .env.devcontainer and configure your environment variables."
 fi
@@ -59,13 +56,10 @@ if [ -f "/workspaces/commish_tools/.env.devcontainer" ]; then
     cat > ~/.load-devcontainer-env.sh << 'EOF'
 #!/bin/bash
 if [ -f "/workspaces/commish_tools/.env.devcontainer" ]; then
-    # Use a more robust approach that works in both bash and zsh
-    while IFS= read -r line; do
-        # Skip comments and empty lines
-        if [[ ! "$line" =~ ^[[:space:]]*# ]] && [[ -n "$line" ]]; then
-            export "$line"
-        fi
-    done < "/workspaces/commish_tools/.env.devcontainer"
+    # Use set -a to automatically export all variables from the file
+    set -a
+    . "/workspaces/commish_tools/.env.devcontainer"
+    set +a
 fi
 EOF
     chmod +x ~/.load-devcontainer-env.sh

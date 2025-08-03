@@ -55,12 +55,38 @@ When responding to CodeRabbit feedback on pull requests, follow this systematic 
 - **API approach**: Use `gh api repos/REPO/pulls/PR/comments` to find comments without replies
 - **WebFetch verification**: Fetch PR files page to confirm unresolved status
 
-### 4. Responding to Comments (CRITICAL)
+### 4. Responding to Comments (CRITICAL) - CHECKPOINT PROTOCOL
+
+**YOU MUST COMPLETE EACH CHECKPOINT IN ORDER. DO NOT PROCEED WITHOUT SUCCESS.**
+
+#### CHECKPOINT 1: Test Critical Command
+**DO THIS FIRST - DO NOT PROCEED WITHOUT SUCCESS**
+
+Run this exact test command with a real comment ID:
+```bash
+gh api repos/REPO/pulls/PR/comments/COMMENT_ID/replies -X POST --field body="TEST - please ignore"
+```
+
+**Required response format:**
+- ✅ SUCCESS: [paste the JSON response showing the reply was created]
+- ❌ BLOCKED: [paste exact error message and STOP - ask for help]
+
+**I will only proceed to real responses after you show SUCCESS above.**
+
+#### CHECKPOINT 2: Execute Real Responses
+[Only proceed after Checkpoint 1 shows SUCCESS]
 
 - **NEVER leave general PR comments** - Always respond to specific inline code comments
 - **Use nested replies**: Respond directly to CodeRabbit's inline comments in files view
 - **Command format**: `gh api repos/REPO/pulls/PR/comments/COMMENT_ID/replies -X POST --field body="RESPONSE"`
-- **Verify nesting**: Responses should appear under original comment with proper threading
+- **Show proof**: Paste the success JSON for each response
+
+#### CHECKPOINT 3: Verify All Responses Complete
+[Only proceed after Checkpoint 2 shows all responses successful]
+
+- **Verify nesting**: Check that responses appear under original comments with proper threading
+- **Confirm completion**: All CodeRabbit comments have replies
+- **URL format check**: Responses should have URLs like `#discussion_r[NUMBER]`
 
 ### 5. Response Strategy
 

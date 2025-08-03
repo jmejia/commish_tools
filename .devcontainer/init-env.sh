@@ -4,6 +4,8 @@
 
 set -e
 
+# shellcheck disable=SC1090,SC1091
+
 echo "🔧 Initializing devcontainer environment..."
 
 # Load environment variables from .env.devcontainer if it exists
@@ -11,6 +13,7 @@ if [ -f "/workspaces/commish_tools/.env.devcontainer" ]; then
     echo "📁 Loading environment variables from .env.devcontainer"
     # Use set -a to automatically export all variables from the file
     set -a
+    # shellcheck source=/dev/null
     . "/workspaces/commish_tools/.env.devcontainer"
     set +a
 else
@@ -58,6 +61,7 @@ if [ -f "/workspaces/commish_tools/.env.devcontainer" ]; then
 if [ -f "/workspaces/commish_tools/.env.devcontainer" ]; then
     # Use set -a to automatically export all variables from the file
     set -a
+    # shellcheck source=/dev/null
     . "/workspaces/commish_tools/.env.devcontainer"
     set +a
 fi

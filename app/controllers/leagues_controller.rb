@@ -54,7 +54,7 @@ class LeaguesController < ApplicationController
     Rails.logger.info "User #{current_user.id} selecting Sleeper leagues to import"
 
     unless current_user.sleeper_connected?
-      redirect_to connect_sleeper_path, alert: 'Please connect your Sleeper account first.'
+      redirect_to connect_sleeper_path, alert: I18n.t('controllers.leagues.connect_sleeper_first')
       return
     end
 
@@ -62,7 +62,7 @@ class LeaguesController < ApplicationController
     @existing_league_ids = current_user.leagues.pluck(:sleeper_league_id).compact
 
     if @leagues.empty?
-      flash.now[:alert] = 'No leagues found for your Sleeper account.'
+      flash.now[:alert] = I18n.t('controllers.leagues.no_leagues_found')
     end
   end
 
@@ -101,7 +101,7 @@ class LeaguesController < ApplicationController
     Rails.logger.info "User #{current_user.id} updating league #{@league.id}"
 
     if @league.update(league_params)
-      redirect_to dashboard_league_path(@league), notice: 'League was successfully updated.'
+      redirect_to dashboard_league_path(@league), notice: I18n.t('controllers.leagues.update_success')
     else
       render :edit, status: :unprocessable_entity
     end
@@ -110,7 +110,7 @@ class LeaguesController < ApplicationController
   def destroy
     Rails.logger.info "User #{current_user.id} deleting league #{@league.id}"
     @league.destroy!
-    redirect_to leagues_url, notice: 'League was successfully deleted.'
+    redirect_to leagues_url, notice: I18n.t('controllers.leagues.delete_success')
   end
 
   def dashboard
@@ -129,21 +129,23 @@ class LeaguesController < ApplicationController
     Rails.logger.info "Set league #{@league.id} for action"
   rescue ActiveRecord::RecordNotFound
     Rails.logger.warn "League not found with id: #{params[:id]}"
-    redirect_to leagues_path, alert: 'League not found.'
+    redirect_to leagues_path, alert: I18n.t('controllers.leagues.not_found')
   end
 
   def ensure_league_member
-    unless current_user.leagues.include?(@league) || @league.owner == current_user
-      Rails.logger.warn "User #{current_user.id} attempted to access league #{@league.id} without membership"
-      redirect_to leagues_path, alert: 'You are not a member of this league.'
+    if current_user.leagues.include?(@league) || @league.owner == current_user
+      return
     end
+
+    Rails.logger.warn "User #{current_user.id} attempted to access league #{@league.id} without membership"
+    redirect_to leagues_path, alert: I18n.t('controllers.leagues.not_member')
   end
 
   def ensure_league_admin
     membership = current_user.league_memberships.find_by(league: @league)
     unless membership&.owner?
       Rails.logger.warn "User #{current_user.id} attempted admin action on league #{@league.id} without owner rights"
-      redirect_to dashboard_league_path(@league), alert: 'You must be the league owner to perform this action.'
+      redirect_to dashboard_league_path(@league), alert: I18n.t('controllers.leagues.unauthorized_admin')
     end
   end
 

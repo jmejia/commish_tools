@@ -7,7 +7,7 @@ module SpamProtectable
 
   included do
     # Check for honeypot field submissions (should be empty)
-    def check_honeypot(honeypot_field = :email_confirm)
+    def check_honeypot(honeypot_field: :email_confirm)
       return true if Rails.env.test?
 
       if params[honeypot_field].present?
@@ -19,7 +19,7 @@ module SpamProtectable
     end
 
     # Basic spam detection based on submission patterns
-    def check_spam_patterns(text_fields = [])
+    def check_spam_patterns(text_fields: [])
       return true if Rails.env.test?
       return true if text_fields.empty?
 
@@ -43,7 +43,7 @@ module SpamProtectable
     end
 
     # Time-based submission check (too fast = likely bot)
-    def check_submission_timing(form_start_time_param = :form_start_time)
+    def check_submission_timing(form_start_time_param: :form_start_time)
       # Skip timing check in test environment
       return true if Rails.env.test?
 

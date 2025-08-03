@@ -95,6 +95,78 @@ keyword_init: true)
     end
   end
 
+  class << self
+    private
+
+    # Class-level input sanitization
+    def sanitize_response_params(params)
+      sanitized = params.dup
+
+      if sanitized[:respondent_name].present?
+        # Strip HTML tags and harmful characters
+        name = ActionController::Base.helpers.strip_tags(sanitized[:respondent_name]).strip
+        sanitized[:respondent_name] = name.gsub(/[<>&"']/, '').truncate(50)
+      end
+
+      sanitized
+    end
+
+    def find_or_initialize_response_for_poll(poll, params)
+      identifier = generate_response_identifier(params[:respondent_name], poll.id)
+
+      poll.scheduling_responses.find_or_initialize_by(
+        respondent_identifier: identifier
+      ).tap do |response|
+        response.respondent_name = params[:respondent_name]
+        response.ip_address = params[:ip_address]
+        response.metadata = params[:metadata] || {}
+      end
+    end
+
+    def update_response_with_availabilities(response, params)
+      # Save the response first
+      return false unless response.save
+
+      # Update availabilities for each time slot
+      if params[:availabilities].present?
+        response.update_availabilities(params[:availabilities])
+      end
+
+      true
+    end
+
+    def find_existing_response_for_poll(poll, params)
+      return nil if params[:respondent_name].blank?
+
+      identifier = generate_response_identifier(params[:respondent_name], poll.id)
+      poll.scheduling_responses.find_by(respondent_identifier: identifier)
+    end
+
+    def generate_response_identifier(respondent_name, poll_id)
+      # Use name + poll id to create a consistent identifier
+      # This allows people to update their response later
+      Digest::SHA256.hexdigest("#{respondent_name.downcase.strip}-#{poll_id}")
+    end
+
+    def success_result(response:, message:)
+      RecordingResult.new(
+        success?: true,
+        response: response,
+        message: message,
+        error: nil
+      )
+    end
+
+    def failure_result(error_message)
+      RecordingResult.new(
+        success?: false,
+        response: nil,
+        message: nil,
+        error: error_message
+      )
+    end
+  end
+
   private
 
   # Input sanitization to prevent XSS attacks
@@ -106,73 +178,5 @@ keyword_init: true)
 
     # Limit length and remove potentially harmful characters
     self.respondent_name = respondent_name.gsub(/[<>&"']/, '').truncate(50)
-  end
-
-  # Class-level input sanitization
-  def self.sanitize_response_params(params)
-    sanitized = params.dup
-
-    if sanitized[:respondent_name].present?
-      # Strip HTML tags and harmful characters
-      name = ActionController::Base.helpers.strip_tags(sanitized[:respondent_name]).strip
-      sanitized[:respondent_name] = name.gsub(/[<>&"']/, '').truncate(50)
-    end
-
-    sanitized
-  end
-
-  def self.find_or_initialize_response_for_poll(poll, params)
-    identifier = generate_response_identifier(params[:respondent_name], poll.id)
-
-    poll.scheduling_responses.find_or_initialize_by(
-      respondent_identifier: identifier
-    ).tap do |response|
-      response.respondent_name = params[:respondent_name]
-      response.ip_address = params[:ip_address]
-      response.metadata = params[:metadata] || {}
-    end
-  end
-
-  def self.update_response_with_availabilities(response, params)
-    # Save the response first
-    return false unless response.save
-
-    # Update availabilities for each time slot
-    if params[:availabilities].present?
-      response.update_availabilities(params[:availabilities])
-    end
-
-    true
-  end
-
-  def self.find_existing_response_for_poll(poll, params)
-    return nil if params[:respondent_name].blank?
-
-    identifier = generate_response_identifier(params[:respondent_name], poll.id)
-    poll.scheduling_responses.find_by(respondent_identifier: identifier)
-  end
-
-  def self.generate_response_identifier(respondent_name, poll_id)
-    # Use name + poll id to create a consistent identifier
-    # This allows people to update their response later
-    Digest::SHA256.hexdigest("#{respondent_name.downcase.strip}-#{poll_id}")
-  end
-
-  def self.success_result(response:, message:)
-    RecordingResult.new(
-      success?: true,
-      response: response,
-      message: message,
-      error: nil
-    )
-  end
-
-  def self.failure_result(error_message)
-    RecordingResult.new(
-      success?: false,
-      response: nil,
-      message: nil,
-      error: error_message
-    )
   end
 end

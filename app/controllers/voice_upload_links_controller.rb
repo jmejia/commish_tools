@@ -13,8 +13,9 @@ class VoiceUploadLinksController < ApplicationController
   def create
     @voice_upload_link = @voice_clone.voice_upload_links.build(voice_upload_link_params)
     if @voice_upload_link.save
-      redirect_to league_league_membership_voice_clone_voice_upload_links_path(@voice_clone.league, @voice_clone.league_membership, @voice_clone),
-notice: 'Shareable upload link created.'
+      redirect_to league_league_membership_voice_clone_voice_upload_links_path(
+        @voice_clone.league, @voice_clone.league_membership, @voice_clone
+      ), notice: I18n.t('controllers.voice_upload_links.create_success')
     else
       render :new, status: :unprocessable_entity
     end
@@ -23,8 +24,9 @@ notice: 'Shareable upload link created.'
   def destroy
     @voice_upload_link = @voice_clone.voice_upload_links.find(params[:id])
     @voice_upload_link.destroy
-    redirect_to league_league_membership_voice_clone_voice_upload_links_path(@voice_clone.league, @voice_clone.league_membership, @voice_clone),
-notice: 'Shareable upload link deleted.'
+    redirect_to league_league_membership_voice_clone_voice_upload_links_path(
+      @voice_clone.league, @voice_clone.league_membership, @voice_clone
+    ), notice: I18n.t('controllers.voice_upload_links.delete_success')
   end
 
   private
@@ -35,7 +37,7 @@ notice: 'Shareable upload link deleted.'
 
   def ensure_league_owner
     unless @voice_clone.league.owner == current_user
-      redirect_to league_path(@voice_clone.league), alert: 'Only the league owner can manage upload links.'
+      redirect_to league_path(@voice_clone.league), alert: I18n.t('controllers.voice_upload_links.unauthorized')
     end
   end
 

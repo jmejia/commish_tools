@@ -35,7 +35,7 @@ class EventTimeSlot < ApplicationRecord
     ((summary[:available_ideal] * 2 + summary[:available_not_ideal]) / (total_responses * 2.0) * 100).round
   end
 
-  def formatted_time(timezone = nil)
+  def formatted_time(timezone: nil)
     # TODO: Respect league timezone when we add that feature
     time_format = '%B %d, %Y at %l:%M %p'
     starts_at.strftime(time_format).strip

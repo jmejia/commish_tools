@@ -21,11 +21,11 @@ class PublicSchedulingController < ApplicationController
   end
 
   def create
-    handle_response_submission(notice_message: 'Your availability has been recorded!')
+    handle_response_submission(notice_message: I18n.t('controllers.public_scheduling.availability_recorded'))
   end
 
   def update
-    handle_response_submission(notice_message: 'Your availability has been updated!')
+    handle_response_submission(notice_message: I18n.t('controllers.public_scheduling.availability_updated'))
   end
 
   def thank_you
@@ -41,14 +41,14 @@ class PublicSchedulingController < ApplicationController
     Rails.logger.info "Found poll: #{@poll&.id}, status: #{@poll&.status}"
   rescue ActiveRecord::RecordNotFound
     Rails.logger.error "Poll not found for token: #{params[:token]}"
-    render plain: 'Poll not found', status: :not_found
+    render plain: I18n.t('controllers.public_scheduling.poll_not_found'), status: :not_found
   end
 
   def check_poll_active
     Rails.logger.info "Checking poll active status: #{@poll&.status}"
     unless @poll.active?
       Rails.logger.warn "Poll is not active, rendering 403"
-      render plain: 'This poll is no longer accepting responses', status: :forbidden
+      render plain: I18n.t('controllers.public_scheduling.poll_inactive'), status: :forbidden
     end
   end
 

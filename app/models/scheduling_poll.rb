@@ -198,13 +198,6 @@ class SchedulingPoll < ApplicationRecord
 
   private
 
-  def generate_member_identifier(membership)
-    # Generate consistent identifier for a league member
-    # Uses the same logic as SchedulingResponse to match responses
-    name = membership.user.display_name
-    Digest::SHA256.hexdigest("#{name.downcase.strip}-#{id}")
-  end
-
   def generate_public_token
     loop do
       self.public_token = SecureRandom.urlsafe_base64(8)
@@ -220,13 +213,17 @@ class SchedulingPoll < ApplicationRecord
   def email_template
     deadline_text = closes_at ? "\n\nPlease respond by #{closes_at.strftime('%B %d, %Y at %l:%M %p')}." : ""
 
-    "Hi there!\n\nYou're invited to participate in the #{title} poll for #{league.name}.\n\nPlease let us know your availability by clicking the link below:\n#{public_url}#{deadline_text}\n\nThanks!"
+    "Hi there!\n\nYou're invited to participate in the #{title} poll for #{league.name}.\n\n" \
+    "Please let us know your availability by clicking the link below:\n" \
+    "#{public_url}#{deadline_text}\n\nThanks!"
   end
 
   def sleeper_template
     deadline_text = closes_at ? "\n📅 Deadline: #{closes_at.strftime('%B %d, %Y at %l:%M %p')}" : ""
 
-    "🏈 #{league.name} - #{title}\n\nPlease submit your availability: #{public_url}#{deadline_text}\n\nRespond ASAP to help us find the best time for everyone!"
+    "🏈 #{league.name} - #{title}\n\n" \
+    "Please submit your availability: #{public_url}#{deadline_text}\n\n" \
+    "Respond ASAP to help us find the best time for everyone!"
   end
 
   def generate_member_identifier(membership)

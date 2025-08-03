@@ -43,7 +43,7 @@ class SchedulingPollsController < ApplicationController
   def update
     if @poll.update(poll_params)
       redirect_to league_scheduling_poll_path(@league, @poll),
-                  notice: 'Poll updated successfully.'
+                  notice: I18n.t('controllers.scheduling_polls.update_success')
     else
       render :edit, status: :unprocessable_entity
     end
@@ -52,19 +52,19 @@ class SchedulingPollsController < ApplicationController
   def destroy
     @poll.destroy!
     redirect_to dashboard_league_path(@league),
-                notice: 'Poll deleted successfully.'
+                notice: I18n.t('controllers.scheduling_polls.delete_success')
   end
 
   def close
     @poll.close!
     redirect_to league_scheduling_poll_path(@league, @poll),
-                notice: 'Poll closed successfully.'
+                notice: I18n.t('controllers.scheduling_polls.close_success')
   end
 
   def reopen
     @poll.reopen!
     redirect_to league_scheduling_poll_path(@league, @poll),
-                notice: 'Poll reopened successfully.'
+                notice: I18n.t('controllers.scheduling_polls.reopen_success')
   end
 
   def export
@@ -92,21 +92,25 @@ class SchedulingPollsController < ApplicationController
     membership = current_user.league_memberships.find_by(league: @league)
     unless membership&.owner?
       redirect_to dashboard_league_path(@league),
-                  alert: 'You must be the league owner to create polls.'
+                  alert: I18n.t('controllers.scheduling_polls.unauthorized_create')
     end
   end
 
   def ensure_league_member
-    unless current_user.leagues.include?(@league) || @league.owner == current_user
-      redirect_to leagues_path, alert: 'You are not a member of this league.'
+    if current_user.leagues.include?(@league) || @league.owner == current_user
+      return
     end
+
+    redirect_to leagues_path, alert: I18n.t('controllers.scheduling_polls.not_member')
   end
 
   def authorize_poll_management!
-    unless @poll.created_by == current_user || @league.owner == current_user
-      redirect_to league_scheduling_poll_path(@league, @poll),
-                  alert: 'You are not authorized to manage this poll.'
+    if @poll.created_by == current_user || @league.owner == current_user
+      return
     end
+
+    redirect_to league_scheduling_poll_path(@league, @poll),
+                alert: I18n.t('controllers.scheduling_polls.unauthorized_manage')
   end
 
   def poll_params

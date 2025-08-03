@@ -3,7 +3,7 @@ class CreateDraftGrades < ActiveRecord::Migration[8.0]
     create_table :draft_grades do |t|
       t.references :league, null: false, foreign_key: true
       t.references :user, null: false, foreign_key: true
-      t.references :draft, null: true, foreign_key: true
+      t.references :draft, null: true, foreign_key: false
       t.string :grade, null: false
       t.integer :projected_rank, null: false
       t.decimal :projected_points, precision: 10, scale: 2

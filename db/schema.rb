@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_31_030207) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_02_192704) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -45,6 +45,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_31_030207) do
   create_table "draft_grades", force: :cascade do |t|
     t.bigint "league_id", null: false
     t.bigint "user_id", null: false
+    t.bigint "draft_id"
     t.string "grade", null: false
     t.integer "projected_rank", null: false
     t.decimal "projected_points", precision: 10, scale: 2
@@ -54,18 +55,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_31_030207) do
     t.jsonb "best_picks", default: []
     t.jsonb "worst_picks", default: []
     t.jsonb "analysis", default: {}
-    t.string "draft_id"
     t.datetime "calculated_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["analysis"], name: "index_draft_grades_on_analysis", using: :gin
     t.index ["calculated_at"], name: "index_draft_grades_on_calculated_at"
+    t.index ["draft_id"], name: "index_draft_grades_on_draft_id"
     t.index ["grade"], name: "index_draft_grades_on_grade"
     t.index ["league_id", "projected_rank"], name: "index_draft_grades_on_league_id_and_projected_rank"
     t.index ["league_id", "user_id", "draft_id"], name: "index_draft_grades_on_league_id_and_user_id_and_draft_id", unique: true
     t.index ["league_id"], name: "index_draft_grades_on_league_id"
     t.index ["position_grades"], name: "index_draft_grades_on_position_grades", using: :gin
-    t.index ["projected_rank"], name: "index_draft_grades_on_projected_rank"
     t.index ["user_id"], name: "index_draft_grades_on_user_id"
   end
 
@@ -109,6 +109,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_31_030207) do
     t.index ["completed_at"], name: "index_drafts_on_completed_at"
     t.index ["league_id", "season_year"], name: "index_drafts_on_league_id_and_season_year"
     t.index ["league_id"], name: "index_drafts_on_league_id"
+    t.index ["settings"], name: "index_drafts_on_settings", using: :gin
     t.index ["sleeper_draft_id"], name: "index_drafts_on_sleeper_draft_id", unique: true
     t.index ["status"], name: "index_drafts_on_status"
   end
@@ -438,6 +439,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_31_030207) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "draft_grades", "drafts"
   add_foreign_key "draft_grades", "leagues"
   add_foreign_key "draft_grades", "users"
   add_foreign_key "draft_picks", "drafts"

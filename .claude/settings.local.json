@@ -46,7 +46,16 @@
       "Bash(gh auth:*)",
       "Bash(rails console:*)",
       "Bash(ruby:*)",
-      "Bash(bundle exec rake:*)"
+      "Bash(bundle exec rake:*)",
+      "mcp__deepwiki__read_wiki_structure",
+      "mcp__deepwiki__ask_question",
+      "Bash(gem list)",
+      "Bash(bundle exec rubocop:*)",
+      "Bash(gh pr view:*)",
+      "Bash(gh pr comment:*)",
+      "Bash(gh api:*)",
+      "Bash(bundle exec ruby:*)",
+      "WebFetch(domain:api.github.com)"
     ],
     "deny": []
   },

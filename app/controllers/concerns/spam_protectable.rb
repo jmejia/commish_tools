@@ -9,7 +9,7 @@ module SpamProtectable
     # Check for honeypot field submissions (should be empty)
     def check_honeypot(honeypot_field = :email_confirm)
       return true if Rails.env.test?
-      
+
       if params[honeypot_field].present?
         Rails.logger.warn "Honeypot triggered from IP: #{request.remote_ip}, UA: #{request.user_agent}"
         render_spam_detected

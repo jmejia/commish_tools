@@ -40,6 +40,34 @@ module Scheduling
       end
     end
 
+    # Public methods for testing - these expose the utility methods for backward compatibility
+    def self.sanitize_params(params)
+      new(poll: nil, request: nil, notice_message: nil).sanitize_response_params(params)
+    end
+
+    def self.generate_identifier(respondent_name, poll_id)
+      new(poll: nil, request: nil, notice_message: nil).generate_response_identifier(respondent_name, poll_id)
+    end
+
+    # Public utility methods (extracted from private to support testing interface)
+    def sanitize_response_params(params)
+      sanitized = params.dup
+
+      if sanitized[:respondent_name].present?
+        # Strip HTML tags and harmful characters
+        name = ActionController::Base.helpers.strip_tags(sanitized[:respondent_name]).strip
+        sanitized[:respondent_name] = name.gsub(/[<>&"']/, '').truncate(50)
+      end
+
+      sanitized
+    end
+
+    def generate_response_identifier(respondent_name, poll_id)
+      # Use name + poll id to create a consistent identifier
+      # This allows people to update their response later
+      Digest::SHA256.hexdigest("#{respondent_name.downcase.strip}-#{poll_id}")
+    end
+
     private
 
     attr_reader :poll, :request, :notice_message
@@ -64,19 +92,6 @@ module Scheduling
       Rails.logger.error "Error recording response: #{exception.message}"
       Rails.logger.error exception.backtrace.join("\n")
       failure_result("An error occurred while recording your response: #{exception.message}")
-    end
-
-    # Class-level input sanitization
-    def sanitize_response_params(params)
-      sanitized = params.dup
-
-      if sanitized[:respondent_name].present?
-        # Strip HTML tags and harmful characters
-        name = ActionController::Base.helpers.strip_tags(sanitized[:respondent_name]).strip
-        sanitized[:respondent_name] = name.gsub(/[<>&"']/, '').truncate(50)
-      end
-
-      sanitized
     end
 
     def find_or_initialize_response_for_poll(params)
@@ -108,12 +123,6 @@ module Scheduling
 
       identifier = generate_response_identifier(params[:respondent_name], poll.id)
       poll.scheduling_responses.find_by(respondent_identifier: identifier)
-    end
-
-    def generate_response_identifier(respondent_name, poll_id)
-      # Use name + poll id to create a consistent identifier
-      # This allows people to update their response later
-      Digest::SHA256.hexdigest("#{respondent_name.downcase.strip}-#{poll_id}")
     end
 
     def success_result(response:, message:)

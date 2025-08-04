@@ -25,13 +25,11 @@ class SchedulingResponse < ApplicationRecord
 
   # Backward compatibility methods for tests
   def self.sanitize_response_params(params)
-    recorder = Scheduling::ResponseRecorder.new(poll: nil, request: nil, notice_message: nil)
-    recorder.send(:sanitize_response_params, params)
+    Scheduling::ResponseRecorder.sanitize_params(params)
   end
 
   def self.generate_response_identifier(respondent_name, poll_id)
-    recorder = Scheduling::ResponseRecorder.new(poll: nil, request: nil, notice_message: nil)
-    recorder.send(:generate_response_identifier, respondent_name, poll_id)
+    Scheduling::ResponseRecorder.generate_identifier(respondent_name, poll_id)
   end
 
   def available_for?(event_time_slot)

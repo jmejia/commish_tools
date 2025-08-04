@@ -46,7 +46,12 @@
       "Bash(gh auth:*)",
       "Bash(rails console:*)",
       "Bash(ruby:*)",
-      "Bash(bundle exec rake:*)"
+      "Bash(bundle exec rake:*)",
+      "mcp__deepwiki__read_wiki_structure",
+      "mcp__linear-server__list_teams",
+      "mcp__linear-server__create_issue",
+      "mcp__linear__get_issue",
+      "mcp__linear-server__get_issue"
     ],
     "deny": []
   },

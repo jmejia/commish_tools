@@ -121,5 +121,4 @@ class Scheduling::PollsController < ApplicationController
       ]
     )
   end
-   )
- end
+end

@@ -1,7 +1,6 @@
 # Represents a scheduling poll for league events (draft, playoffs, etc.)
 # Allows commissioners to create polls with multiple time slots and collect availability from members
 class SchedulingPoll < ApplicationRecord
-
   belongs_to :league
   belongs_to :created_by, class_name: 'User'
 

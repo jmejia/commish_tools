@@ -1,7 +1,6 @@
 # Represents a response to a scheduling poll from a league member
 # Tracks who responded and their availability for each time slot
 class SchedulingResponse < ApplicationRecord
-
   belongs_to :scheduling_poll
   has_many :slot_availabilities, dependent: :destroy
 
@@ -56,7 +55,6 @@ class SchedulingResponse < ApplicationRecord
       end
     end
   end
-
 
   private
 

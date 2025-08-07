@@ -1,6 +1,6 @@
 # Handles public responses to scheduling polls without authentication
 # League members can submit their availability via a unique link
-class PublicSchedulingController < ApplicationController
+class Scheduling::PublicController < ApplicationController
   include RateLimitable
   include SpamProtectable
 
@@ -21,11 +21,11 @@ class PublicSchedulingController < ApplicationController
   end
 
   def create
-    handle_response_submission(notice_message: 'Your availability has been recorded!')
+    handle_response_submission(notice_message: I18n.t('controllers.public_scheduling.availability_recorded'))
   end
 
   def update
-    handle_response_submission(notice_message: 'Your availability has been updated!')
+    handle_response_submission(notice_message: I18n.t('controllers.public_scheduling.availability_updated'))
   end
 
   def thank_you
@@ -41,14 +41,14 @@ class PublicSchedulingController < ApplicationController
     Rails.logger.info "Found poll: #{@poll&.id}, status: #{@poll&.status}"
   rescue ActiveRecord::RecordNotFound
     Rails.logger.error "Poll not found for token: #{params[:token]}"
-    render plain: 'Poll not found', status: :not_found
+    render plain: I18n.t('controllers.public_scheduling.poll_not_found'), status: :not_found
   end
 
   def check_poll_active
     Rails.logger.info "Checking poll active status: #{@poll&.status}"
     unless @poll.active?
       Rails.logger.warn "Poll is not active, rendering 403"
-      render plain: 'This poll is no longer accepting responses', status: :forbidden
+      render plain: I18n.t('controllers.public_scheduling.poll_inactive'), status: :forbidden
     end
   end
 
@@ -74,9 +74,9 @@ class PublicSchedulingController < ApplicationController
     # Each security check method renders an error response and returns false if it fails
     # For before_action callbacks, we need to stop execution if any check fails
     return unless check_rate_limit(:public_response, request.remote_ip)
-    return unless check_honeypot(:email_confirm)
-    return unless check_spam_patterns([:respondent_name])
-    nil unless check_submission_timing(:form_start_time)
+    return unless check_honeypot(honeypot_field: :email_confirm)
+    return unless check_spam_patterns(text_fields: [:respondent_name])
+    nil unless check_submission_timing(form_start_time_param: :form_start_time)
   end
 
   def handle_response_submission(notice_message:)
@@ -92,31 +92,9 @@ class PublicSchedulingController < ApplicationController
 
   def handle_success(result)
     # Broadcast updates to all viewers of the poll
-    broadcast_poll_updates(result.response)
+    result.response.scheduling_poll.broadcast_updates
 
     redirect_to public_scheduling_thank_you_path(@poll.public_token), notice: result.notice
-  end
-
-  def broadcast_poll_updates(response)
-    poll = response.scheduling_poll
-
-    # Reload poll with all associations to ensure fresh data
-    poll = SchedulingPoll.includes(
-      :league, 
-      :event_time_slots,
-      scheduling_responses: { slot_availabilities: :event_time_slot }
-    ).find(poll.id)
-    
-    # Broadcast the entire results section as one update
-    Turbo::StreamsChannel.broadcast_replace_to(
-      "scheduling_poll_#{poll.id}",
-      target: "poll-results",
-      partial: "scheduling_polls/results",
-      locals: { 
-        poll: poll, 
-        responses: poll.scheduling_responses
-      }
-    )
   end
 
   def handle_failure(result)

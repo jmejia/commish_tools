@@ -24,15 +24,15 @@
               <div class="flex justify-center">
                 <% if response.available_for?(slot) %>
                   <div class="w-full h-10 bg-green-500/80 rounded-lg flex items-center justify-center shadow-lg shadow-green-500/20">
-                    <span class="text-white font-medium text-sm">Available</span>
+                    <span class="text-white font-medium text-sm">Works well</span>
                   </div>
-                <% elsif response.maybe_for?(slot) %>
+                <% elsif response.available_not_ideal_for?(slot) %>
                   <div class="w-full h-10 bg-yellow-500/80 rounded-lg flex items-center justify-center shadow-lg shadow-yellow-500/20">
-                    <span class="text-gray-900 font-medium text-sm">Maybe</span>
+                    <span class="text-gray-900 font-medium text-sm">Not ideal</span>
                   </div>
                 <% else %>
                   <div class="w-full h-10 bg-gray-700/50 rounded-lg flex items-center justify-center">
-                    <span class="text-gray-500 text-sm">Unavailable</span>
+                    <span class="text-gray-500 text-sm">Not available</span>
                   </div>
                 <% end %>
               </div>
@@ -49,11 +49,11 @@
               <div class="flex flex-col space-y-1">
                 <div class="flex items-center justify-center space-x-1">
                   <span class="w-2 h-2 bg-green-500 rounded-full"></span>
-                  <span class="text-xs text-gray-300"><%= summary[:available] %></span>
+                  <span class="text-xs text-gray-300"><%= summary[:available_ideal] %></span>
                 </div>
                 <div class="flex items-center justify-center space-x-1">
                   <span class="w-2 h-2 bg-yellow-500 rounded-full"></span>
-                  <span class="text-xs text-gray-300"><%= summary[:maybe] %></span>
+                  <span class="text-xs text-gray-300"><%= summary[:available_not_ideal] %></span>
                 </div>
                 <div class="text-xs text-cyan-400 font-medium"><%= slot.availability_score %>%</div>
               </div>

@@ -9,10 +9,12 @@ RSpec.configure do |config|
     driven_by :selenium, using: :headless_firefox, screen_size: [1400, 1400]
   end
 
-  # Support for feature specs with JS
+  # Support for feature specs - use rack_test by default, but allow JS tests to use proper driver
   config.before(:each, type: :feature) do |example|
     if example.metadata[:js]
       Capybara.current_driver = :headless_firefox
+    else
+      Capybara.current_driver = :rack_test
     end
   end
 

@@ -1,5 +1,5 @@
 # Manages league context editing for league owners
-class LeagueContextsController < ApplicationController
+class Leagues::ContextsController < ApplicationController
   before_action :set_league
   before_action :ensure_league_owner
 
@@ -13,7 +13,7 @@ class LeagueContextsController < ApplicationController
     @league_context = @league.league_context || @league.build_league_context
 
     if @league_context.update(league_context_params)
-      redirect_to dashboard_league_path(@league), notice: 'League context updated successfully.'
+      redirect_to dashboard_league_path(@league), notice: I18n.t('controllers.league_contexts.update_success')
     else
       render :edit, status: :unprocessable_entity
     end
@@ -26,18 +26,19 @@ class LeagueContextsController < ApplicationController
     Rails.logger.info "Set league #{@league.id} for context action"
   rescue ActiveRecord::RecordNotFound
     Rails.logger.warn "League not found with id: #{params[:league_id]}"
-    redirect_to leagues_path, alert: 'League not found.'
+    redirect_to leagues_path, alert: I18n.t('controllers.league_contexts.not_found')
   end
 
   def ensure_league_owner
     membership = current_user.league_memberships.find_by(league: @league)
     unless membership&.owner?
-      Rails.logger.warn "User #{current_user.id} attempted to edit context for league #{@league.id} without owner rights"
-      redirect_to dashboard_league_path(@league), alert: 'You must be the league owner to edit league context.'
+      Rails.logger.warn "User #{current_user.id} attempted to edit context for league " \
+                         "#{@league.id} without owner rights"
+      redirect_to dashboard_league_path(@league), alert: I18n.t('controllers.league_contexts.unauthorized_edit')
     end
   end
 
   def league_context_params
-    params.require(:league_context).permit(:nature, :tone, :rivalries, :history, :response_style)
+    params.expect(league_context: [:nature, :tone, :rivalries, :history, :response_style])
   end
 end

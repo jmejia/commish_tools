@@ -19,11 +19,13 @@ class VoiceClonesController < ApplicationController
     if @voice_clone.save
       if @voice_clone.audio_file.attached?
         VoiceProcessingJob.perform_later(@voice_clone.id)
-        redirect_to league_league_membership_voice_clone_path(@league_membership.league, @league_membership, @voice_clone),
-                    notice: 'Voice sample uploaded successfully and is being processed.'
+        redirect_to league_league_membership_voice_clone_path(
+          @league_membership.league, @league_membership, @voice_clone
+        ), notice: I18n.t('controllers.voice_clones.upload_processing')
       else
-        redirect_to league_league_membership_voice_clone_path(@league_membership.league, @league_membership, @voice_clone),
-                    notice: 'Voice clone created. Please upload an audio file to begin processing.'
+        redirect_to league_league_membership_voice_clone_path(
+          @league_membership.league, @league_membership, @voice_clone
+        ), notice: I18n.t('controllers.voice_clones.created_upload_needed')
       end
     else
       render :new, status: :unprocessable_entity
@@ -34,11 +36,13 @@ class VoiceClonesController < ApplicationController
     if @voice_clone.update(voice_clone_params)
       if @voice_clone.audio_file.attached? && voice_clone_params[:audio_file].present?
         VoiceProcessingJob.perform_later(@voice_clone.id)
-        redirect_to league_league_membership_voice_clone_path(@league_membership.league, @league_membership, @voice_clone),
-                    notice: 'Voice sample updated successfully and is being processed.'
+        redirect_to league_league_membership_voice_clone_path(
+          @league_membership.league, @league_membership, @voice_clone
+        ), notice: I18n.t('controllers.voice_clones.update_processing')
       else
-        redirect_to league_league_membership_voice_clone_path(@league_membership.league, @league_membership, @voice_clone),
-                    notice: 'Voice clone updated successfully.'
+        redirect_to league_league_membership_voice_clone_path(
+          @league_membership.league, @league_membership, @voice_clone
+        ), notice: I18n.t('controllers.voice_clones.update_success')
       end
     else
       render :edit, status: :unprocessable_entity
@@ -47,7 +51,7 @@ class VoiceClonesController < ApplicationController
 
   def destroy
     @voice_clone.destroy
-    redirect_to profile_path, notice: 'Voice clone deleted successfully.'
+    redirect_to profile_path, notice: I18n.t('controllers.voice_clones.delete_success')
   end
 
   private
@@ -62,11 +66,11 @@ class VoiceClonesController < ApplicationController
 
   def ensure_own_membership
     unless @league_membership.user == current_user
-      redirect_to league_path(@league_membership.league), alert: 'You can only manage your own voice clone.'
+      redirect_to league_path(@league_membership.league), alert: I18n.t('controllers.voice_clones.unauthorized')
     end
   end
 
   def voice_clone_params
-    params.require(:voice_clone).permit(:audio_file)
+    params.expect(voice_clone: [:audio_file])
   end
 end

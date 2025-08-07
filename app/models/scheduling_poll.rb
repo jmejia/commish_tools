@@ -1,9 +1,6 @@
 # Represents a scheduling poll for league events (draft, playoffs, etc.)
 # Allows commissioners to create polls with multiple time slots and collect availability from members
 class SchedulingPoll < ApplicationRecord
-  # Result object for poll creation operations
-  CreationResult = Struct.new(:success?, :poll, :message, :error, keyword_init: true)
-
   belongs_to :league
   belongs_to :created_by, class_name: 'User'
 
@@ -44,25 +41,10 @@ class SchedulingPoll < ApplicationRecord
     includes(:event_time_slots, scheduling_responses: { slot_availabilities: :event_time_slot })
   }
 
-  # Domain method to create a poll with proper validation and error handling
-  # Replaces PollCreator service object
+  # Delegate to PORO for poll creation
   def self.create_for_league(league:, created_by:, params:)
-    poll = league.scheduling_polls.build(params)
-    poll.created_by = created_by
-
-    if poll.save
-      CreationResult.new(
-        success?: true,
-        poll: poll,
-        message: 'Poll created successfully.'
-      )
-    else
-      CreationResult.new(
-        success?: false,
-        poll: poll,
-        error: poll.errors.full_messages.to_sentence
-      )
-    end
+    creator = Scheduling::PollCreator.new(league: league, created_by: created_by)
+    creator.create(params)
   end
 
   def response_count
@@ -107,6 +89,11 @@ class SchedulingPoll < ApplicationRecord
     update!(status: :active)
   end
 
+  def broadcast_updates
+    broadcaster = Scheduling::Broadcaster.new(self)
+    broadcaster.broadcast_updates
+  end
+
   def public_url
     # In development/test, use a default host if not configured
     url_options = Rails.application.config.action_mailer.default_url_options || {}
@@ -145,45 +132,11 @@ class SchedulingPoll < ApplicationRecord
   end
 
   def to_csv
-    require 'csv'
-
-    CSV.generate(headers: true) do |csv|
-      # Header row
-      headers = ['Member Name'] + event_time_slots.map(&:display_label)
-      csv << headers
-
-      # Response rows
-      scheduling_responses.includes(slot_availabilities: :event_time_slot).each do |response|
-        row = [response.respondent_name]
-
-        event_time_slots.each do |slot|
-          availability = response.slot_availabilities.find { |sa| sa.event_time_slot_id == slot.id }
-          row << case availability&.availability
-                 when 'available' then 'Available'
-                 when 'maybe' then 'Maybe'
-                 else 'Unavailable'
-                 end
-        end
-
-        csv << row
-      end
-
-      # Add non-respondents
-      non_respondents.each do |membership|
-        row = [membership.user.display_name] + (['No Response'] * event_time_slots.count)
-        csv << row
-      end
-    end
+    exporter = Scheduling::CsvExporter.new(self)
+    exporter.export
   end
 
   private
-
-  def generate_member_identifier(membership)
-    # Generate consistent identifier for a league member
-    # Uses the same logic as SchedulingResponse to match responses
-    name = membership.user.display_name
-    Digest::SHA256.hexdigest("#{name.downcase.strip}-#{id}")
-  end
 
   def generate_public_token
     loop do
@@ -200,13 +153,17 @@ class SchedulingPoll < ApplicationRecord
   def email_template
     deadline_text = closes_at ? "\n\nPlease respond by #{closes_at.strftime('%B %d, %Y at %l:%M %p')}." : ""
 
-    "Hi there!\n\nYou're invited to participate in the #{title} poll for #{league.name}.\n\nPlease let us know your availability by clicking the link below:\n#{public_url}#{deadline_text}\n\nThanks!"
+    "Hi there!\n\nYou're invited to participate in the #{title} poll for #{league.name}.\n\n" \
+    "Please let us know your availability by clicking the link below:\n" \
+    "#{public_url}#{deadline_text}\n\nThanks!"
   end
 
   def sleeper_template
     deadline_text = closes_at ? "\n📅 Deadline: #{closes_at.strftime('%B %d, %Y at %l:%M %p')}" : ""
 
-    "🏈 #{league.name} - #{title}\n\nPlease submit your availability: #{public_url}#{deadline_text}\n\nRespond ASAP to help us find the best time for everyone!"
+    "🏈 #{league.name} - #{title}\n\n" \
+    "Please submit your availability: #{public_url}#{deadline_text}\n\n" \
+    "Respond ASAP to help us find the best time for everyone!"
   end
 
   def generate_member_identifier(membership)

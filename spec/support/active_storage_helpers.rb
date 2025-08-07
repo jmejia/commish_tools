@@ -1,7 +1,7 @@
 module ActiveStorageHelpers
   def attach_test_audio(record, attachment_name, filename)
     # Create a minimal MP3 file for testing
-    audio_content = File.read(Rails.root.join('spec', 'fixtures', 'sample.mp3'))
+    audio_content = Rails.root.join('spec', 'fixtures', 'sample.mp3').read
 
     record.public_send(attachment_name).attach(
       io: StringIO.new(audio_content),

@@ -70,7 +70,7 @@ class ChatgptResponseGenerationJob < ApplicationJob
   end
 
   def build_generation_prompt(question, league_context)
-    context_summary = league_context.values.select(&:present?).join(', ')
+    context_summary = league_context.values.compact_blank.join(', ')
     "Question: #{question}\nLeague Context: #{context_summary}"
   end
 end

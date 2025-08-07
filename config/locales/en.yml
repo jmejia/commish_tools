@@ -29,3 +29,46 @@
 
 en:
   hello: "Hello world"
+  
+  controllers:
+    league_contexts:
+      update_success: "League context updated successfully."
+      not_found: "League not found."
+      unauthorized_edit: "You must be the league owner to edit league context."
+    
+    leagues:
+      connect_sleeper_first: "Please connect your Sleeper account first."
+      no_leagues_found: "No leagues found for your Sleeper account."
+      update_success: "League was successfully updated."
+      delete_success: "League was successfully deleted."
+      not_found: "League not found."
+      not_member: "You are not a member of this league."
+      unauthorized_admin: "You must be the league owner to perform this action."
+    
+    public_scheduling:
+      availability_recorded: "Your availability has been recorded!"
+      availability_updated: "Your availability has been updated!"
+      poll_not_found: "Poll not found"
+      poll_inactive: "This poll is no longer accepting responses"
+    
+    scheduling_polls:
+      update_success: "Poll updated successfully."
+      delete_success: "Poll deleted successfully."
+      close_success: "Poll closed successfully."
+      reopen_success: "Poll reopened successfully."
+      unauthorized_create: "You must be the league owner to create polls."
+      not_member: "You are not a member of this league."
+      unauthorized_manage: "You are not authorized to manage this poll."
+    
+    voice_clones:
+      upload_processing: "Voice sample uploaded successfully and is being processed."
+      created_upload_needed: "Voice clone created. Please upload an audio file to begin processing."
+      update_processing: "Voice sample updated successfully and is being processed."
+      update_success: "Voice clone updated successfully."
+      delete_success: "Voice clone deleted successfully."
+      unauthorized: "You can only manage your own voice clone."
+    
+    voice_upload_links:
+      create_success: "Shareable upload link created."
+      delete_success: "Shareable upload link deleted."
+      unauthorized: "Only the league owner can manage upload links."

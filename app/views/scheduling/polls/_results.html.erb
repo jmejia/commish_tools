@@ -1,6 +1,6 @@
 <div class="space-y-6">
   <!-- Availability Grid (Heatmap) -->
-  <%= render "scheduling_polls/availability_grid", poll: poll, responses: responses %>
+  <%= render "scheduling/polls/availability_grid", poll: poll, responses: responses %>
 
   <!-- Time Slots Summary -->
   <div class="bg-gray-800/50 rounded-xl border border-gray-700 p-6">
@@ -25,11 +25,11 @@
             <div class="mt-3 flex items-center space-x-6">
               <div class="flex items-center space-x-2">
                 <span class="w-3 h-3 bg-green-500 rounded-full"></span>
-                <span class="text-sm text-gray-300">Available: <%= summary[:available] %></span>
+                <span class="text-sm text-gray-300">Works well: <%= summary[:available_ideal] %></span>
               </div>
               <div class="flex items-center space-x-2">
                 <span class="w-3 h-3 bg-yellow-500 rounded-full"></span>
-                <span class="text-sm text-gray-300">Maybe: <%= summary[:maybe] %></span>
+                <span class="text-sm text-gray-300">Not ideal: <%= summary[:available_not_ideal] %></span>
               </div>
               <div class="flex items-center space-x-2">
                 <span class="w-3 h-3 bg-red-500 rounded-full"></span>
@@ -39,11 +39,11 @@
             
             <!-- Progress bar visualization -->
             <div class="mt-3 h-6 bg-gray-600 rounded-full overflow-hidden flex">
-              <% if summary[:available] > 0 %>
-                <div class="bg-green-500 h-full transition-all duration-500" style="width: <%= (summary[:available].to_f / poll.response_count * 100).round %>%"></div>
+              <% if summary[:available_ideal] > 0 %>
+                <div class="bg-green-500 h-full transition-all duration-500" style="width: <%= (summary[:available_ideal].to_f / poll.response_count * 100).round %>%"></div>
               <% end %>
-              <% if summary[:maybe] > 0 %>
-                <div class="bg-yellow-500 h-full transition-all duration-500" style="width: <%= (summary[:maybe].to_f / poll.response_count * 100).round %>%"></div>
+              <% if summary[:available_not_ideal] > 0 %>
+                <div class="bg-yellow-500 h-full transition-all duration-500" style="width: <%= (summary[:available_not_ideal].to_f / poll.response_count * 100).round %>%"></div>
               <% end %>
               <% if summary[:unavailable] > 0 %>
                 <div class="bg-red-500 h-full transition-all duration-500" style="width: <%= (summary[:unavailable].to_f / poll.response_count * 100).round %>%"></div>
@@ -57,7 +57,7 @@
     </div>
 
     <!-- Optimal Slots Recommendation -->
-    <%= render "scheduling_polls/optimal_slots", poll: poll %>
+    <%= render "scheduling/polls/optimal_slots", poll: poll %>
   </div>
 
   <!-- Non-Respondents Section -->

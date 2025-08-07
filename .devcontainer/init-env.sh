@@ -4,12 +4,18 @@
 
 set -e
 
+# shellcheck disable=SC1090,SC1091
+
 echo "🔧 Initializing devcontainer environment..."
 
 # Load environment variables from .env.devcontainer if it exists
 if [ -f "/workspaces/commish_tools/.env.devcontainer" ]; then
     echo "📁 Loading environment variables from .env.devcontainer"
-    export $(grep -v '^#' /workspaces/commish_tools/.env.devcontainer | xargs)
+    # Use set -a to automatically export all variables from the file
+    set -a
+    # shellcheck source=/dev/null
+    . "/workspaces/commish_tools/.env.devcontainer"
+    set +a
 else
     echo "⚠️  No .env.devcontainer file found. Copy .env.devcontainer.example to .env.devcontainer and configure your environment variables."
 fi
@@ -49,9 +55,34 @@ fi
 
 # Source the environment file for the current session
 if [ -f "/workspaces/commish_tools/.env.devcontainer" ]; then
-    # Add to bash profile so variables are available in all sessions
-    echo "# Load devcontainer environment variables" >> ~/.bashrc
-    echo "export \$(grep -v '^#' /workspaces/commish_tools/.env.devcontainer | xargs)" >> ~/.bashrc
+    # Create a reusable environment loader script
+    cat > ~/.load-devcontainer-env.sh << 'EOF'
+#!/bin/bash
+if [ -f "/workspaces/commish_tools/.env.devcontainer" ]; then
+    # Use set -a to automatically export all variables from the file
+    set -a
+    # shellcheck source=/dev/null
+    . "/workspaces/commish_tools/.env.devcontainer"
+    set +a
+fi
+EOF
+    chmod +x ~/.load-devcontainer-env.sh
+    
+    # Add to multiple shell profiles so variables are available in all sessions
+    for profile in ~/.bashrc ~/.zshrc ~/.profile ~/.bash_profile; do
+        # Create profile file if it doesn't exist (for shells that might be installed later)
+        touch "$profile"
+        
+        # Add environment loader if not already present
+        if ! grep -q "load-devcontainer-env.sh" "$profile" 2>/dev/null; then
+            echo "" >> "$profile"
+            echo "# Load devcontainer environment variables" >> "$profile"
+            echo "source ~/.load-devcontainer-env.sh" >> "$profile"
+        fi
+    done
+    
+    # Load immediately for current session
+    source ~/.load-devcontainer-env.sh
 fi
 
 echo "🎉 Devcontainer environment initialization complete!"

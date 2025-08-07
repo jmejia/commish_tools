@@ -95,9 +95,9 @@ RSpec.feature 'Draft Scheduling', type: :feature do
     within all('.bg-gray-700\\/50').first do
       choose 'Available but not ideal'
     end
-
-    # click_button 'Update Response' # TODO: Fix update response button logic
-    click_button 'Submit Response' # Using generic submit button for now
+    
+    # The button should say "Update Response" since we're updating an existing response
+    click_button 'Update Response'
 
     expect(page).to have_content('Your availability has been updated!')
   end

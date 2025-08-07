@@ -11,7 +11,7 @@ RSpec.describe 'Voice Clone Management', type: :feature, js: true do
   end
 
   describe 'Creating a new voice clone' do
-    it 'allows a league owner to upload a voice sample' do # , :pending, "Fails due to ActiveStorage URL helper issue in show view" do
+    it 'allows a league owner to upload a voice sample', :js => true do
       visit dashboard_league_path(league)
 
       click_link '👤 My Profile'

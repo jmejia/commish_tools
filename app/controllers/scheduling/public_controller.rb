@@ -74,9 +74,9 @@ class Scheduling::PublicController < ApplicationController
     # Each security check method renders an error response and returns false if it fails
     # For before_action callbacks, we need to stop execution if any check fails
     return unless check_rate_limit(:public_response, request.remote_ip)
-    return unless check_honeypot(:email_confirm)
-    return unless check_spam_patterns([:respondent_name])
-    nil unless check_submission_timing(:form_start_time)
+    return unless check_honeypot(honeypot_field: :email_confirm)
+    return unless check_spam_patterns(text_fields: [:respondent_name])
+    nil unless check_submission_timing(form_start_time_param: :form_start_time)
   end
 
   def handle_response_submission(notice_message:)

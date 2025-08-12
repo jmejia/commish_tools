@@ -60,7 +60,7 @@ gem "faraday"
 gem "faraday-multipart"
 gem "faraday-retry"
 gem "aws-sdk-s3"
-gem 'sleeper_ff'
+gem 'sleeper_ff', path: '../sleeper_ff'
 gem "ruby-openai"
 
 # Audio processing
